@@ -9,7 +9,7 @@ import { RegisterComponent } from './app/register/register.component';
 import { HomeComponent } from './app/home/home.component';
 import { Routes } from '@angular/router';
 import { GestionUsuariosComponent } from './app/gestion-usuarios/gestion-usuarios.component';
-
+import { provideAnimations } from '@angular/platform-browser/animations';
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
@@ -23,6 +23,7 @@ bootstrapApplication(AppComponent, {
   providers: [
     provideRouter(routes),
     provideHttpClient(),
-    importProvidersFrom(FormsModule)
+    importProvidersFrom(FormsModule),
+    provideAnimations()
   ]
 }).catch(err => console.error(err));
