@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service'; // Asegúrate de tener este servicio
 import { HttpClientModule } from '@angular/common/http';
-
+import { LoadingService } from '../../core/services/loading.service';
 @Component({
   selector: 'app-register',
   standalone: true,
@@ -26,12 +26,24 @@ export class RegisterComponent {
   loading: boolean = false;
   successMessage: string = '';
 
-  constructor(private authService: AuthService, private router: Router) {}
 
- onSubmit() {
+  constructor(private authService: AuthService, private router: Router,private loadingService: LoadingService,) {}
+
+onSubmit() {
+
+  this.loadingService.show();
+    
+    // Simula una llamada al backend (puedes reemplazar con tu lógica real)
+    setTimeout(() => {
+      this.loadingService.hide();
+      this.router.navigate(['/login']);
+    }, 2000); // Simula 2 segundos de carga nuevo
     // Resetear mensajes
     this.errorMessage = '';
     this.successMessage = '';
+    if (this.loading) return; // Evita múltiples envíos
+
+    this.loading = true;
     
     // Validación de campos requeridos
     if (!this.registerRequest.nombre || !this.registerRequest.email || !this.registerRequest.clave) {
@@ -59,8 +71,8 @@ export class RegisterComponent {
     }
 
     // Activar indicador de carga
-    this.loading = true;
-
+    
+this.loading = true;
     // Llamada al servicio para registrar
     this.authService.register(this.registerRequest).subscribe({
       next: (response) => {
@@ -97,4 +109,5 @@ export class RegisterComponent {
     this.errorMessage = '';
     this.successMessage = '';
   }
+  
 }
