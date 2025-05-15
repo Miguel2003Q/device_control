@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
-import { LoginComponent } from './login/login.component';
-import { RegisterComponent } from './register/register.component';
+import { LoginComponent } from './public/login/login.component';
+import { RegisterComponent } from './admin/register/register.component';
 
 export const routes: Routes = [
     {
@@ -15,15 +15,13 @@ export const routes: Routes = [
     {
         path: 'register',
         component: RegisterComponent
-        
-
     },
     {
         path: 'home',
-        loadComponent: () => import('./home/home.component').then(m => m.HomeComponent)
+        loadComponent: () => import('./admin/home/home.component').then(m => m.HomeComponent)
     },
     {
         path: 'gestion-usuarios',
-        loadComponent: () => import('./gestion-usuarios/gestion-usuarios.component').then(m => m.GestionUsuariosComponent)
+        loadComponent: () => import('./admin/gestion-usuarios/gestion-usuarios.component').then(m => m.GestionUsuariosComponent)
     }
 ];

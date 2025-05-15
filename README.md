@@ -1,5 +1,8 @@
 # DeviceControl
 
+## Observaciones
+- En angular.json se debe poner la ruta de assets
+
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.9.
 
 ## Development server

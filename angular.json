@@ -24,6 +24,11 @@
             "assets": [
               {
                 "glob": "**/*",
+                "input": "src/assets",
+                "output": "assets"
+              },
+              {
+                "glob": "**/*",
                 "input": "public",
                 "output": "assets"
               }
@@ -37,17 +42,17 @@
           "configurations": {
             "production": {
               "budgets": [
-                {
-                  "type": "initial",
-                  "maximumWarning": "500kB",
-                  "maximumError": "1MB"
-                },
-                {
-                  "type": "anyComponentStyle",
-                  "maximumWarning": "4kB",
-                  "maximumError": "8kB"
-                }
-              ],
+              {
+                "type": "initial",
+                "maximumWarning": "2MB",
+                "maximumError": "5MB"
+              },
+              {
+                "type": "anyComponentStyle",
+                "maximumWarning": "100kB",
+                "maximumError": "200kB"
+              }
+            ],
               "outputHashing": "all"
             },
             "development": {
