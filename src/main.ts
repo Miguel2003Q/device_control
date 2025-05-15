@@ -8,7 +8,7 @@ import { LoginComponent } from './app/public/login/login.component';
 import { RegisterComponent } from './app/admin/register/register.component';
 import { HomeComponent } from './app/admin/home/home.component';
 import { Routes } from '@angular/router';
-import { GestionUsuariosComponent } from './app/gestion-usuarios/gestion-usuarios.component';
+import { GestionUsuariosComponent } from './app/admin/gestion-usuarios/gestion-usuarios.component';
 import { provideAnimations } from '@angular/platform-browser/animations';
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
