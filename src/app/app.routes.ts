@@ -23,5 +23,14 @@ export const routes: Routes = [
     {
         path: 'gestion-usuarios',
         loadComponent: () => import('./admin/gestion-usuarios/gestion-usuarios.component').then(m => m.GestionUsuariosComponent)
+    },
+    {
+        path: 'gestion-activos',
+        loadComponent: () => import('./admin/gestion-activos/gestion-activos.component').then(m => m.GestionActivosComponent)
+    },
+    {
+        path: 'gestion-ambientes',
+        loadComponent: () => import('./admin/gestion-ambientes/gestion-ambientes.component').then(m => m.GestionAmbientesComponent)
     }
 ];
+

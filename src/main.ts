@@ -10,13 +10,20 @@ import { HomeComponent } from './app/admin/home/home.component';
 import { Routes } from '@angular/router';
 import { GestionUsuariosComponent } from './app/admin/gestion-usuarios/gestion-usuarios.component';
 import { provideAnimations } from '@angular/platform-browser/animations';
+import { GestionActivosComponent } from './app/admin/gestion-activos/gestion-activos.component';
+import { GestionAmbientesComponent } from './app/admin/gestion-ambientes/gestion-ambientes.component';
+
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
   { path: 'home', component: HomeComponent },
   { path: 'gestion-usuarios', component: GestionUsuariosComponent },
-  { path: '', redirectTo: '/login', pathMatch: 'full' },
-  { path: '**', redirectTo: '/login', pathMatch: 'full' } // Redirige cualquier ruta desconocida a /login
+  { path: 'gestion-ambientes', component: GestionAmbientesComponent},
+  { path: 'gestion-activos', component: GestionActivosComponent},
+  { path: '', redirectTo: '/home', pathMatch: 'full' },
+  { path: '**', redirectTo: '/login', pathMatch: 'full' },
+
+
 ];
 
 bootstrapApplication(AppComponent, {
