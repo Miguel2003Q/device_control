@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, HostListener }
 import { CommonModule, DatePipe } from '@angular/common';
 import Chart from 'chart.js/auto';
 import { FormsModule } from '@angular/forms';
-import { routes } from '../app.routes';
+import { routes } from '../../app.routes';
 interface Movimiento {
   id: number;
   solicitante: string;

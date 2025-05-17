@@ -3,6 +3,8 @@ import { Component, OnInit, HostListener } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ReactiveFormsModule } from '@angular/forms';
+import { TopBarComponent } from "../shared/top-bar/top-bar.component";
+import { SidebarComponent } from "../shared/sidebar/sidebar.component";
 interface Ambiente {
   id: number;
   nombre: string;
@@ -19,7 +21,7 @@ interface Ambiente {
 @Component({
   selector: 'app-ambientes',
   standalone: true,
-  imports: [CommonModule, FormsModule,ReactiveFormsModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, TopBarComponent, SidebarComponent],
   templateUrl: './gestion-ambientes.component.html',
   styleUrls: ['./gestion-ambientes.component.css']
 })

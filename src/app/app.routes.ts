@@ -30,7 +30,7 @@ export const routes: Routes = [ //Lazy Loading lo que significa que los componen
     },
     {
         path: 'estadisticas',
-        loadComponent: () => import('./estadisticas/estadisticas.component').then(m => m.EstadisticasComponent)
+        loadComponent: () => import('./admin/estadisticas/estadisticas.component').then(m => m.EstadisticasComponent)
         
     }
 ];

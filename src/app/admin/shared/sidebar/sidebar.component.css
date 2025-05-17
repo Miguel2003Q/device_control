@@ -24,7 +24,7 @@
   
   .sidebar-menu {
     flex-grow: 1;
-    /* padding: 20px 0; */
+    padding: 20px 0; /*Para separarlo del top-bar*/
     overflow-y: auto;
   
     .menu-item {
