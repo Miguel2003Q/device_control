@@ -2,6 +2,25 @@
 
 ## Observaciones
 - En angular.json se debe poner la ruta de assets
+- Router oulet?
+- La fuente esta definida en index.html
+- app-routing.module.ts no es necesario
+- Los componentes deben estar marcados como standalone. Si no pones standalone: true, Angular no podrá compilar ese componente si no forma parte de un NgModule, y te dará error.
+- Las rutas ahora se definen solo en app.routes.ts y se importan en main.ts
+- Cada componente hmtl que use top-bar y sidebar se debe definir asi:
+<app-top-bar></app-top-bar>
+<app-sidebar></app-sidebar>
+
+<div class="dashboard-container">
+.dashboard-container {
+  display: flex;
+  height: calc(100vh - 60px);
+  overflow: auto;
+  background-color: #F8F9FA;
+  margin-left: 250px;
+  margin-top: 60px;
+}
+
 
 ## Estrucutra
 - admin: Vistas del admin

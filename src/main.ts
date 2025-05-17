@@ -1,15 +1,12 @@
+// main.ts
 import { bootstrapApplication } from '@angular/platform-browser';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
 import { importProvidersFrom } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AppComponent } from './app/app.component';
-import { LoginComponent } from './app/public/login/login.component';
-import { RegisterComponent } from './app/admin/register/register.component';
-import { HomeComponent } from './app/admin/home/home.component';
-import { Routes } from '@angular/router';
-import { GestionUsuariosComponent } from './app/admin/gestion-usuarios/gestion-usuarios.component';
 import { provideAnimations } from '@angular/platform-browser/animations';
+<<<<<<< HEAD
 import { ActivosComponent } from './app/admin/gestion-activos/gestion-activos.component';
 import { GestionAmbientesComponent } from './app/admin/gestion-ambientes/gestion-ambientes.component';
 import { EstadisticasComponent } from './app/estadisticas/estadisticas.component';
@@ -27,10 +24,15 @@ const routes: Routes = [
 
 
 ];
+=======
+
+// Importar las rutas desde el archivo app.routes.ts
+import { routes } from './app/app.routes';
+>>>>>>> d711d64afe27c5732ff567ab696ebcf61fd5b064
 
 bootstrapApplication(AppComponent, {
   providers: [
-    provideRouter(routes),
+    provideRouter(routes),  // Usamos las rutas importadas
     provideHttpClient(),
     importProvidersFrom(FormsModule),
     provideAnimations()
