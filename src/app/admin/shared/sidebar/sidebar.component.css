@@ -1,6 +1,6 @@
 .sidebar {
     position: fixed;
-    top: 60px;
+    top: 62px;
     left: 0;
     width: 250px;
     height: calc(100vh - 60px);
@@ -24,7 +24,7 @@
   
   .sidebar-menu {
     flex-grow: 1;
-    padding: 20px 0;
+    /* padding: 20px 0; */
     overflow-y: auto;
   
     .menu-item {
@@ -74,5 +74,9 @@
         color: #F44336;
       }
     }
+  }
+
+  .sidebar a {
+    text-decoration: none;
   }
   

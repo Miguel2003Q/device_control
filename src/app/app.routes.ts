@@ -2,19 +2,15 @@ import { Routes } from '@angular/router';
 import { LoginComponent } from './public/login/login.component';
 import { RegisterComponent } from './admin/register/register.component';
 
-export const routes: Routes = [
+export const routes: Routes = [ //Lazy Loading lo que significa que los componentes se cargarán solo cuando el usuario navegue hacia esa ruta específica.
     {
-        path: '',
-        redirectTo: '/login',
-        pathMatch: 'full'
+        path: '', redirectTo: '/login', pathMatch: 'full'
     },
     {
-        path: 'login',
-        component: LoginComponent
+        path: 'login', component: LoginComponent
     },
     {
-        path: 'register',
-        component: RegisterComponent
+        path: 'register', component: RegisterComponent
     },
     {
         path: 'home',
