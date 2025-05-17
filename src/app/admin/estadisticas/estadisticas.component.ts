@@ -1,8 +1,10 @@
-import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, HostListener } from '@angular/core';
+import { Component, ViewEncapsulation, OnInit, ViewChild, ElementRef, AfterViewInit, HostListener } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import Chart from 'chart.js/auto';
 import { FormsModule } from '@angular/forms';
 import { routes } from '../../app.routes';
+import { TopBarComponent } from "../shared/top-bar/top-bar.component";
+import { SidebarComponent } from "../shared/sidebar/sidebar.component";
 interface Movimiento {
   id: number;
   solicitante: string;
@@ -41,10 +43,11 @@ interface ChartLegendItem {
 @Component({
   selector: 'app-estadisticas',
   standalone: true,
-  imports: [CommonModule,FormsModule,],
+  imports: [CommonModule, FormsModule, TopBarComponent, SidebarComponent],
   templateUrl: './estadisticas.component.html',
   styleUrls: ['./estadisticas.component.css'],
-  providers: [DatePipe]
+  providers: [DatePipe],
+  encapsulation: ViewEncapsulation.None
 })
 export class EstadisticasComponent implements OnInit, AfterViewInit {
   @ViewChild('barChart') barChartRef!: ElementRef;
