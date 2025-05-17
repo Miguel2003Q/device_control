@@ -2,6 +2,7 @@
 
 ## Observaciones
 - En angular.json se debe poner la ruta de assets
+- Router oulet?
 
 ## Estrucutra
 - admin: Vistas del admin

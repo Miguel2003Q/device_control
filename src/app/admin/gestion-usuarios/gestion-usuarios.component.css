@@ -29,11 +29,29 @@ a {
   color: inherit;
 }
 
+.dashboard-wrapper {
+  display: flex;
+  min-height: 100vh;
+}
+
+.dashboard-content {
+  margin-left: 250px;
+  width: calc(100% - 250px);
+  display: flex;
+  flex-direction: column;
+  background-color: #E7ECEF;
+  overflow: auto;
+}
+
+
 /* Layout principal */
 .dashboard-container {
   display: flex;
-  height: 100vh;
-  overflow: hidden;
+  height: calc(100vh - 60px);
+  overflow: auto;
+  background-color: #F8F9FA;
+  margin-left: 250px;
+  margin-top: 60px;
 }
 
 /* Sidebar */
