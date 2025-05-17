@@ -1,75 +1,11 @@
+<app-top-bar></app-top-bar> 
+<app-sidebar></app-sidebar>
+
 <div class="dashboard-container">
-  <!-- Sidebar izquierdo -->
-  <div class="sidebar">
-    <div class="sidebar-header">
-      <h1>Device Control</h1>
-    </div>
-    
-    <nav class="sidebar-menu">
-      <a routerLink="/home" class="menu-item active">
-        <i class="fas fa-home"></i>
-        <span>Inicio</span>
-      </a>
-      <a routerLink="/perfil" class="menu-item">
-        <i class="fas fa-user"></i>
-        <span>Perfil</span>
-      </a>
-      <a routerLink="/gestion-usuarios" class="menu-item">
-        <i class="fas fa-users"></i>
-        <span>Gestión de Usuarios</span>
-      </a>
-      <a routerLink="/gestion-activos" class="menu-item">
-        <i class="fas fa-box"></i>
-        <span>Gestión de Activos</span>
-      </a>
-      <a routerLink="/gestion-ambientes" class="menu-item">
-        <i class="fas fa-door-open"></i>
-        <span>Gestión de Ambientes</span>
-      </a>
-      <a routerLink="/estadisticas" class="menu-item">
-        <i class="fas fa-chart-bar"></i>
-        <span>Estadísticas</span>
-      </a>
-      <a routerLink="/configuracion" class="menu-item">
-        <i class="fas fa-cog"></i>
-        <span>Configuración</span>
-      </a>
-    </nav>
-    
-    <div class="sidebar-footer">
-      <a href="#" class="logout-btn">
-        <i class="fas fa-sign-out-alt"></i>
-        <span>Cerrar Sesión</span>
-      </a>
-    </div>
-  </div>
   
   <!-- Contenido principal -->
   <div class="main-content">
-    <!-- Barra superior -->
-    <header class="top-bar">
-      <div class="search-container">
-        <i class="fas fa-search"></i>
-        <input type="text" placeholder="buscar">
-      </div>
-      
-      <div class="user-actions">
-        <button class="icon-btn">
-          <i class="fas fa-comment"></i>
-        </button>
-        <button class="icon-btn">
-          <i class="fas fa-bell"></i>
-        </button>
-        <div class="user-profile">
-          <img src="assets/images/avatar.png" alt="Usuario" class="avatar">
-          <div class="user-info">
-            <h3>Juan Benicio</h3>
-            <span>Administrador</span>
-          </div>
-        </div>
-      </div>
-    </header>
-    
+
     <!-- Contenido de ambientes -->
     <div class="content-wrapper">
       <div class="ambientes-container">

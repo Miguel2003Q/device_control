@@ -7,10 +7,8 @@ import { FormsModule } from '@angular/forms';
 import { AppComponent } from './app/app.component';
 import { provideAnimations } from '@angular/platform-browser/animations';
 
-
 // Importar las rutas desde el archivo app.routes.ts
 import { routes } from './app/app.routes';
-
 
 bootstrapApplication(AppComponent, {
   providers: [

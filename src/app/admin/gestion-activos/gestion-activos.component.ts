@@ -1,5 +1,5 @@
 import de from '@angular/common/locales/de';
-import { Component, OnInit, HostListener } from '@angular/core';
+import { Component, ViewEncapsulation, OnInit, HostListener } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
@@ -7,6 +7,8 @@ import { NgModule } from '@angular/core';
 
 import { BrowserModule } from '@angular/platform-browser';
 import { ReactiveFormsModule } from '@angular/forms';
+import { TopBarComponent } from "../shared/top-bar/top-bar.component";
+import { SidebarComponent } from "../shared/sidebar/sidebar.component";
 
 interface Activo {
   id: number;
@@ -31,9 +33,10 @@ interface Ambiente {
 @Component({
   selector: 'app-activos',
   standalone: true,
-  imports: [CommonModule,FormsModule, ReactiveFormsModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, TopBarComponent, SidebarComponent],
   templateUrl: './gestion-activos.component.html',
-  styleUrls: ['./gestion-activos.component.css']
+  styleUrls: ['./gestion-activos.component.css'],
+  encapsulation: ViewEncapsulation.None
 })
 export class ActivosComponent implements OnInit {
   // Propiedades del componente

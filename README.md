@@ -21,6 +21,7 @@
   margin-top: 60px;
 }
 
+- Para poder ver lo iconos: encapsulation: ViewEncapsulation.None en @Component del ts, tambien hace las vistas mas reducidas
 
 ## Estrucutra
 - admin: Vistas del admin

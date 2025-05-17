@@ -32,8 +32,11 @@ a {
 /* Layout principal */
 .dashboard-container {
   display: flex;
-  height: 100vh;
-  overflow: hidden;
+  height: calc(100vh - 60px);
+  overflow: auto;
+  background-color: #F8F9FA;
+  margin-left: 250px;
+  margin-top: 60px;
 }
 
 /* Sidebar */
