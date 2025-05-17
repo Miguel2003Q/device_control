@@ -26,11 +26,16 @@ export const routes: Routes = [
     },
     {
         path: 'gestion-activos',
-        loadComponent: () => import('./admin/gestion-activos/gestion-activos.component').then(m => m.GestionActivosComponent)
+        loadComponent: () => import('./admin/gestion-activos/gestion-activos.component').then(m => m.ActivosComponent)
     },
     {
         path: 'gestion-ambientes',
         loadComponent: () => import('./admin/gestion-ambientes/gestion-ambientes.component').then(m => m.GestionAmbientesComponent)
+    },
+    {
+        path: 'estadisticas',
+        loadComponent: () => import('./estadisticas/estadisticas.component').then(m => m.EstadisticasComponent)
+        
     }
 ];
 

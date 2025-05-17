@@ -10,8 +10,9 @@ import { HomeComponent } from './app/admin/home/home.component';
 import { Routes } from '@angular/router';
 import { GestionUsuariosComponent } from './app/admin/gestion-usuarios/gestion-usuarios.component';
 import { provideAnimations } from '@angular/platform-browser/animations';
-import { GestionActivosComponent } from './app/admin/gestion-activos/gestion-activos.component';
+import { ActivosComponent } from './app/admin/gestion-activos/gestion-activos.component';
 import { GestionAmbientesComponent } from './app/admin/gestion-ambientes/gestion-ambientes.component';
+import { EstadisticasComponent } from './app/estadisticas/estadisticas.component';
 
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -19,7 +20,8 @@ const routes: Routes = [
   { path: 'home', component: HomeComponent },
   { path: 'gestion-usuarios', component: GestionUsuariosComponent },
   { path: 'gestion-ambientes', component: GestionAmbientesComponent},
-  { path: 'gestion-activos', component: GestionActivosComponent},
+  { path: 'gestion-activos', component: ActivosComponent},
+  {path: 'estadisticas', component: EstadisticasComponent},
   { path: '', redirectTo: '/home', pathMatch: 'full' },
   { path: '**', redirectTo: '/login', pathMatch: 'full' },
 

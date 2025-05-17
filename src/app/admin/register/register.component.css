@@ -89,12 +89,27 @@ body {
   position: relative;
 }
 
-.input-container i {
+.input-container i:not(.toggle-password) {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
   left: 15px;
   color: #6096BA;
+}
+
+.toggle-password {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  right: 15px;
+  color: #6096BA;
+  cursor: pointer;
+  font-size: 16px;
+  transition: color 0.3s;
+}
+
+.toggle-password:hover {
+  color: #274C77;
 }
 
 .form-group input[type="text"],
@@ -137,10 +152,20 @@ body {
 
 .strength-indicator {
   height: 100%;
-  width: 0;
   transition: width 0.3s, background-color 0.3s;
   border-radius: 5px;
-  background-color: #A3CEF1;
+}
+
+.strength-indicator.weak {
+  background-color: #e74c3c;
+}
+
+.strength-indicator.medium {
+  background-color: #f1c40f;
+}
+
+.strength-indicator.strong {
+  background-color: #2ecc71;
 }
 
 .strength-text {
@@ -164,7 +189,7 @@ body {
   position: relative;
 }
 
-.role-option input[type="checkbox"] {
+.role-option input[type="radio"] {
   position: absolute;
   opacity: 0;
   cursor: pointer;
@@ -193,13 +218,13 @@ body {
   color: #6096BA;
 }
 
-.role-option input[type="checkbox"]:checked + label {
+.role-option input[type="radio"]:checked + label {
   background-color: #A3CEF1;
   color: #274C77;
   font-weight: 500;
 }
 
-.role-option input[type="checkbox"]:checked + label i {
+.role-option input[type="radio"]:checked + label i {
   color: #274C77;
 }
 
@@ -300,26 +325,26 @@ body {
   .register-card {
     padding: 30px 20px;
   }
-  
+
   .register-header h1 {
     font-size: 24px;
   }
-  
+
   .form-group input {
     padding: 12px 12px 12px 40px;
   }
-  
+
   .role-options {
     grid-template-columns: 1fr;
     gap: 8px;
   }
-  
+
   .role-option label {
     flex-direction: row;
     justify-content: flex-start;
     padding: 10px;
   }
-  
+
   .role-option i {
     margin-bottom: 0;
     margin-right: 10px;
@@ -351,16 +376,4 @@ body {
 .form-group input:invalid:focus {
   border-color: #e74c3c;
   box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.2);
-}
-
-/* Script para simular la funcionalidad de fuerza de contraseña 
-   (esto se debería implementar con JavaScript real) */
-.form-group input[type="password"]:focus ~ .password-strength .strength-indicator {
-  width: 60%;
-  background-color: #A3CEF1;
-}
-
-.form-group input[type="password"]:valid ~ .password-strength .strength-indicator {
-  width: 100%;
-  background-color: #2ecc71;
 }
