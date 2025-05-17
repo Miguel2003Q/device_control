@@ -32,6 +32,10 @@ export const routes: Routes = [ //Lazy Loading lo que significa que los componen
         path: 'estadisticas',
         loadComponent: () => import('./estadisticas/estadisticas.component').then(m => m.EstadisticasComponent)
         
+    },
+    {
+        path: 'home1',
+        loadComponent: () => import('./public/home/home.component').then(m => m.HomeComponent1)
     }
 ];
 

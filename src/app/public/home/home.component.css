@@ -1,0 +1,207 @@
+/* Importar fuente */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css');
+
+/* Estilos generales para el componente home */
+:host {
+  display: block;
+  min-height: 100vh;
+  font-family: 'Poppins', sans-serif;
+}
+
+.home-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #E7ECEF;
+}
+
+.home-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 20px;
+}
+
+/* Estilos para el logo y título principal */
+.logo-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 40px;
+}
+
+.logo {
+  width: 70px;
+  height: auto;
+  margin-right: 15px;
+}
+
+.logo-container h1 {
+  color: #274C77;
+  font-weight: 700;
+  font-size: 32px;
+}
+
+.logo-container h1 span {
+  color: #6096BA;
+  font-weight: 400;
+}
+
+/* Sección principal */
+.hero-section {
+  max-width: 1000px;
+  width: 100%;
+  background-color: white;
+  border-radius: 20px;
+  box-shadow: 0 10px 40px rgba(39, 76, 119, 0.2);
+  padding: 50px;
+  text-align: center;
+  animation: fadeIn 0.5s ease-out;
+}
+
+.hero-section h2 {
+  color: #274C77;
+  font-size: 28px;
+  margin-bottom: 15px;
+}
+
+.hero-section > p {
+  color: #555;
+  font-size: 16px;
+  margin-bottom: 40px;
+}
+
+/* Características */
+.features {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  margin: 30px 0 50px;
+  gap: 30px;
+}
+
+.feature {
+  flex: 1;
+  min-width: 250px;
+  padding: 25px 20px;
+  background-color: #E7ECEF;
+  border-radius: 15px;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.feature:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(96, 150, 186, 0.2);
+}
+
+.feature i {
+  font-size: 36px;
+  color: #6096BA;
+  margin-bottom: 15px;
+}
+
+.feature h3 {
+  color: #274C77;
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+.feature p {
+  color: #777;
+  font-size: 14px;
+}
+
+/* Sección de acción */
+.action-section {
+  margin-top: 40px;
+}
+
+/* Botón de login */
+.login-btn {
+  padding: 15px 40px;
+  background-color: #274C77;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-weight: 500;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: inline-flex;
+  align-items: center;
+}
+
+.login-btn i {
+  margin-right: 10px;
+}
+
+.login-btn:hover {
+  background-color: #6096BA;
+  transform: translateY(-2px);
+}
+
+.login-btn:active {
+  transform: translateY(1px);
+}
+
+/* Footer */
+.home-footer {
+  background-color: #274C77;
+  color: white;
+  text-align: center;
+  padding: 20px;
+  font-size: 14px;
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .hero-section {
+    padding: 30px 20px;
+  }
+  
+  .features {
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .feature {
+    min-width: 100%;
+  }
+  
+  .logo-container h1 {
+    font-size: 28px;
+  }
+  
+  .hero-section h2 {
+    font-size: 24px;
+  }
+}
+
+@media (max-width: 576px) {
+  .hero-section {
+    padding: 25px 15px;
+  }
+  
+  .logo-container {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .logo {
+    margin-right: 0;
+    margin-bottom: 10px;
+  }
+}
