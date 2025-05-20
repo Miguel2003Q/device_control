@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, ViewEncapsulation, OnInit, HostListener } from '@angular/core';
+import { Component, OnInit, HostListener } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -23,8 +23,7 @@ interface Ambiente {
   standalone: true,
   imports: [CommonModule, FormsModule, ReactiveFormsModule, TopBarComponent, SidebarComponent],
   templateUrl: './gestion-ambientes.component.html',
-  styleUrls: ['./gestion-ambientes.component.css'],
-  encapsulation: ViewEncapsulation.None
+  styleUrls: ['./gestion-ambientes.component.css']
 })
 export class GestionAmbientesComponent implements OnInit {
   // Propiedades del componente

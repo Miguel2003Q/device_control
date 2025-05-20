@@ -1,4 +1,5 @@
 <div class="sidebar">
+  
   <nav class="sidebar-menu">
     <a routerLink="/home" routerLinkActive="active" class="menu-item">
       <i class="fas fa-home"></i>
@@ -8,7 +9,7 @@
       <i class="fas fa-user"></i>
       <span>Perfil</span>
     </a>
-    <a routerLink="/gestion-usuarios" routerLinkActive="active" class="menu-item">
+    <a routerLink="/gestion-usuarios" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: false }"  class="menu-item">
       <i class="fas fa-users"></i>
       <span>Gestión de Usuarios</span>
     </a>

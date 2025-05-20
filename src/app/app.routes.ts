@@ -18,7 +18,7 @@ export const routes: Routes = [ //Lazy Loading lo que significa que los componen
     },
     {
         path: 'gestion-usuarios',
-        loadComponent: () => import('./admin/gestion-usuarios/gestion-usuarios.component').then(m => m.GestionUsuariosComponent)
+        loadComponent: () => import('./admin/gestion-usuarios/usuarios-tabla/usuarios-tabla.component').then(m => m.UsuariosTablaComponent)
     },
     {
         path: 'gestion-activos',
@@ -36,6 +36,14 @@ export const routes: Routes = [ //Lazy Loading lo que significa que los componen
     {
         path: 'home1',
         loadComponent: () => import('./public/home/home.component').then(m => m.HomeComponent1)
+    },
+    {
+        path: 'gestion-usuarios/usuarios-tabla',
+        loadComponent: () => import('./admin/gestion-usuarios/usuarios-tabla/usuarios-tabla.component').then(m => m.UsuariosTablaComponent)
+    },
+    {
+        path: 'gestion-usuarios/roles-tabla',
+        loadComponent: () => import('./admin/gestion-usuarios/roles-tabla/gestion-usuarios.component').then(m => m.RolesTablaComponent)
     }
 ];
 

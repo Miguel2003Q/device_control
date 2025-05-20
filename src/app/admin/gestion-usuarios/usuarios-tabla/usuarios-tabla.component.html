@@ -1,0 +1,150 @@
+<app-top-bar></app-top-bar>
+<app-sidebar></app-sidebar>
+
+<div class="dashboard-container">
+  
+  <!-- Contenido principal -->
+  <div class="main-content">
+    
+    <!-- Contenido de usuarios -->
+    <div class="content-wrapper">
+      <div class="users-container">
+        <!-- Pestañas de navegación -->
+        <div class="tabs-container">
+          <a class="tab" [routerLink]="'/gestion-usuarios/usuarios-tabla'" routerLinkActive="active">Usuario</a>
+          <a class="tab" [routerLink]="'/gestion-usuarios/roles-tabla'" routerLinkActive="active">Roles</a>
+        </div>
+        
+        <!-- Barra de herramientas para usuarios -->
+        <div class="users-toolbar">
+          <div class="toolbar-left">
+            <div class="search-box">
+              <i class="fas fa-search"></i>
+              <input type="text" placeholder="buscar" [(ngModel)]="searchTerm" (keyup)="filterUsers()">
+            </div>
+            
+            <div class="filter-container">
+              <select class="filter-select" [(ngModel)]="selectedFilter" (change)="filterUsers()">
+                <option value="">Filtro</option>
+                <option value="Administrador">Administrador</option>
+                <option value="Vigilante">Vigilante</option>
+                <option value="Instructor">Instructor</option>
+                <option value="Almacén">Almacén</option>
+              </select>
+              <i class="fas fa-chevron-down"></i>
+            </div>
+          </div>
+          
+          <div class="toolbar-right">
+            <button class="create-user-btn" (click)="openCreateUserModal()">
+              <span>Crear Usuario</span>
+            </button>
+          </div>
+        </div>
+        
+        <!-- Tabla de usuarios -->
+        <div class="users-table-container">
+          <table class="users-table">
+            <thead>
+              <tr>
+                <th>Usuario</th>
+                <th>Correo</th>
+                <th>Rol</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let user of filteredUsers">
+                <td>{{ user.nombre }}</td>
+                <td>{{ user.correo }}</td>
+                <td>{{ user.rol }}</td>
+                <td>
+                  <span class="status-badge" [ngClass]="user.estado === 'Activo' ? 'active' : 'inactive'">
+                    {{ user.estado }}
+                  </span>
+                </td>
+                <td>
+                  <button class="edit-btn" (click)="editUser(user)">
+                    <i class="fas fa-edit"></i>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          
+          <!-- Mensaje para cuando no hay resultados -->
+          <div *ngIf="filteredUsers.length === 0" class="no-results">
+            <p>No se encontraron usuarios que coincidan con la búsqueda</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal para crear/editar usuario (oculto por defecto) -->
+<div class="modal-overlay" *ngIf="showModal" (click)="closeModal($event)">
+    <app-register></app-register>
+  <div class="modal-container">
+    <div class="modal-header">
+      <h2>{{ isEditing ? 'Editar Usuario' : 'Crear Nuevo Usuario' }}</h2>
+      <button class="close-modal-btn" (click)="closeModal($event)">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    
+    <div class="modal-body">
+      <form (ngSubmit)="saveUser()">
+        <div class="form-group">
+          <label for="nombre">Nombre de Usuario</label>
+          <div class="input-container">
+            <i class="fas fa-user"></i>
+            <input type="text" id="nombre" [(ngModel)]="currentUser.nombre" name="nombre" required>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="correo">Correo Electrónico</label>
+          <div class="input-container">
+            <i class="fas fa-envelope"></i>
+            <input type="email" id="correo" [(ngModel)]="currentUser.correo" name="correo" required>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="rol">Rol</label>
+          <div class="input-container select-container">
+            <i class="fas fa-user-tag"></i>
+            <select id="rol" [(ngModel)]="currentUser.rol" name="rol" required>
+              <option value="Administrador">Administrador</option>
+              <option value="Vigilante">Vigilante</option>
+              <option value="Instructor">Instructor</option>
+              <option value="Almacén">Almacén</option>
+            </select>
+            <i class="fas fa-chevron-down select-arrow"></i>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="estado">Estado</label>
+          <div class="toggle-container">
+            <input type="checkbox" id="estado" class="toggle-input" 
+                   [checked]="currentUser.estado === 'Activo'"
+                   (change)="onEstadoChange($event)">
+            <label for="estado" class="toggle-label">
+              <span class="toggle-inner"></span>
+              <span class="toggle-switch"></span>
+            </label>
+            <span class="toggle-text">{{ currentUser.estado }}</span>
+          </div>
+        </div>
+        
+        <div class="form-actions">
+          <button type="button" class="cancel-btn" (click)="closeModal($event)">Cancelar</button>
+          <button type="submit" class="save-btn">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

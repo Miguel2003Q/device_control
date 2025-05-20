@@ -2,26 +2,26 @@
 <app-sidebar></app-sidebar>
 
 <div class="dashboard-container">
-  
+
   <!-- Contenido principal -->
   <div class="main-content">
-    
+
     <!-- Contenido de roles -->
     <div class="content-wrapper">
       <div class="roles-container">
         <!-- Pestañas de navegación -->
         <div class="tabs-container">
-          <div class="tab">Usuario</div>
-          <div class="tab active">Roles</div>
+          <a class="tab" [routerLink]="'/gestion-usuarios/usuarios-tabla'" routerLinkActive="active">Usuario</a>
+          <a class="tab" [routerLink]="'/gestion-usuarios/roles-tabla'" routerLinkActive="active">Roles</a>
         </div>
-        
+
         <!-- Barra de herramientas para roles -->
         <div class="roles-toolbar">
           <div class="search-box">
             <i class="fas fa-search"></i>
             <input type="text" placeholder="buscar">
           </div>
-          
+
           <div class="filter-container">
             <select class="filter-select">
               <option value="">Filtro</option>
@@ -33,7 +33,7 @@
             <i class="fas fa-chevron-down"></i>
           </div>
         </div>
-        
+
         <!-- Tabla de roles -->
         <div class="roles-table-container">
           <table class="roles-table">
@@ -75,5 +75,6 @@
         </div>
       </div>
     </div>
-  </div>
+      
+  </div>
 </div>
