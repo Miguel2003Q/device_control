@@ -44,6 +44,10 @@ export const routes: Routes = [ //Lazy Loading lo que significa que los componen
     {
         path: 'gestion-usuarios/roles-tabla',
         loadComponent: () => import('./admin/gestion-usuarios/roles-tabla/gestion-usuarios.component').then(m => m.RolesTablaComponent)
+    },
+    {
+        path: 'perfil',
+        loadComponent: () => import('./perfil/perfil.component').then(m => m.PerfilComponent)
     }
 ];
 
