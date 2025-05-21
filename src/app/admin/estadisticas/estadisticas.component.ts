@@ -1,4 +1,4 @@
-import { Component, ViewEncapsulation, OnInit, ViewChild, ElementRef, AfterViewInit, HostListener } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, HostListener } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import Chart from 'chart.js/auto';
 import { FormsModule } from '@angular/forms';
@@ -46,8 +46,7 @@ interface ChartLegendItem {
   imports: [CommonModule, FormsModule, TopBarComponent, SidebarComponent],
   templateUrl: './estadisticas.component.html',
   styleUrls: ['./estadisticas.component.css'],
-  providers: [DatePipe],
-  encapsulation: ViewEncapsulation.None
+  providers: [DatePipe]
 })
 export class EstadisticasComponent implements OnInit, AfterViewInit {
   @ViewChild('barChart') barChartRef!: ElementRef;

@@ -23,8 +23,7 @@ import { Ambiente } from '../../core/models/ambiente.model';
     SidebarComponent
   ],
   templateUrl: './gestion-ambientes.component.html',
-  styleUrls: ['./gestion-ambientes.component.css'],
-  encapsulation: ViewEncapsulation.None
+  styleUrls: ['./gestion-ambientes.component.css']
 })
 export class GestionAmbientesComponent implements OnInit {
   ambientes: Ambiente[] = [];

@@ -21,7 +21,8 @@
   margin-top: 60px;
 }
 
-- Para poder ver lo iconos: encapsulation: ViewEncapsulation.None en @Component del ts, tambien hace las vistas mas reducidas
+- Para poder ver los ionos se puso acceso global en index.html
+- [routerLinkActiveOptions]="{ exact: false } Para que permanezca activo mientras se esta en una ruta hija
 
 ## Estrucutra
 - admin: Vistas del admin
