@@ -1,324 +1,281 @@
-<app-top-bar></app-top-bar>
-<app-sidebar></app-sidebar>
-
 <div class="dashboard-container">
-  
-  <!-- Contenido principal -->
-  <div class="main-content">
-    
-    <!-- Menú móvil -->
-    <button class="menu-toggle" [ngClass]="{'active': sidebarActive}" (click)="toggleSidebar()">
-      <i class="fas" [ngClass]="sidebarActive ? 'fa-times' : 'fa-bars'"></i>
-    </button>
-    
-    <!-- Contenido de ambientes -->
+  <!-- Top Bar -->
+  <app-top-bar [usuario]="usuarioActual" (cerrarSesion)="cerrarSesion()"></app-top-bar>
+
+  <!-- Sidebar -->
+  <app-sidebar [active]="sidebarActive" (toggle)="toggleSidebar()" (cerrarSesion)="cerrarSesion()"></app-sidebar>
+
+  <!-- Menu Toggle for Mobile -->
+  <button class="menu-toggle" [ngClass]="{'active': sidebarActive}" (click)="toggleSidebar()">
+    <i class="fas fa-bars"></i>
+  </button>
+
+  <!-- Main Content -->
+  <div class="main-content" [ngClass]="{'sidebar-active': sidebarActive}">
     <div class="content-wrapper">
-      <div class="ambientes-container">
-        <div class="section-header">
-          <h2>Ambientes</h2>
-        </div>
-        
-        <!-- Barra de herramientas -->
-        <div class="ambientes-toolbar">
-          <div class="toolbar-left">
+      <div class="container">
+        <div *ngIf="isLoggedIn(); else notLoggedIn">
+          <h1>Gestión de Espacios</h1>
+
+          <!-- Filtros y búsqueda -->
+          <div class="filters">
             <div class="search-box">
               <i class="fas fa-search"></i>
-              <input 
-                type="text" 
-                placeholder="buscar" 
-                [(ngModel)]="searchTerm" 
-                (keyup)="filtrarAmbientes()">
+              <input type="text" [(ngModel)]="searchTerm" (input)="filtrarAmbientes()" placeholder="Buscar por nombre">
             </div>
-            
             <div class="filter-container">
               <select class="filter-select" [(ngModel)]="filtroEstado" (change)="filtrarAmbientes()">
-                <option value="">Estado</option>
+                <option value="">Todos los estados</option>
                 <option value="Disponible">Disponible</option>
                 <option value="Ocupado">Ocupado</option>
                 <option value="Mantenimiento">Mantenimiento</option>
               </select>
-              <i class="fas fa-chevron-down"></i>
+              <i class="fas fa-chevron-down select-arrow"></i>
             </div>
-          </div>
-          
-          <div class="toolbar-right">
-            <button class="create-btn" (click)="abrirModalCrearAmbiente()">
-              <span>Crear Ambiente</span>
+            <button *ngIf="usuarioActual.rol === 'Administrador'" (click)="abrirModalCrearAmbiente()" class="create-btn">
+              <i class="fas fa-plus"></i> Crear Espacio
             </button>
           </div>
-        </div>
-        
-        <!-- Tabla de ambientes -->
-        <div class="ambientes-table-header">
-          <div class="ambiente-col">Ambiente</div>
-          <div class="estado-col">Estado</div>
-          <div class="reservado-col">Reservado por</div>
-          <div class="periodo-col">Periodo de Uso</div>
-          <div class="acciones-col">Acciones</div>
-        </div>
-        
-        <div class="ambientes-list">
-          <div class="ambiente-row" *ngFor="let ambiente of ambientesFiltrados">
-            <div class="ambiente-col">{{ambiente.nombre}}</div>
-            <div class="estado-col">
-              <span class="estado-badge" [ngClass]="ambiente.estado.toLowerCase()">
-                {{ambiente.estado}}
-              </span>
+
+          <!-- Lista de ambientes -->
+          <div class="ambientes-container">
+            <div class="section-header">
+              <h2>Listado de Espacios</h2>
             </div>
-            <div class="reservado-col">{{ambiente.reservadoPor || '-'}}</div>
-            <div class="periodo-col">{{ambiente.periodoDeUso || '-'}}</div>
-            <div class="acciones-col">
-              <button class="action-btn solicitar" (click)="solicitarAmbiente(ambiente)"
-                      [disabled]="ambiente.estado === 'Ocupado'"
-                      [ngClass]="{'disabled': ambiente.estado === 'Ocupado'}">
-                Solicitar Ambiente
-              </button>
-              <button class="action-btn detalles" (click)="verDetalles(ambiente)">
-                Ver detalles
-              </button>
+            <div class="ambientes-list">
+              <div class="ambiente-card" *ngFor="let ambiente of ambientesFiltrados">
+                <h3>{{ ambiente.nombre }}</h3>
+                <p>
+                  Estado: <span class="estado-badge" [ngClass]="{
+                    'disponible': ambiente.estado === 'Disponible',
+                    'ocupado': ambiente.estado === 'Ocupado',
+                    'mantenimiento': ambiente.estado === 'Mantenimiento'
+                  }">{{ ambiente.estado }}</span>
+                </p>
+                <p>Capacidad: {{ ambiente.capacidad }} personas</p>
+                <p>Ubicación: {{ ambiente.ubicacion }}</p>
+                <div class="acciones">
+                  <button (click)="verDetalles(ambiente)" class="action-btn detalles">
+                    <i class="fas fa-info-circle"></i> Detalles
+                  </button>
+                  <button *ngIf="usuarioActual.rol === 'Administrador'" (click)="editarAmbiente(ambiente)" class="action-btn edit-btn">
+                    <i class="fas fa-edit"></i> Editar
+                  </button>
+                  <button *ngIf="usuarioActual.rol === 'Administrador' && ambiente.id !== undefined" (click)="eliminarAmbiente(ambiente.id!)" class="action-btn delete-btn">
+                    <i class="fas fa-trash"></i> Eliminar
+                  </button>
+                  <button *ngIf="ambiente.estado === 'Disponible'" (click)="solicitarAmbiente(ambiente)" class="action-btn solicitar">
+                    <i class="fas fa-calendar-check"></i> Solicitar
+                  </button>
+                </div>
+              </div>
+              <div *ngIf="ambientesFiltrados.length === 0" class="no-results">
+                No se encontraron espacios.
+              </div>
             </div>
           </div>
-          
-          <!-- Mensaje si no hay resultados -->
-          <div *ngIf="ambientesFiltrados.length === 0" class="no-results">
-            <p>No se encontraron ambientes que coincidan con la búsqueda</p>
+
+          <!-- Modal para crear/editar ambiente -->
+          <div *ngIf="showModal" class="modal-overlay" (click)="cerrarModal($event)">
+            <div class="modal-container">
+              <div class="modal-header">
+                <h2>{{ isEditing ? 'Editar Espacio' : 'Crear Espacio' }}</h2>
+                <button class="close-modal-btn" (click)="cerrarModal($event)">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+              <div class="modal-body">
+                <form [formGroup]="ambienteForm" (ngSubmit)="guardarAmbiente()">
+                  <div class="form-group">
+                    <label for="nombre">Nombre</label>
+                    <div class="input-container">
+                      <i class="fas fa-tag"></i>
+                      <input id="nombre" formControlName="nombre" type="text" [ngClass]="{'invalid': isInvalid('nombre')}">
+                    </div>
+                    <span *ngIf="isInvalid('nombre')" class="error-message">El nombre es requerido y debe tener al menos 3 caracteres.</span>
+                  </div>
+                  <div class="form-group">
+                    <label for="estado">Estado</label>
+                    <div class="select-container">
+                      <i class="fas fa-info-circle"></i>
+                      <select id="estado" formControlName="estado">
+                        <option value="Disponible">Disponible</option>
+                        <option value="Ocupado">Ocupado</option>
+                        <option value="Mantenimiento">Mantenimiento</option>
+                      </select>
+                      <i class="fas fa-chevron-down select-arrow"></i>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label for="capacidad">Capacidad</label>
+                    <div class="input-container">
+                      <i class="fas fa-users"></i>
+                      <input id="capacidad" formControlName="capacidad" type="number" [ngClass]="{'invalid': isInvalid('capacidad')}">
+                    </div>
+                    <span *ngIf="isInvalid('capacidad')" class="error-message">La capacidad es requerida y debe ser un número positivo.</span>
+                  </div>
+                  <div class="form-group">
+                    <label for="ubicacion">Ubicación</label>
+                    <div class="input-container">
+                      <i class="fas fa-map-marker-alt"></i>
+                      <input id="ubicacion" formControlName="ubicacion" type="text" [ngClass]="{'invalid': isInvalid('ubicacion')}">
+                    </div>
+                    <span *ngIf="isInvalid('ubicacion')" class="error-message">La ubicación es requerida y debe tener al menos 3 caracteres.</span>
+                  </div>
+                  <div class="form-group checkbox-group">
+                    <label class="checkbox-item">
+                      <input type="checkbox" formControlName="proyector"> Proyector
+                    </label>
+                    <label class="checkbox-item">
+                      <input type="checkbox" formControlName="computadoras"> Computadoras
+                    </label>
+                    <label class="checkbox-item">
+                      <input type="checkbox" formControlName="wifi"> WiFi
+                    </label>
+                  </div>
+                  <div class="form-actions">
+                    <button type="button" class="cancel-btn" (click)="cerrarModal($event)">Cancelar</button>
+                    <button type="submit" class="save-btn" [disabled]="isSubmitting">
+                      <span *ngIf="isSubmitting" class="loader"></span>
+                      {{ isSubmitting ? 'Guardando...' : 'Guardar' }}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+
+          <!-- Modal para solicitar ambiente -->
+          <div *ngIf="showSolicitarModal" class="modal-overlay" (click)="cerrarModalSolicitar($event)">
+            <div class="modal-container">
+              <div class="modal-header">
+                <h2>Solicitar {{ ambienteSeleccionado?.nombre }}</h2>
+                <button class="close-modal-btn" (click)="cerrarModalSolicitar($event)">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+              <div class="modal-body">
+                <form [formGroup]="solicitudForm" (ngSubmit)="confirmarSolicitud()">
+                  <div class="form-group">
+                    <label for="fecha">Fecha</label>
+                    <div class="input-container">
+                      <i class="fas fa-calendar"></i>
+                      <input id="fecha" formControlName="fecha" type="date" [ngClass]="{'invalid': isInvalidSolicitud('fecha')}">
+                    </div>
+                    <span *ngIf="isInvalidSolicitud('fecha')" class="error-message">La fecha es requerida.</span>
+                  </div>
+                  <div class="form-row">
+                    <div class="form-group half">
+                      <label for="horaInicio">Hora de Inicio</label>
+                      <div class="input-container">
+                        <i class="fas fa-clock"></i>
+                        <input id="horaInicio" formControlName="horaInicio" type="time" [ngClass]="{'invalid': isInvalidSolicitud('horaInicio')}">
+                      </div>
+                      <span *ngIf="isInvalidSolicitud('horaInicio')" class="error-message">La hora de inicio es requerida.</span>
+                    </div>
+                    <div class="form-group half">
+                      <label for="horaFin">Hora de Fin</label>
+                      <div class="input-container">
+                        <i class="fas fa-clock"></i>
+                        <input id="horaFin" formControlName="horaFin" type="time" [ngClass]="{'invalid': isInvalidSolicitud('horaFin')}">
+                      </div>
+                      <span *ngIf="isInvalidSolicitud('horaFin')" class="error-message">La hora de fin es requerida.</span>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label for="proposito">Propósito</label>
+                    <div class="textarea-container">
+                      <i class="fas fa-comment"></i>
+                      <textarea id="proposito" formControlName="proposito" [ngClass]="{'invalid': isInvalidSolicitud('proposito')}"></textarea>
+                    </div>
+                    <span *ngIf="isInvalidSolicitud('proposito')" class="error-message">El propósito es requerido y debe tener al menos 5 caracteres.</span>
+                  </div>
+                  <div class="form-actions">
+                    <button type="button" class="cancel-btn" (click)="cerrarModalSolicitar($event)">Cancelar</button>
+                    <button type="submit" class="save-btn" [disabled]="isSubmitting">
+                      <span *ngIf="isSubmitting" class="loader"></span>
+                      {{ isSubmitting ? 'Solicitando...' : 'Confirmar' }}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+
+          <!-- Modal para detalles -->
+          <div *ngIf="showDetallesModal" class="modal-overlay" (click)="cerrarModalDetalles($event)">
+            <div class="modal-container">
+              <div class="modal-header">
+                <h2>Detalles de {{ ambienteSeleccionado?.nombre }}</h2>
+                <button class="close-modal-btn" (click)="cerrarModalDetalles($event)">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+              <div class="modal-body">
+                <div class="detalles-grid">
+                  <div class="detalle-item">
+                    <span class="detalle-label">Estado</span>
+                    <span class="detalle-value">
+                      <span class="estado-badge" [ngClass]="{
+                        'disponible': ambienteSeleccionado?.estado === 'Disponible',
+                        'ocupado': ambienteSeleccionado?.estado === 'Ocupado',
+                        'mantenimiento': ambienteSeleccionado?.estado === 'Mantenimiento'
+                      }">{{ ambienteSeleccionado?.estado }}</span>
+                    </span>
+                  </div>
+                  <div class="detalle-item">
+                    <span class="detalle-label">Capacidad</span>
+                    <span class="detalle-value">{{ ambienteSeleccionado?.capacidad }} personas</span>
+                  </div>
+                  <div class="detalle-item">
+                    <span class="detalle-label">Ubicación</span>
+                    <span class="detalle-value">{{ ambienteSeleccionado?.ubicacion }}</span>
+                  </div>
+                  <div class="detalle-item">
+                    <span class="detalle-label">Reservado por</span>
+                    <span class="detalle-value">{{ ambienteSeleccionado?.reservadoPor || 'N/A' }}</span>
+                  </div>
+                  <div class="detalle-item">
+                    <span class="detalle-label">Período de uso</span>
+                    <span class="detalle-value">{{ ambienteSeleccionado?.periodoDeUso || 'N/A' }}</span>
+                  </div>
+                  <div class="detalle-item recursos">
+                    <span class="detalle-label">Recursos</span>
+                    <div class="detalle-recursos">
+                      <span class="recurso-badge" *ngIf="ambienteSeleccionado?.proyector">
+                        <i class="fas fa-projector"></i> Proyector
+                      </span>
+                      <span class="recurso-badge" *ngIf="ambienteSeleccionado?.computadoras">
+                        <i class="fas fa-laptop"></i> Computadoras
+                      </span>
+                      <span class="recurso-badge" *ngIf="ambienteSeleccionado?.wifi">
+                        <i class="fas fa-wifi"></i> WiFi
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div class="detalles-actions">
+                  <button *ngIf="usuarioActual.rol === 'Administrador'" (click)="editarAmbiente(ambienteSeleccionado!)" class="edit-btn">
+                    <i class="fas fa-edit"></i> Editar
+                  </button>
+                  <button *ngIf="usuarioActual.rol === 'Administrador' && ambienteSeleccionado?.id !== undefined" (click)="eliminarAmbiente(ambienteSeleccionado!.id!)" class="action-btn delete-btn">
+                    <i class="fas fa-trash"></i> Eliminar
+                  </button>
+                  <button *ngIf="ambienteSeleccionado?.estado === 'Disponible'" (click)="solicitarAmbiente(ambienteSeleccionado!)" class="action-btn solicitar">
+                    <i class="fas fa-calendar-check"></i> Solicitar
+                  </button>
+                  <button class="cancel-btn" (click)="cerrarModalDetalles($event)">Cerrar</button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
+        <ng-template #notLoggedIn>
+          <div class="no-results">
+            <p>Por favor, inicia sesión para acceder a la gestión de espacios.</p>
+          </div>
+        </ng-template>
       </div>
     </div>
   </div>
-</div>
-
-<!-- Modal para crear ambiente (oculto por defecto) -->
-<div class="modal-overlay" *ngIf="showModal" (click)="cerrarModal($event)">
-  <div class="modal-container">
-    <div class="modal-header">
-      <h2>{{ isEditing ? 'Editar Ambiente' : 'Crear Nuevo Ambiente' }}</h2>
-      <button class="close-modal-btn" (click)="cerrarModal($event)">
-        <i class="fas fa-times"></i>
-      </button>
-    </div>
-    
-    <div class="modal-body">
-      <form [formGroup]="ambienteForm" (ngSubmit)="guardarAmbiente()">
-        <div class="form-group">
-          <label for="nombre">Nombre del Ambiente</label>
-          <div class="input-container">
-            <i class="fas fa-door-open"></i>
-            <input type="text" id="nombre" formControlName="nombre" placeholder="Ej: Ambiente 5">
-          </div>
-          <div class="error-message" *ngIf="isInvalid('nombre')">
-            <span *ngIf="ambienteForm.get('nombre')?.errors?.['required']">El nombre es requerido</span>
-          </div>
-        </div>
-        
-        <div class="form-group">
-          <label for="capacidad">Capacidad</label>
-          <div class="input-container">
-            <i class="fas fa-users"></i>
-            <input type="number" id="capacidad" formControlName="capacidad" placeholder="Número de personas">
-          </div>
-          <div class="error-message" *ngIf="isInvalid('capacidad')">
-            <span *ngIf="ambienteForm.get('capacidad')?.errors?.['required']">La capacidad es requerida</span>
-            <span *ngIf="ambienteForm.get('capacidad')?.errors?.['min']">La capacidad debe ser mayor a 0</span>
-          </div>
-        </div>
-        
-        <div class="form-group">
-          <label for="ubicacion">Ubicación</label>
-          <div class="input-container">
-            <i class="fas fa-map-marker-alt"></i>
-            <input type="text" id="ubicacion" formControlName="ubicacion" placeholder="Ej: Bloque A, Piso 2">
-          </div>
-          <div class="error-message" *ngIf="isInvalid('ubicacion')">
-            <span *ngIf="ambienteForm.get('ubicacion')?.errors?.['required']">La ubicación es requerida</span>
-          </div>
-        </div>
-        
-        <div class="form-group">
-          <label for="estado">Estado</label>
-          <div class="input-container select-container">
-            <i class="fas fa-info-circle"></i>
-            <select id="estado" formControlName="estado">
-              <option value="Disponible">Disponible</option>
-              <option value="Ocupado">Ocupado</option>
-              <option value="Mantenimiento">Mantenimiento</option>
-            </select>
-            <i class="fas fa-chevron-down select-arrow"></i>
-          </div>
-        </div>
-        
-        <div class="form-group">
-          <label>Recursos disponibles</label>
-          <div class="checkbox-group">
-            <div class="checkbox-item">
-              <input type="checkbox" id="proyector" formControlName="proyector">
-              <label for="proyector">Proyector</label>
-            </div>
-            <div class="checkbox-item">
-              <input type="checkbox" id="computadoras" formControlName="computadoras">
-              <label for="computadoras">Computadoras</label>
-            </div>
-            <div class="checkbox-item">
-              <input type="checkbox" id="wifi" formControlName="wifi">
-              <label for="wifi">WiFi</label>
-            </div>
-          </div>
-        </div>
-        
-        <div class="form-actions">
-          <button type="button" class="cancel-btn" (click)="cerrarModal($event)">Cancelar</button>
-          <button type="submit" class="save-btn" [disabled]="ambienteForm.invalid || isSubmitting">
-            <span *ngIf="!isSubmitting">Guardar</span>
-            <div class="loader" *ngIf="isSubmitting"></div>
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
-
-<!-- Modal para solicitar ambiente (oculto por defecto) -->
-<div class="modal-overlay" *ngIf="showSolicitarModal" (click)="cerrarModalSolicitar($event)">
-  <div class="modal-container">
-    <div class="modal-header">
-      <h2>Solicitar Ambiente - {{ambienteSeleccionado?.nombre}}</h2>
-      <button class="close-modal-btn" (click)="cerrarModalSolicitar($event)">
-        <i class="fas fa-times"></i>
-      </button>
-    </div>
-    
-    <div class="modal-body">
-      <form [formGroup]="solicitudForm" (ngSubmit)="confirmarSolicitud()">
-        <div class="form-group">
-          <label for="fecha">Fecha</label>
-          <div class="input-container">
-            <i class="fas fa-calendar"></i>
-            <input type="date" id="fecha" formControlName="fecha">
-          </div>
-          <div class="error-message" *ngIf="isInvalidSolicitud('fecha')">
-            <span *ngIf="solicitudForm.get('fecha')?.errors?.['required']">La fecha es requerida</span>
-          </div>
-        </div>
-        
-        <div class="form-row">
-          <div class="form-group half">
-            <label for="horaInicio">Hora de inicio</label>
-            <div class="input-container">
-              <i class="fas fa-clock"></i>
-              <input type="time" id="horaInicio" formControlName="horaInicio">
-            </div>
-            <div class="error-message" *ngIf="isInvalidSolicitud('horaInicio')">
-              <span *ngIf="solicitudForm.get('horaInicio')?.errors?.['required']">La hora de inicio es requerida</span>
-            </div>
-          </div>
-          
-          <div class="form-group half">
-            <label for="horaFin">Hora de fin</label>
-            <div class="input-container">
-              <i class="fas fa-clock"></i>
-              <input type="time" id="horaFin" formControlName="horaFin">
-            </div>
-            <div class="error-message" *ngIf="isInvalidSolicitud('horaFin')">
-              <span *ngIf="solicitudForm.get('horaFin')?.errors?.['required']">La hora de fin es requerida</span>
-            </div>
-          </div>
-        </div>
-        
-        <div class="form-group">
-          <label for="proposito">Propósito</label>
-          <div class="input-container textarea-container">
-            <i class="fas fa-align-left"></i>
-            <textarea id="proposito" formControlName="proposito" placeholder="Describa el propósito de la reserva"></textarea>
-          </div>
-          <div class="error-message" *ngIf="isInvalidSolicitud('proposito')">
-            <span *ngIf="solicitudForm.get('proposito')?.errors?.['required']">El propósito es requerido</span>
-          </div>
-        </div>
-        
-        <div class="form-actions">
-          <button type="button" class="cancel-btn" (click)="cerrarModalSolicitar($event)">Cancelar</button>
-          <button type="submit" class="save-btn" [disabled]="solicitudForm.invalid || isSubmitting">
-            <span *ngIf="!isSubmitting">Confirmar Solicitud</span>
-            <div class="loader" *ngIf="isSubmitting"></div>
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
-
-<!-- Modal para ver detalles del ambiente (oculto por defecto) -->
-<div class="modal-overlay" *ngIf="showDetallesModal" (click)="cerrarModalDetalles($event)">
-  <div class="modal-container">
-    <div class="modal-header">
-      <h2>Detalles del Ambiente - {{ambienteSeleccionado?.nombre}}</h2>
-      <button class="close-modal-btn" (click)="cerrarModalDetalles($event)">
-        <i class="fas fa-times"></i>
-      </button>
-    </div>
-    
-    <div class="modal-body">
-      <div class="detalles-grid" *ngIf="ambienteSeleccionado">
-        <div class="detalle-item">
-          <div class="detalle-label">Estado:</div>
-          <div class="detalle-value">
-            <span class="estado-badge" [ngClass]="ambienteSeleccionado.estado.toLowerCase()">
-              {{ambienteSeleccionado.estado}}
-            </span>
-          </div>
-        </div>
-        
-        <div class="detalle-item">
-          <div class="detalle-label">Capacidad:</div>
-          <div class="detalle-value">{{ambienteSeleccionado.capacidad}} personas</div>
-        </div>
-        
-        <div class="detalle-item">
-          <div class="detalle-label">Ubicación:</div>
-          <div class="detalle-value">{{ambienteSeleccionado.ubicacion}}</div>
-        </div>
-        
-        <div class="detalle-item" *ngIf="ambienteSeleccionado.reservadoPor">
-          <div class="detalle-label">Reservado por:</div>
-          <div class="detalle-value">{{ambienteSeleccionado.reservadoPor}}</div>
-        </div>
-        
-        <div class="detalle-item" *ngIf="ambienteSeleccionado.periodoDeUso">
-          <div class="detalle-label">Periodo de uso:</div>
-          <div class="detalle-value">{{ambienteSeleccionado.periodoDeUso}}</div>
-        </div>
-        
-        <div class="detalle-item recursos">
-          <div class="detalle-label">Recursos disponibles:</div>
-          <div class="detalle-recursos">
-            <div class="recurso-badge" *ngIf="ambienteSeleccionado.proyector">
-              <i class="fas fa-projector"></i> Proyector
-            </div>
-            <div class="recurso-badge" *ngIf="ambienteSeleccionado.computadoras">
-              <i class="fas fa-desktop"></i> Computadoras
-            </div>
-            <div class="recurso-badge" *ngIf="ambienteSeleccionado.wifi">
-              <i class="fas fa-wifi"></i> WiFi
-            </div>
-            <div *ngIf="!ambienteSeleccionado.proyector && !ambienteSeleccionado.computadoras && !ambienteSeleccionado.wifi">
-              Sin recursos específicos
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      <div class="detalles-actions">
-        <button class="edit-btn" (click)="editarAmbiente(ambienteSeleccionado!)">
-          <i class="fas fa-edit"></i> Editar
-        </button>
-        <button class="action-btn solicitar" 
-                (click)="solicitarAmbiente(ambienteSeleccionado!)"
-                [disabled]="ambienteSeleccionado?.estado === 'Ocupado'"
-                [ngClass]="{'disabled': ambienteSeleccionado?.estado === 'Ocupado'}">
-          Solicitar Ambiente
-        </button>
-      </div>
-    </div>
-  </div>
 </div>
