@@ -23,6 +23,7 @@
 
 - Para poder ver los ionos se puso acceso global en index.html
 - [routerLinkActiveOptions]="{ exact: false } Para que permanezca activo mientras se esta en una ruta hija
+- Organizar activos funcional, loader, crear activo, perfil
 
 ## Estrucutra
 - admin: Vistas del admin
