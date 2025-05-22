@@ -4,26 +4,27 @@ import { FormBuilder, FormGroup, FormsModule, Validators } from '@angular/forms'
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { NgModule } from '@angular/core';
-
 import { BrowserModule } from '@angular/platform-browser';
 import { ReactiveFormsModule } from '@angular/forms';
 import { TopBarComponent } from "../shared/top-bar/top-bar.component";
 import { SidebarComponent } from "../shared/sidebar/sidebar.component";
+import { ActivoService } from '../../core/services/activo.service';
+import { Activo } from '../../core/models/activo.model';
 
-interface Activo {
-  id: number;
-  codigo: string;
-  nombre: string;
-  tipo: string;
-  subtipo: string;
-  estado: 'Disponible' | 'Ocupado' | 'Mantenimiento';
-  ambienteAsignado?: string;
-  marca?: string;
-  modelo?: string;
-  codigoInterno?: string;
-  serial?: string;
-  observaciones?: string;
-}
+// interface Activo {
+//   id: number;
+//   codigo: string;
+//   nombre: string;
+//   tipo: string;
+//   subtipo: string;
+//   estado: 'Disponible' | 'Ocupado' | 'Mantenimiento';
+//   ambienteAsignado?: string;
+//   marca?: string;
+//   modelo?: string;
+//   codigoInterno?: string;
+//   serial?: string;
+//   observaciones?: string;
+// }
 
 interface Ambiente {
   id: number;
@@ -45,27 +46,30 @@ export class ActivosComponent implements OnInit {
   searchTerm: string = '';
   sidebarActive: boolean = true;
   screenWidth: number;
-  
+
   // Propiedades para modales
   showModalCrear: boolean = false;
   showModalDetalles: boolean = false;
   activoSeleccionado: Activo | null = null;
   isSubmitting: boolean = false;
-  
+
   // Formularios
   activoForm: FormGroup;
   detallesForm: FormGroup;
-  
+
   // Usuario actual
   usuarioActual = {
     nombre: 'Juan Benicio',
     rol: 'Administrador'
   };
-  
-  constructor(private fb: FormBuilder) {
+tiposActivos: any;
+
+  constructor(
+    private fb: FormBuilder,
+    private activoService: ActivoService,) {
     // Inicializar el ancho de pantalla
     this.screenWidth = window.innerWidth;
-    
+
     // Inicializar formulario de creación
     this.activoForm = this.fb.group({
       codigo: ['', [Validators.required]],
@@ -79,22 +83,20 @@ export class ActivosComponent implements OnInit {
       ambienteAsignado: [''],
       observaciones: ['']
     });
-    
+
     // Inicializar formulario de detalles
     this.detallesForm = this.fb.group({
-      id: [0],
-      codigo: ['', [Validators.required]],
-      tipo: ['', [Validators.required]],
-      subtipo: ['', [Validators.required]],
-      marca: [''],
-      modelo: [''],
-      codigoInterno: [''],
-      serial: [''],
+      idactivo: [0],
+      nombre: ['', Validators.required],
+      url: ['', Validators.required],
+      serial: ['', Validators.required],
       estado: ['Disponible'],
-      ambienteAsignado: [''],
-      observaciones: ['']
+      observaciones: [''],
+      espacio: [null, Validators.required],
+      tipoActivo: [null, Validators.required]
     });
-    
+
+
     // Ajustar sidebar según tamaño de pantalla
     this.checkScreenSize();
   }
@@ -128,66 +130,16 @@ export class ActivosComponent implements OnInit {
 
   // Cargar lista de activos
   cargarActivos(): void {
-    // Aquí normalmente harías una llamada a un servicio
-    // Por ahora, usamos datos de ejemplo
-    this.activos = [
-      {
-        id: 1,
-        codigo: 'AA-001',
-        nombre: 'Mesa',
-        tipo: 'Mobiliario',
-        subtipo: 'Mesa',
-        estado: 'Disponible',
-        marca: 'Genérica',
-        modelo: 'Estándar',
-        codigoInterno: 'AA-001',
-        serial: 'N/A',
-        observaciones: 'Mesa de trabajo para el ambiente de estudio'
+
+    this.activoService.obtenerTodosLosActivos().subscribe({
+      next: (activos: Activo[]) => {
+        this.activos = activos;
+        this.activosFiltrados = [...this.activos];
       },
-      {
-        id: 2,
-        codigo: 'AB-002',
-        nombre: 'Teclado Dell',
-        tipo: 'Tecnologico',
-        subtipo: 'Teclado',
-        estado: 'Disponible',
-        marca: 'Dell',
-        modelo: 'KB216',
-        codigoInterno: 'AB-002',
-        serial: 'CNO123456',
-        observaciones: 'Teclado USB negro'
-      },
-      {
-        id: 3,
-        codigo: 'AC-003',
-        nombre: 'Mouse Dell',
-        tipo: 'Tecnologico',
-        subtipo: 'Mouse',
-        estado: 'Mantenimiento',
-        ambienteAsignado: 'Ambiente 3',
-        marca: 'Dell',
-        modelo: 'MS116',
-        codigoInterno: 'AC-003',
-        serial: 'CNO789012',
-        observaciones: 'Mouse óptico USB negro'
-      },
-      {
-        id: 4,
-        codigo: 'AD-004',
-        nombre: 'Silla',
-        tipo: 'Mobiliario',
-        subtipo: 'Silla',
-        estado: 'Ocupado',
-        ambienteAsignado: 'Ambiente 4',
-        marca: 'Genérica',
-        modelo: 'Ergonómica',
-        codigoInterno: 'AD-004',
-        serial: 'N/A',
-        observaciones: 'Silla ergonómica con ruedas'
+      error: (error: { message: string }) => {
+        console.error('Error al cargar activos: ' + error.message);
       }
-    ];
-    
-    this.activosFiltrados = [...this.activos];
+    });
   }
 
   // Cargar ambientes disponibles
@@ -203,15 +155,19 @@ export class ActivosComponent implements OnInit {
 
   // Filtrar activos según término de búsqueda
   filtrarActivos(): void {
+    const termino = this.searchTerm.toLowerCase().trim();
+
     this.activosFiltrados = this.activos.filter(activo => {
-      return this.searchTerm === '' || 
-        activo.codigo.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-        activo.nombre.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-        activo.tipo.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-        activo.subtipo.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-        (activo.ambienteAsignado && activo.ambienteAsignado.toLowerCase().includes(this.searchTerm.toLowerCase()));
+      return this.searchTerm === '' ||
+        activo.nombre.toLowerCase().includes(termino) ||
+        activo.serial.toLowerCase().includes(termino) ||
+        activo.estado.toLowerCase().includes(termino) ||
+        (activo.observaciones && activo.observaciones.toLowerCase().includes(termino)) ||
+        (activo.espacio && activo.espacio.nombre.toLowerCase().includes(termino)) ||
+        (activo.tipoActivo && activo.tipoActivo.nombre.toLowerCase().includes(termino));
     });
   }
+
 
   // Abrir modal para crear activo
   abrirModalCrearActivo(): void {
@@ -225,8 +181,8 @@ export class ActivosComponent implements OnInit {
   // Cerrar modal de creación
   cerrarModalCrear(event: MouseEvent): void {
     const target = event.target as HTMLElement;
-    if (target.classList.contains('modal-overlay') || 
-        target.classList.contains('close-modal-btn')) {
+    if (target.classList.contains('modal-overlay') ||
+      target.classList.contains('close-modal-btn')) {
       this.showModalCrear = false;
     }
   }
@@ -268,69 +224,59 @@ export class ActivosComponent implements OnInit {
 
     this.isSubmitting = true;
 
-    // Simulando una llamada a API con un timeout
-    setTimeout(() => {
-      const formData = this.activoForm.value;
-      
-      // Crear nuevo activo
-      const newId = Math.max(...this.activos.map(a => a.id), 0) + 1;
-      const nuevoActivo: Activo = {
-        id: newId,
-        codigo: formData.codigo,
-        nombre: formData.subtipo, // Usar el subtipo como nombre
-        tipo: formData.tipo,
-        subtipo: formData.subtipo,
-        estado: formData.estado,
-        ambienteAsignado: formData.ambienteAsignado || undefined,
-        marca: formData.marca || undefined,
-        modelo: formData.modelo || undefined,
-        codigoInterno: formData.codigoInterno || undefined,
-        serial: formData.serial || undefined,
-        observaciones: formData.observaciones || undefined
-      };
-      
-      // Añadir al array de activos
-      this.activos.push(nuevoActivo);
-      
-      // Actualizar lista filtrada
-      this.filtrarActivos();
-      
-      // Reiniciar estado y cerrar modal
-      this.isSubmitting = false;
-      this.showModalCrear = false;
-      
-      // Mostrar mensaje de éxito
-      alert(`Activo ${nuevoActivo.codigo} creado con éxito`);
-    }, 1000);
+    const formData = this.activoForm.value;
+
+    const nuevoActivo: Activo = {
+      // No se pone idactivo porque lo generará el backend
+      nombre: formData.nombre,
+      url: formData.url,
+      serial: formData.serial,
+      estado: formData.estado,
+      observaciones: formData.observaciones || '',
+      espacio: formData.espacio,           // Debe ser un objeto Espacio válido
+      tipoActivo: formData.tipoActivo      // Debe ser un objeto TipoActivo válido
+    };
+
+    // Llamar al servicio para guardar el activo
+    this.activoService.guardarActivo(nuevoActivo).subscribe({
+      next: (activoCreado) => {
+        this.activos.push(activoCreado);
+        this.filtrarActivos();
+        this.isSubmitting = false;
+        this.showModalCrear = false;
+        alert(`Activo "${activoCreado.nombre}" creado con éxito`);
+      },
+      error: (error) => {
+        this.isSubmitting = false;
+        console.error('Error al guardar activo:', error);
+        alert('Ocurrió un error al guardar el activo');
+      }
+    });
   }
 
   // Abrir modal de detalles
   verDetalles(activo: Activo): void {
     this.activoSeleccionado = activo;
-    
-    // Llenar formulario con datos del activo
-    this.detallesForm.setValue({
-      id: activo.id,
-      codigo: activo.codigo,
-      tipo: activo.tipo,
-      subtipo: activo.subtipo,
-      marca: activo.marca || '',
-      modelo: activo.modelo || '',
-      codigoInterno: activo.codigoInterno || '',
-      serial: activo.serial || '',
-      estado: activo.estado,
-      ambienteAsignado: activo.ambienteAsignado || '',
-      observaciones: activo.observaciones || ''
-    });
-    
+
+    // this.detallesForm.setValue({
+    //   idactivo: activo.idactivo,
+    //   nombre: activo.nombre,
+    //   url: activo.url,
+    //   serial: activo.serial,
+    //   estado: activo.estado,
+    //   observaciones: activo.observaciones || '',
+    //   espacio: activo.espacio,             // Asegúrate de que el FormControl acepte un objeto o ID
+    //   tipoActivo: activo.tipoActivo        // Igual aquí, según cómo esté construido tu formulario
+    // });
+
     this.showModalDetalles = true;
   }
 
   // Cerrar modal de detalles
   cerrarModalDetalles(event: MouseEvent): void {
     const target = event.target as HTMLElement;
-    if (target.classList.contains('modal-overlay') || 
-        target.classList.contains('close-modal-btn')) {
+    if (target.classList.contains('modal-overlay') ||
+      target.classList.contains('close-modal-btn')) {
       this.showModalDetalles = false;
     }
   }
@@ -348,72 +294,81 @@ export class ActivosComponent implements OnInit {
 
     this.isSubmitting = true;
 
-    // Simulando una llamada a API con un timeout
-    setTimeout(() => {
-      const formData = this.detallesForm.value;
-      
-      // Actualizar activo en el array
-      this.activos = this.activos.map(activo => {
-        if (activo.id === formData.id) {
-          return {
-            ...activo,
-            codigo: formData.codigo,
-            nombre: formData.subtipo, // Usar el subtipo como nombre
-            tipo: formData.tipo,
-            subtipo: formData.subtipo,
-            estado: formData.estado,
-            ambienteAsignado: formData.ambienteAsignado || undefined,
-            marca: formData.marca || undefined,
-            modelo: formData.modelo || undefined,
-            codigoInterno: formData.codigoInterno || undefined,
-            serial: formData.serial || undefined,
-            observaciones: formData.observaciones || undefined
-          };
-        }
-        return activo;
-      });
-      
-      // Actualizar lista filtrada
-      this.filtrarActivos();
-      
-      // Reiniciar estado y cerrar modal
-      this.isSubmitting = false;
-      this.showModalDetalles = false;
-      
-      // Mostrar mensaje de éxito
-      alert(`Activo ${formData.codigo} actualizado con éxito`);
-    }, 1000);
+    const formData = this.detallesForm.value;
+
+    // Llamar al servicio para actualizar el activo en el backend
+    const activoActualizado: Activo = {
+      idactivo: formData.idactivo,
+      nombre: formData.nombre,
+      url: formData.url,
+      serial: formData.serial,
+      estado: formData.estado,
+      observaciones: formData.observaciones || '',
+      espacio: formData.espacio,
+      tipoActivo: formData.tipoActivo
+    };
+
+    this.activoService.guardarActivo(activoActualizado).subscribe({
+      next: (actualizado) => {
+        // Reemplazar el activo en el array local
+        this.activos = this.activos.map(activo =>
+          activo.idactivo === actualizado.idactivo ? actualizado : activo
+        );
+
+        this.filtrarActivos();  // Actualiza la lista filtrada
+
+        this.isSubmitting = false;
+        this.showModalDetalles = false;
+
+        alert(`Activo "${actualizado.nombre}" actualizado con éxito`);
+      },
+      error: (error) => {
+        this.isSubmitting = false;
+        console.error('Error al actualizar activo:', error);
+        alert('Ocurrió un error al actualizar el activo');
+      }
+    });
   }
+
 
   // Eliminar activo
   eliminarActivo(): void {
     if (!this.activoSeleccionado) return;
 
-    const confirmacion = confirm(`¿Está seguro de eliminar el activo ${this.activoSeleccionado.codigo}?`);
+    // Usar 'nombre' o 'serial' para mostrar en el mensaje de confirmación
+    const confirmacion = confirm(`¿Está seguro de eliminar el activo "${this.activoSeleccionado.nombre}"?`);
     if (!confirmacion) return;
 
     this.isSubmitting = true;
 
-    // Simulando una llamada a API con un timeout
-    setTimeout(() => {
-      // Eliminar activo del array
-      this.activos = this.activos.filter(activo => activo.id !== this.activoSeleccionado?.id);
-      
-      // Actualizar lista filtrada
-      this.filtrarActivos();
-      
-      // Reiniciar estado y cerrar modal
-      this.isSubmitting = false;
-      this.showModalDetalles = false;
-      
-      // Mostrar mensaje de éxito
-      alert(`Activo ${this.activoSeleccionado?.codigo} eliminado con éxito`);
-    }, 1000);
+    // Llamada al servicio para eliminar el activo (ejemplo con delete)
+    this.activoService.eliminarActivo(this.activoSeleccionado.idactivo!).subscribe({
+      next: () => {
+        // Eliminar activo del array local
+        this.activos = this.activos.filter(activo => activo.idactivo !== this.activoSeleccionado?.idactivo);
+
+        // Actualizar lista filtrada
+        this.filtrarActivos();
+
+        // Reiniciar estado y cerrar modal
+        this.isSubmitting = false;
+        this.showModalDetalles = false;
+
+        // Mostrar mensaje de éxito
+        alert(`Activo "${this.activoSeleccionado?.nombre}" eliminado con éxito`);
+      },
+      error: (error) => {
+        this.isSubmitting = false;
+        console.error('Error al eliminar activo:', error);
+        alert('Ocurrió un error al eliminar el activo');
+      }
+    });
   }
+
 
   // Cerrar sesión
   cerrarSesion(): void {
     // Aquí iría la lógica de cerrar sesión
     console.log('Cerrando sesión...');
-  }
+  }
 }
