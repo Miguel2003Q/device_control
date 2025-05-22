@@ -1,139 +1,182 @@
-import { CommonModule, NgClass } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+// Update the path below to the correct location of auth.service.ts
+import { AuthService } from '../../../core/services/auth.service';
+import { HttpClientModule } from '@angular/common/http';
+// Update the path below to the correct location of loading.service.ts
+import { LoadingService } from '../../../core/services/loading.service';
 
 @Component({
-  selector: 'app-registro-usuario',
+  selector: 'app-register',
   standalone: true,
-  imports: [CommonModule, FormsModule, NgClass, ReactiveFormsModule],
-  templateUrl: './register.component.html', //Falta el css
+  imports: [CommonModule, FormsModule, HttpClientModule],
+  templateUrl: './register.component.html',
   styleUrls: ['./register.component.css']
 })
-export class RegistroUsuarioComponent implements OnInit {
-  registroForm: FormGroup;
-  isSubmitting: boolean = false;
+export class RegisterComponent {
+  registerRequest = {
+    nombre: '',
+    email: '',
+    telefono: '',
+    clave: '',
+    rol: ''
+  };
+
+  confirmPassword = '';
+  errorMessage: string = '';
+  successMessage: string = '';
+  loading: boolean = false;
+
+  // Propiedades para la visibilidad de contraseñas
   showPassword: boolean = false;
-  passwordStrength: number = 0;
+  showConfirmPassword: boolean = false;
+
+  // Propiedades para la fuerza de la contraseña
+  passwordStrengthScore: number = 0;
+  passwordStrengthText: string = 'Débil';
+  passwordStrengthClass: string = 'weak';
 
   constructor(
-    private fb: FormBuilder,
-    private router: Router
-  ) {
-    this.registroForm = this.fb.group({
-      nombreCompleto: ['', [Validators.required]],
-      correo: ['', [Validators.required, Validators.email]],
-      contrasena: ['', [Validators.required, Validators.minLength(6)]],
-      telefono: ['', [Validators.required, Validators.pattern('^[0-9]{10}$')]],
-      rol: ['', [Validators.required]]
-    });
-  }
+    private authService: AuthService,
+    private router: Router,
+    private loadingService: LoadingService
+  ) {}
 
-  ngOnInit(): void {
-    // Suscribirse a cambios en la contraseña para calcular la fortaleza
-    this.registroForm.get('contrasena')?.valueChanges.subscribe((password) => {
-      this.calculatePasswordStrength(password);
-    });
-  }
-
-  // Verificar si el campo es invalido
-  isFieldInvalid(field: string): boolean {
-    const formControl = this.registroForm.get(field);
-    return formControl !== null && formControl !== undefined && 
-           formControl.invalid && 
-           (formControl.dirty || formControl.touched);
-  }
-
-  // Alternar visibilidad de contraseña
-  togglePasswordVisibility(): void {
+  // Método para alternar visibilidad de la contraseña
+  togglePasswordVisibility() {
     this.showPassword = !this.showPassword;
   }
 
-  // Calcular fortaleza de contraseña
-  calculatePasswordStrength(password: string): void {
-    if (!password) {
-      this.passwordStrength = 0;
+  // Método para alternar visibilidad de la confirmación de contraseña
+  toggleConfirmPasswordVisibility() {
+    this.showConfirmPassword = !this.showConfirmPassword;
+  }
+
+  // Método para evaluar la fuerza de la contraseña
+  checkPasswordStrength() {
+    const password = this.registerRequest.clave;
+    let score = 0;
+
+    // Criterios de evaluación
+    if (password.length >= 8) score++;
+    if (/[A-Z]/.test(password)) score++;
+    if (/[0-9]/.test(password)) score++;
+    if (/[^A-Za-z0-9]/.test(password)) score++;
+
+    this.passwordStrengthScore = score;
+
+    // Actualizar texto y clase según el puntaje
+    switch (score) {
+      case 0:
+      case 1:
+        this.passwordStrengthText = 'Débil';
+        this.passwordStrengthClass = 'weak';
+        break;
+      case 2:
+        this.passwordStrengthText = 'Media';
+        this.passwordStrengthClass = 'medium';
+        break;
+      case 3:
+      case 4:
+        this.passwordStrengthText = 'Fuerte';
+        this.passwordStrengthClass = 'strong';
+        break;
+    }
+  }
+
+  onSubmit() {
+    this.loadingService.show();
+    
+    // Resetear mensajes
+    this.errorMessage = '';
+    this.successMessage = '';
+
+    if (this.loading) return; // Evita múltiples envíos
+
+    this.loading = true;
+
+    // Validación de campos requeridos
+    if (!this.registerRequest.nombre || !this.registerRequest.email || !this.registerRequest.clave) {
+      this.errorMessage = 'Por favor, completa todos los campos obligatorios.';
+      this.loading = false;
+      this.loadingService.hide();
       return;
     }
 
-    let strength = 0;
-    
-    // Longitud
-    if (password.length >= 8) {
-      strength += 25;
-    } else if (password.length >= 6) {
-      strength += 15;
-    }
-    
-    // Mayúsculas y minúsculas
-    if (/[a-z]/.test(password) && /[A-Z]/.test(password)) {
-      strength += 25;
-    } else if (/[a-z]/.test(password) || /[A-Z]/.test(password)) {
-      strength += 15;
-    }
-    
-    // Números
-    if (/[0-9]/.test(password)) {
-      strength += 25;
-    }
-    
-    // Caracteres especiales
-    if (/[^a-zA-Z0-9]/.test(password)) {
-      strength += 25;
-    }
-    
-    this.passwordStrength = strength;
-  }
-
-  // Obtener color basado en la fortaleza de la contraseña
-  getPasswordStrengthColor(): string {
-    if (this.passwordStrength < 30) {
-      return '#F44336'; // Rojo - débil
-    } else if (this.passwordStrength < 60) {
-      return '#FFA726'; // Naranja - media
-    } else if (this.passwordStrength < 80) {
-      return '#66BB6A'; // Verde claro - buena
-    } else {
-      return '#43A047'; // Verde oscuro - fuerte
-    }
-  }
-
-  // Obtener texto basado en la fortaleza de la contraseña
-  getPasswordStrengthText(): string {
-    if (this.passwordStrength < 30) {
-      return 'Débil';
-    } else if (this.passwordStrength < 60) {
-      return 'Media';
-    } else if (this.passwordStrength < 80) {
-      return 'Buena';
-    } else {
-      return 'Fuerte';
-    }
-  }
-
-  // Manejar envío del formulario
-  onSubmit(): void {
-    if (this.registroForm.invalid) {
-      // Marcar todos los campos como tocados para mostrar errores
-      Object.keys(this.registroForm.controls).forEach(key => {
-        const control = this.registroForm.get(key);
-        control?.markAsTouched();
-      });
+    // Validación de contraseña
+    if (this.registerRequest.clave !== this.confirmPassword) {
+      this.errorMessage = 'Las contraseñas no coinciden.';
+      this.loading = false;
+      this.loadingService.hide();
       return;
     }
 
-    this.isSubmitting = true;
+    // Validación de fuerza de contraseña (mínimo Media)
+    if (this.passwordStrengthScore < 2) {
+      this.errorMessage = 'La contraseña es demasiado débil. Usa al menos 8 caracteres, incluyendo mayúsculas, números y caracteres especiales.';
+      this.loading = false;
+      this.loadingService.hide();
+      return;
+    }
 
-    // Aquí iría la lógica para enviar los datos al backend
-    // Simulando una llamada a API con un timeout
-    setTimeout(() => {
-      console.log('Formulario enviado:', this.registroForm.value);
-      
-      // Después de registrar, navegar al login o dashboard
-      this.isSubmitting = false;
-      this.router.navigate(['/login']);
-      
-      // Aquí podrías mostrar un mensaje de éxito usando un servicio de notificaciones
-    }, 1500);
-  }
+    // Validación de rol seleccionado
+    if (!this.registerRequest.rol) {
+      this.errorMessage = 'Por favor, selecciona un rol.';
+      this.loading = false;
+      this.loadingService.hide();
+      return;
+    }
+
+    // Validación básica de email
+    const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+    if (!emailPattern.test(this.registerRequest.email)) {
+      this.errorMessage = 'Por favor, ingresa un correo electrónico válido.';
+      this.loading = false;
+      this.loadingService.hide();
+      return;
+    }
+
+    // Llamada al servicio para registrar
+    this.authService.register(this.registerRequest).subscribe({
+      next: (response: any) => {
+        this.loading = false;
+        this.loadingService.hide();
+        this.successMessage = '¡Cuenta creada con éxito!';
+        
+        // Redirigir después de un breve retraso
+        setTimeout(() => {
+          this.router.navigate(['/login']);
+        }, 1500);
+      },
+      error: (err: { status: number; error: { message: string; }; }) => {
+        this.loading = false;
+        this.loadingService.hide();
+        if (err.status === 409) {
+          this.errorMessage = 'El nombre de usuario o correo electrónico ya está en uso.';
+        } else {
+          this.errorMessage = err.error?.message || 'Error al crear la cuenta. Por favor, intenta nuevamente.';
+        }
+        console.error('Error en registro:', err);
+      }
+    });
+  }
+
+  // Método auxiliar para limpiar el formulario
+  resetForm() {
+    this.registerRequest = {
+      nombre: '',
+      email: '',
+      telefono: '',
+      clave: '',
+      rol: ''
+    };
+    this.confirmPassword = '';
+    this.errorMessage = '';
+    this.successMessage = '';
+    this.passwordStrengthScore = 0;
+    this.passwordStrengthText = 'Débil';
+    this.passwordStrengthClass = 'weak';
+  }
 }
