@@ -10,6 +10,7 @@ import { Injectable } from '@angular/core';
 import { EspacioService } from '../../core/services/espacio.service';
 import { AuthService } from '../../core/services/auth.service';
 import { Ambiente } from '../../core/models/ambiente.model';
+import { Espacio } from '../../core/models/Espacio';
 
 @Component({
   selector: 'app-gestion-ambientes',
@@ -26,8 +27,8 @@ import { Ambiente } from '../../core/models/ambiente.model';
   styleUrls: ['./gestion-ambientes.component.css']
 })
 export class GestionAmbientesComponent implements OnInit {
-  ambientes: Ambiente[] = [];
-  ambientesFiltrados: Ambiente[] = [];
+  ambientes: Espacio[] = [];
+  ambientesFiltrados: Espacio[] = [];
   searchTerm: string = '';
   filtroEstado: string = '';
   sidebarActive: boolean = true;
@@ -39,7 +40,7 @@ export class GestionAmbientesComponent implements OnInit {
   isSubmitting: boolean = false;
 
   showSolicitarModal: boolean = false;
-  ambienteSeleccionado: Ambiente | null = null;
+  ambienteSeleccionado: Espacio | null = null;
   solicitudForm: FormGroup;
 
   showDetallesModal: boolean = false;
@@ -105,7 +106,7 @@ export class GestionAmbientesComponent implements OnInit {
 
   cargarAmbientes(): void {
     this.espacioService.obtenerTodosLosEspacios().subscribe({
-      next: (ambientes: Ambiente[]) => {
+      next: (ambientes: Espacio[]) => {
         this.ambientes = ambientes;
         this.filtrarAmbientes();
       },
@@ -119,8 +120,7 @@ export class GestionAmbientesComponent implements OnInit {
     this.ambientesFiltrados = this.ambientes.filter(ambiente => {
       const searchMatch = this.searchTerm === '' ||
         ambiente.nombre.toLowerCase().includes(this.searchTerm.toLowerCase());
-      const filterMatch = this.filtroEstado === '' ||
-        ambiente.estado === this.filtroEstado;
+      const filterMatch = this.filtroEstado === '';
       return searchMatch && filterMatch;
     });
   }
@@ -144,21 +144,21 @@ export class GestionAmbientesComponent implements OnInit {
     this.showModal = true;
   }
 
-  editarAmbiente(ambiente: Ambiente): void {
+  editarAmbiente(ambiente: Espacio): void {
     if (!this.isLoggedIn()) {
       alert('Debes iniciar sesi\u00f3n para editar un ambiente.');
       return;
     }
     this.isEditing = true;
     this.ambienteForm.setValue({
-      id: ambiente.id || 0,
+      id: ambiente.idespacio || 0,
       nombre: ambiente.nombre,
-      estado: ambiente.estado,
-      capacidad: ambiente.capacidad,
-      ubicacion: ambiente.ubicacion,
-      proyector: ambiente.proyector || false,
-      computadoras: ambiente.computadoras || false,
-      wifi: ambiente.wifi || false
+      // estado: ambiente.estado,
+      // capacidad: ambiente.capacidad,
+      // ubicacion: ambiente.ubicacion,
+      // proyector: ambiente.proyector || false,
+      // computadoras: ambiente.computadoras || false,
+      // wifi: ambiente.wifi || false
     });
     this.showModal = true;
     this.showDetallesModal = false;
@@ -172,7 +172,7 @@ export class GestionAmbientesComponent implements OnInit {
     if (confirm('\u00bfEst\u00e1s seguro de que deseas eliminar este ambiente?')) {
       this.espacioService.eliminarEspacio(id).subscribe({
         next: () => {
-          this.ambientes = this.ambientes.filter(a => a.id !== id);
+          this.ambientes = this.ambientes.filter(a => a.idespacio !== id);
           this.filtrarAmbientes();
           alert('Ambiente eliminado con \u00e9xito.');
         },
@@ -217,13 +217,13 @@ export class GestionAmbientesComponent implements OnInit {
     }
 
     this.isSubmitting = true;
-    const ambienteData: Ambiente = this.ambienteForm.value;
+    const ambienteData: Espacio = this.ambienteForm.value;
 
     this.espacioService.guardarEspacio(ambienteData).subscribe({
-      next: (nuevoAmbiente: Ambiente) => {
+      next: (nuevoAmbiente: Espacio) => {
         if (this.isEditing) {
           this.ambientes = this.ambientes.map(a =>
-            a.id === nuevoAmbiente.id ? nuevoAmbiente : a
+            a.idespacio === nuevoAmbiente.idespacio ? nuevoAmbiente : a
           );
         } else {
           this.ambientes.push(nuevoAmbiente);
@@ -233,7 +233,7 @@ export class GestionAmbientesComponent implements OnInit {
         this.showModal = false;
         alert(`Ambiente ${this.isEditing ? 'actualizado' : 'creado'} con \u00e9xito.`);
         if (this.ambienteSeleccionado) {
-          this.ambienteSeleccionado = this.ambientes.find(a => a.id === this.ambienteSeleccionado?.id) || null;
+          this.ambienteSeleccionado = this.ambientes.find(a => a.idespacio === this.ambienteSeleccionado?.idespacio) || null;
         }
       },
       error: (error: { message: string }) => {
@@ -243,12 +243,12 @@ export class GestionAmbientesComponent implements OnInit {
     });
   }
 
-  solicitarAmbiente(ambiente: Ambiente): void {
+  solicitarAmbiente(ambiente: Espacio): void {
     if (!this.isLoggedIn()) {
       alert('Debes iniciar sesi\u00f3n para solicitar un ambiente.');
       return;
     }
-    if (ambiente.estado !== 'Disponible') return;
+    // if (ambiente.estado !== 'Disponible') return;
 
     this.ambienteSeleccionado = ambiente;
     this.solicitudForm.reset();
@@ -294,17 +294,17 @@ export class GestionAmbientesComponent implements OnInit {
     const periodoDeUso = `${solicitudData.horaInicio} - ${solicitudData.horaFin}`;
 
     if (this.ambienteSeleccionado) {
-      const updatedAmbiente: Ambiente = {
+      const updatedAmbiente: Espacio = {
         ...this.ambienteSeleccionado,
-        estado: 'Ocupado',
-        reservadoPor: this.usuarioActual.nombre,
-        periodoDeUso: periodoDeUso
+        // estado: 'Ocupado',
+        // reservadoPor: this.usuarioActual.nombre,
+        // periodoDeUso: periodoDeUso
       };
 
       this.espacioService.guardarEspacio(updatedAmbiente).subscribe({
-        next: (nuevoAmbiente: Ambiente) => {
+        next: (nuevoAmbiente: Espacio) => {
           this.ambientes = this.ambientes.map(a =>
-            a.id === nuevoAmbiente.id ? nuevoAmbiente : a
+            a.idespacio === nuevoAmbiente.idespacio ? nuevoAmbiente : a
           );
           this.filtrarAmbientes();
           this.isSubmitting = false;
@@ -319,7 +319,7 @@ export class GestionAmbientesComponent implements OnInit {
     }
   }
 
-  verDetalles(ambiente: Ambiente): void {
+  verDetalles(ambiente: Espacio): void {
     if (!this.isLoggedIn()) {
       alert('Debes iniciar sesi\u00f3n para ver los detalles de un ambiente.');
       return;

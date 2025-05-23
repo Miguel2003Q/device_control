@@ -48,6 +48,10 @@ export const routes: Routes = [ //Lazy Loading lo que significa que los componen
     {
         path: 'perfil',
         loadComponent: () => import('./perfil/perfil.component').then(m => m.PerfilComponent)
+    },
+    {
+        path: 'solicitudes',
+        loadComponent: () => import('./instructor/solicitud-ambiente/solicitud-ambiente.component').then(m => m.SolicitudAmbienteComponent)
     }
 ];
 

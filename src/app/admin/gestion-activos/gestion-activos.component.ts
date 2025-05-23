@@ -1,35 +1,16 @@
-import de from '@angular/common/locales/de';
 import { Component, OnInit, HostListener } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
-import { NgModule } from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
 import { ReactiveFormsModule } from '@angular/forms';
 import { TopBarComponent } from "../shared/top-bar/top-bar.component";
 import { SidebarComponent } from "../shared/sidebar/sidebar.component";
 import { ActivoService } from '../../core/services/activo.service';
 import { Activo } from '../../core/models/activo.model';
-
-// interface Activo {
-//   id: number;
-//   codigo: string;
-//   nombre: string;
-//   tipo: string;
-//   subtipo: string;
-//   estado: 'Disponible' | 'Ocupado' | 'Mantenimiento';
-//   ambienteAsignado?: string;
-//   marca?: string;
-//   modelo?: string;
-//   codigoInterno?: string;
-//   serial?: string;
-//   observaciones?: string;
-// }
-
-interface Ambiente {
-  id: number;
-  nombre: string;
-}
+import { LoadingService } from '../../core/services/loading.service';
+import { TipoActivo } from '../../core/models/TipoActivo';
+import { Espacio } from '../../core/models/Espacio';
+import { EspacioService } from '../../core/services/espacio.service';
+import { TipoActivoService } from '../../core/services/tipoactivo.service';
 
 @Component({
   selector: 'app-activos',
@@ -42,7 +23,8 @@ export class ActivosComponent implements OnInit {
   // Propiedades del componente
   activos: Activo[] = [];
   activosFiltrados: Activo[] = [];
-  ambientes: Ambiente[] = [];
+  espacios: Espacio[] = [];
+  tiposActivo: TipoActivo[] = [];
   searchTerm: string = '';
   sidebarActive: boolean = true;
   screenWidth: number;
@@ -62,26 +44,25 @@ export class ActivosComponent implements OnInit {
     nombre: 'Juan Benicio',
     rol: 'Administrador'
   };
-tiposActivos: any;
 
   constructor(
     private fb: FormBuilder,
-    private activoService: ActivoService,) {
+    private activoService: ActivoService,
+    private espacioService: EspacioService,
+    private tipoActivoService: TipoActivoService,
+    private loading: LoadingService) {
     // Inicializar el ancho de pantalla
     this.screenWidth = window.innerWidth;
 
     // Inicializar formulario de creación
     this.activoForm = this.fb.group({
-      codigo: ['', [Validators.required]],
-      tipo: ['', [Validators.required]],
-      subtipo: ['', [Validators.required]],
-      marca: [''],
-      modelo: [''],
-      codigoInterno: [''],
-      serial: [''],
-      estado: ['Disponible'],
-      ambienteAsignado: [''],
-      observaciones: ['']
+      nombre: ['', Validators.required],
+      url: ['', Validators.required],
+      serial: ['', Validators.required],
+      estado: ['', Validators.required],
+      observaciones: [''],
+      espacio: [null, Validators.required],        // objeto Espacio
+      tipoActivo: [null, Validators.required],     // objeto TipoActivo
     });
 
     // Inicializar formulario de detalles
@@ -104,7 +85,7 @@ tiposActivos: any;
   ngOnInit(): void {
     // Cargar datos
     this.cargarActivos();
-    this.cargarAmbientes();
+    this.cargarEspaciosYTipoActivos();
   }
 
   // Método para detectar cambios en el tamaño de la ventana
@@ -130,27 +111,39 @@ tiposActivos: any;
 
   // Cargar lista de activos
   cargarActivos(): void {
-
+    this.loading.show();
     this.activoService.obtenerTodosLosActivos().subscribe({
       next: (activos: Activo[]) => {
         this.activos = activos;
         this.activosFiltrados = [...this.activos];
+        this.loading.hide();
       },
       error: (error: { message: string }) => {
         console.error('Error al cargar activos: ' + error.message);
+        this.loading.hide();
       }
     });
   }
 
-  // Cargar ambientes disponibles
-  cargarAmbientes(): void {
-    // Aquí normalmente harías una llamada a un servicio
-    this.ambientes = [
-      { id: 1, nombre: 'Ambiente 1' },
-      { id: 2, nombre: 'Ambiente 2' },
-      { id: 3, nombre: 'Ambiente 3' },
-      { id: 4, nombre: 'Ambiente 4' }
-    ];
+  // Cargar espacios y tipos de activos disponibles
+  cargarEspaciosYTipoActivos(): void {
+
+    this.espacioService.obtenerTodosLosEspacios().subscribe({
+      next: (data) => {
+        this.espacios = data;
+      },
+      error: (err) => {
+        console.error('Error al cargar los espacios:', err);
+      }
+    });
+    this.tipoActivoService.obtenerTodosLosTiposActivos().subscribe({
+      next: (data) => {
+        this.tiposActivo = data;
+      },
+      error: (err) => {
+        console.error('Error al cargar los tipo activos:', err);
+      }
+    });
   }
 
   // Filtrar activos según término de búsqueda
@@ -226,14 +219,23 @@ tiposActivos: any;
 
     const formData = this.activoForm.value;
 
+    // Mapeo de string a char para el estado
+    const estadoMap: { [key: string]: string } = {
+      'Disponible': 'D',
+      'Ocupado': 'O',
+      'Mantenimiento': 'M'
+    };
+    console.log('Valor de estado:', formData.estado);
+console.log('Estado mapeado:', estadoMap[formData.estado]);
+
     const nuevoActivo: Activo = {
       // No se pone idactivo porque lo generará el backend
       nombre: formData.nombre,
       url: formData.url,
       serial: formData.serial,
-      estado: formData.estado,
+      estado: estadoMap[formData.estado],
       observaciones: formData.observaciones || '',
-      espacio: formData.espacio,           // Debe ser un objeto Espacio válido
+      espacio: formData.espacio,          // Debe ser un objeto Espacio válido
       tipoActivo: formData.tipoActivo      // Debe ser un objeto TipoActivo válido
     };
 

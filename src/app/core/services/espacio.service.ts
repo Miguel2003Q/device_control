@@ -1,16 +1,18 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { Observable, of, throwError } from 'rxjs';
+import { catchError, tap } from 'rxjs/operators';
 import { Ambiente } from '../models/ambiente.model';
+import { Espacio } from '../models/Espacio';
 
 @Injectable({
   providedIn: 'root'
 })
 export class EspacioService {
   private apiUrl = 'http://localhost:8080/espacios'; // Ajusta la URL según tu API Spring Boot
+  private activosCache: Espacio[] | null = null; //Para almacenar en caché los espacios (no hacer consultas innecesarias)
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   // Método privado para obtener los encabezados con el token
   private getHeaders(): HttpHeaders {
@@ -23,22 +25,28 @@ export class EspacioService {
   }
 
   // Get all spaces
-  obtenerTodosLosEspacios(): Observable<Ambiente[]> {
-    return this.http.get<Ambiente[]>(this.apiUrl, { headers: this.getHeaders() }).pipe(
-      catchError(this.handleError)
-    );
+  obtenerTodosLosEspacios(): Observable<Espacio[]> {
+    if (this.activosCache) {
+      // Ya tengo los datos en caché, los devuelvo como observable
+      return of(this.activosCache);
+    } else {
+      return this.http.get<Espacio[]>(this.apiUrl, { headers: this.getHeaders() }).pipe(
+        tap((data: Espacio[]) => this.activosCache = data),
+        catchError(this.handleError)
+      );
+    }
   }
 
   // Get space by ID
-  obtenerEspacioPorId(id: number): Observable<Ambiente> {
-    return this.http.get<Ambiente>(`${this.apiUrl}/${id}`, { headers: this.getHeaders() }).pipe(
+  obtenerEspacioPorId(id: number): Observable<Espacio> {
+    return this.http.get<Espacio>(`${this.apiUrl}/${id}`, { headers: this.getHeaders() }).pipe(
       catchError(this.handleError)
     );
   }
 
   // Search spaces by name
-  buscarEspaciosPorNombre(nombre: string): Observable<Ambiente[]> {
-    return this.http.get<Ambiente[]>(`${this.apiUrl}/buscarPorNombre?nombre=${encodeURIComponent(nombre)}`, { headers: this.getHeaders() }).pipe(
+  buscarEspaciosPorNombre(nombre: string): Observable<Espacio[]> {
+    return this.http.get<Espacio[]>(`${this.apiUrl}/buscarPorNombre?nombre=${encodeURIComponent(nombre)}`, { headers: this.getHeaders() }).pipe(
       catchError(this.handleError)
     );
   }
@@ -51,14 +59,14 @@ export class EspacioService {
   }
 
   // Save or update a space
-  guardarEspacio(espacio: Ambiente): Observable<Ambiente> {
+  guardarEspacio(espacio: Espacio): Observable<Espacio> {
     const headers = this.getHeaders();
-    if (espacio.id) {
-      return this.http.put<Ambiente>(`${this.apiUrl}/${espacio.id}`, espacio, { headers }).pipe(
+    if (espacio.idespacio) {
+      return this.http.put<Espacio>(`${this.apiUrl}/${espacio.idespacio}`, espacio, { headers }).pipe(
         catchError(this.handleError)
       );
     } else {
-      return this.http.post<Ambiente>(this.apiUrl, espacio, { headers }).pipe(
+      return this.http.post<Espacio>(this.apiUrl, espacio, { headers }).pipe(
         catchError(this.handleError)
       );
     }

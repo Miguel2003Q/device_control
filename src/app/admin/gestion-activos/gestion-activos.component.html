@@ -74,7 +74,7 @@
 
 <!-- Modal para crear activo -->
 <div class="modal-overlay" *ngIf="showModalCrear" (click)="cerrarModalCrear($event)">
-  <div class="modal-container">
+  <div class="modal-container" (click)="$event.stopPropagation()">
     <div class="modal-header">
       <h2>Crear Activo</h2>
       <button class="close-modal-btn" (click)="cerrarModalCrear($event)">
@@ -84,121 +84,79 @@
 
     <div class="modal-body">
       <form [formGroup]="activoForm" (ngSubmit)="guardarActivo()">
+
+        <!-- Nombre -->
         <div class="form-group">
-          <label for="codigo">Código</label>
+          <label for="nombre">Nombre</label>
           <div class="input-container">
-            <input type="text" id="codigo" formControlName="codigo" placeholder="Ej: AA-001">
+            <input type="text" id="nombre" formControlName="nombre" placeholder="Ej: Impresora Epson L3150">
           </div>
-          <div class="error-message" *ngIf="isInvalid('codigo')">
-            <span *ngIf="activoForm.get('codigo')?.errors?.['required']">El código es requerido</span>
+          <div class="error-message" *ngIf="isInvalid('nombre')">
+            <span>El nombre es requerido</span>
           </div>
         </div>
 
+        <!-- URL -->
         <div class="form-group">
-          <label for="tipo">Tipo</label>
-          <div class="input-container select-container">
-            <select id="tipo" formControlName="tipo" (change)="onTipoChange()">
-              <option value="" disabled>Seleccione un tipo</option>
-              <option value="Mobiliario">Mobiliario</option>
-              <option value="Tecnologico">Tecnológico</option>
-              <option value="Electrodomestico">Electrodoméstico</option>
-            </select>
-            <i class="fas fa-chevron-down select-arrow"></i>
+          <label for="url">URL (Imagen o documento)</label>
+          <div class="input-container">
+            <input type="text" id="url" formControlName="url" placeholder="Ej: https://...">
           </div>
-          <div class="error-message" *ngIf="isInvalid('tipo')">
-            <span *ngIf="activoForm.get('tipo')?.errors?.['required']">El tipo es requerido</span>
+          <div class="error-message" *ngIf="isInvalid('url')">
+            <span>La URL es requerida</span>
           </div>
         </div>
 
+        <!-- Serial -->
         <div class="form-group">
-          <label for="subtipo">Subtipo</label>
+          <label for="serial">Serial</label>
+          <div class="input-container">
+            <input type="text" id="serial" formControlName="serial" placeholder="Ej: XYZ123456">
+          </div>
+          <div class="error-message" *ngIf="isInvalid('serial')">
+            <span>El serial es requerido</span>
+          </div>
+        </div>
+
+        <!-- Estado -->
+        <div class="form-group">
+          <label for="detalle-estado">Estado</label>
           <div class="input-container select-container">
-            <select id="subtipo" formControlName="subtipo">
-              <option value="" disabled>Seleccione un subtipo</option>
-              <ng-container *ngIf="activoForm.get('tipo')?.value === 'Mobiliario'">
-                <option value="Mesa">Mesa</option>
-                <option value="Silla">Silla</option>
-                <option value="Escritorio">Escritorio</option>
-                <option value="Armario">Armario</option>
-              </ng-container>
-              <ng-container *ngIf="activoForm.get('tipo')?.value === 'Tecnologico'">
-                <option value="Computador">Computador</option>
-                <option value="Teclado">Teclado</option>
-                <option value="Mouse">Mouse</option>
-                <option value="Monitor">Monitor</option>
-              </ng-container>
-              <ng-container *ngIf="activoForm.get('tipo')?.value === 'Electrodomestico'">
-                <option value="Nevera">Nevera</option>
-                <option value="Microondas">Microondas</option>
-                <option value="Cafetera">Cafetera</option>
-              </ng-container>
+            <select id="detalle-estado" formControlName="estado">
+              <option value="Disponible">Disponible</option>
+              <option value="Ocupado">Ocupado</option>
+              <option value="Mantenimiento">Mantenimiento</option>
             </select>
-            <i class="fas fa-chevron-down select-arrow"></i>
-          </div>
-          <div class="error-message" *ngIf="isInvalid('subtipo')">
-            <span *ngIf="activoForm.get('subtipo')?.errors?.['required']">El subtipo es requerido</span>
           </div>
         </div>
 
-        <div class="form-row">
-          <div class="form-group half">
-            <label for="marca">Marca</label>
-            <div class="input-container">
-              <input type="text" id="marca" formControlName="marca" placeholder="Ej: Dell">
-            </div>
-          </div>
-
-          <div class="form-group half">
-            <label for="modelo">Modelo</label>
-            <div class="input-container">
-              <input type="text" id="modelo" formControlName="modelo" placeholder="Ej: XPS 13">
-            </div>
+        <!-- Espacio (Ambiente asignado) -->
+        <div class="form-group">
+          <label for="espacio">Espacio Asignado</label>
+          <div class="input-container select-container">
+            <select id="espacio" formControlName="espacio">
+              <option value="">Seleccione un espacio</option>
+              <option *ngFor="let espacio of espacios" [ngValue]="espacio">
+                {{ espacio.nombre }}
+              </option>
+            </select>
           </div>
         </div>
 
-        <div class="form-row">
-          <div class="form-group half">
-            <label for="codigoInterno">Código Interno</label>
-            <div class="input-container">
-              <input type="text" id="codigoInterno" formControlName="codigoInterno" placeholder="Ej: AA-001">
-            </div>
-          </div>
-
-          <div class="form-group half">
-            <label for="serial">Serial</label>
-            <div class="input-container">
-              <input type="text" id="serial" formControlName="serial" placeholder="Ej: XYZ123456">
-            </div>
+        <!-- Tipo Activo -->
+        <div class="form-group">
+          <label for="tipoActivo">Tipo de Activo</label>
+          <div class="input-container select-container">
+            <select id="tipoActivo" formControlName="tipoActivo">
+              <option value="">Seleccione un tipo</option>
+              <option *ngFor="let tipo of tiposActivo" [ngValue]="tipo">
+                {{ tipo.nombre }}
+              </option>
+            </select>
           </div>
         </div>
 
-        <div class="form-row">
-          <div class="form-group half">
-            <label for="estado">Estado</label>
-            <div class="input-container select-container">
-              <select id="estado" formControlName="estado">
-                <option value="Disponible">Disponible</option>
-                <option value="Ocupado">Ocupado</option>
-                <option value="Mantenimiento">Mantenimiento</option>
-              </select>
-              <i class="fas fa-chevron-down select-arrow"></i>
-            </div>
-          </div>
-
-          <div class="form-group half">
-            <label for="ambienteAsignado">Ambiente Asignado</label>
-            <div class="input-container select-container">
-              <select id="ambienteAsignado" formControlName="ambienteAsignado">
-                <option value="">Sin asignar</option>
-                <option *ngFor="let ambiente of ambientes" [value]="ambiente.nombre">
-                  {{ambiente.nombre}}
-                </option>
-              </select>
-              <i class="fas fa-chevron-down select-arrow"></i>
-            </div>
-          </div>
-        </div>
-
+        <!-- Observaciones -->
         <div class="form-group">
           <label for="observaciones">Observaciones</label>
           <div class="input-container textarea-container">
@@ -207,6 +165,7 @@
           </div>
         </div>
 
+        <!-- Botón de envío -->
         <div class="form-actions">
           <button type="submit" class="save-btn" [disabled]="activoForm.invalid || isSubmitting">
             <span *ngIf="!isSubmitting">Crear Activo</span>
@@ -217,6 +176,7 @@
     </div>
   </div>
 </div>
+
 
 <!-- Modal para ver/editar detalles -->
 <div class="modal-overlay" *ngIf="showModalDetalles" (click)="cerrarModalDetalles($event)">
@@ -271,7 +231,7 @@
           <label for="detalle-espacio">Espacio</label>
           <div class="input-container select-container">
             <select id="detalle-espacio" formControlName="espacio">
-              <option *ngFor="let ambiente of ambientes" [ngValue]="ambiente">{{ ambiente.nombre }}</option>
+              <option *ngFor="let ambiente of espacios" [ngValue]="ambiente">{{ ambiente.nombre }}</option>
             </select>
           </div>
         </div>
@@ -280,7 +240,7 @@
           <label for="detalle-tipoActivo">Tipo Activo</label>
           <div class="input-container select-container">
             <select id="detalle-tipoActivo" formControlName="tipoActivo">
-              <option *ngFor="let tipo of tiposActivos" [ngValue]="tipo">{{ tipo.nombre }}</option>
+              <option *ngFor="let tipo of tiposActivo" [ngValue]="tipo">{{ tipo.nombre }}</option>
             </select>
           </div>
         </div>

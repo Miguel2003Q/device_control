@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { Observable, of, throwError } from 'rxjs';
+import { catchError, tap } from 'rxjs/operators';
 import { Activo } from '../models/activo.model'; // Asegúrate de tener este modelo creado
 
 @Injectable({
@@ -9,8 +9,10 @@ import { Activo } from '../models/activo.model'; // Asegúrate de tener este mod
 })
 export class ActivoService {
   private apiUrl = 'http://localhost:8080/activos'; // Ajusta según tu API Spring Boot
+  private activosCache: Activo[] | null = null; //Para almacenar en caché los activos (no hacer consultas innecesarias)
 
-  constructor(private http: HttpClient) {}
+
+  constructor(private http: HttpClient) { }
 
   private getHeaders(): HttpHeaders {
     const token = localStorage.getItem('token');
@@ -23,9 +25,21 @@ export class ActivoService {
 
   // Obtener todos los activos
   obtenerTodosLosActivos(): Observable<Activo[]> {
-    return this.http.get<Activo[]>(this.apiUrl, { headers: this.getHeaders() }).pipe(
-      catchError(this.handleError)
-    );
+    if (this.activosCache) {
+      // Ya tengo los datos en caché, los devuelvo como observable
+      return of(this.activosCache);
+    } else {
+      // No tengo los datos, hago la consulta HTTP y los guardo
+      return this.http.get<Activo[]>(this.apiUrl, { headers: this.getHeaders() }).pipe(
+        tap((data: Activo[]) => this.activosCache = data),
+        catchError(this.handleError)
+      );
+    }
+  }
+
+  //Para cuando se crea un nuevo activo
+  limpiarCacheActivos(): void {
+    this.activosCache = null;
   }
 
   // Obtener un activo por ID
@@ -53,7 +67,7 @@ export class ActivoService {
   guardarActivo(activo: Activo): Observable<Activo> {
     const headers = this.getHeaders();
     if (activo.idactivo) {
-      return this.http.put<Activo>(`${this.apiUrl}/${activo.idactivo}`, activo, { headers }).pipe(
+      return this.http.post<Activo>(`${this.apiUrl}/${activo.idactivo}`, activo, { headers }).pipe(
         catchError(this.handleError)
       );
     } else {
