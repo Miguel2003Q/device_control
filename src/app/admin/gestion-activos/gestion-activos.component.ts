@@ -1,6 +1,7 @@
 import { Component, OnInit, HostListener } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import  {ToastrService} from 'ngx-toastr';
 import { ReactiveFormsModule } from '@angular/forms';
 import { TopBarComponent } from "../shared/top-bar/top-bar.component";
 import { SidebarComponent } from "../shared/sidebar/sidebar.component";
@@ -50,7 +51,8 @@ export class ActivosComponent implements OnInit {
     private activoService: ActivoService,
     private espacioService: EspacioService,
     private tipoActivoService: TipoActivoService,
-    private loading: LoadingService) {
+    private loading: LoadingService,
+    private toastr: ToastrService) {
     // Inicializar el ancho de pantalla
     this.screenWidth = window.innerWidth;
 
@@ -161,6 +163,17 @@ export class ActivosComponent implements OnInit {
     });
   }
 
+  estadoMap: { [key: string]: string } = {
+    'D': 'Disponible',
+    'O': 'Ocupado',
+    'M': 'Mantenimiento'
+  };
+
+  estadoReverseMap: { [key: string]: string } = {
+    'Disponible': 'D',
+    'Ocupado': 'O',
+    'Mantenimiento': 'M'
+  };
 
   // Abrir modal para crear activo
   abrirModalCrearActivo(): void {
@@ -219,21 +232,12 @@ export class ActivosComponent implements OnInit {
 
     const formData = this.activoForm.value;
 
-    // Mapeo de string a char para el estado
-    const estadoMap: { [key: string]: string } = {
-      'Disponible': 'D',
-      'Ocupado': 'O',
-      'Mantenimiento': 'M'
-    };
-    console.log('Valor de estado:', formData.estado);
-console.log('Estado mapeado:', estadoMap[formData.estado]);
-
     const nuevoActivo: Activo = {
       // No se pone idactivo porque lo generará el backend
       nombre: formData.nombre,
       url: formData.url,
       serial: formData.serial,
-      estado: estadoMap[formData.estado],
+      estado: this.estadoReverseMap[formData.estado],
       observaciones: formData.observaciones || '',
       espacio: formData.espacio,          // Debe ser un objeto Espacio válido
       tipoActivo: formData.tipoActivo      // Debe ser un objeto TipoActivo válido
@@ -242,11 +246,12 @@ console.log('Estado mapeado:', estadoMap[formData.estado]);
     // Llamar al servicio para guardar el activo
     this.activoService.guardarActivo(nuevoActivo).subscribe({
       next: (activoCreado) => {
+        this.toastr.success(`Activo "${activoCreado.nombre}" creado`, 'Creación exitosa');
         this.activos.push(activoCreado);
         this.filtrarActivos();
         this.isSubmitting = false;
         this.showModalCrear = false;
-        alert(`Activo "${activoCreado.nombre}" creado con éxito`);
+        // alert(`Activo "${activoCreado.nombre}" creado con éxito`);
       },
       error: (error) => {
         this.isSubmitting = false;
@@ -258,18 +263,22 @@ console.log('Estado mapeado:', estadoMap[formData.estado]);
 
   // Abrir modal de detalles
   verDetalles(activo: Activo): void {
+    const espacioAsignado = this.espacios.find(e => e.idespacio === activo.espacio?.idespacio);
+    const tipoActivoAsignado = this.tiposActivo.find(t => t.idtipoact === activo.tipoActivo?.idtipoact);
+    const estadoLegible = this.estadoMap[activo.estado] || 'Disponible';
+
     this.activoSeleccionado = activo;
 
-    // this.detallesForm.setValue({
-    //   idactivo: activo.idactivo,
-    //   nombre: activo.nombre,
-    //   url: activo.url,
-    //   serial: activo.serial,
-    //   estado: activo.estado,
-    //   observaciones: activo.observaciones || '',
-    //   espacio: activo.espacio,             // Asegúrate de que el FormControl acepte un objeto o ID
-    //   tipoActivo: activo.tipoActivo        // Igual aquí, según cómo esté construido tu formulario
-    // });
+    this.detallesForm.setValue({
+      idactivo: activo.idactivo,
+      nombre: activo.nombre,
+      url: activo.url,
+      serial: activo.serial,
+      estado: estadoLegible,
+      observaciones: activo.observaciones || '',
+      espacio: espacioAsignado || null,
+      tipoActivo: tipoActivoAsignado || null
+    });
 
     this.showModalDetalles = true;
   }
@@ -304,14 +313,15 @@ console.log('Estado mapeado:', estadoMap[formData.estado]);
       nombre: formData.nombre,
       url: formData.url,
       serial: formData.serial,
-      estado: formData.estado,
+      estado: this.estadoReverseMap[formData.estado],
       observaciones: formData.observaciones || '',
       espacio: formData.espacio,
       tipoActivo: formData.tipoActivo
     };
 
-    this.activoService.guardarActivo(activoActualizado).subscribe({
+    this.activoService.actualizarActivo(activoActualizado.idactivo!, activoActualizado).subscribe({
       next: (actualizado) => {
+        this.toastr.info('Activo actualizado correctamente', 'Actualización');
         // Reemplazar el activo en el array local
         this.activos = this.activos.map(activo =>
           activo.idactivo === actualizado.idactivo ? actualizado : activo
@@ -321,8 +331,6 @@ console.log('Estado mapeado:', estadoMap[formData.estado]);
 
         this.isSubmitting = false;
         this.showModalDetalles = false;
-
-        alert(`Activo "${actualizado.nombre}" actualizado con éxito`);
       },
       error: (error) => {
         this.isSubmitting = false;
@@ -346,6 +354,7 @@ console.log('Estado mapeado:', estadoMap[formData.estado]);
     // Llamada al servicio para eliminar el activo (ejemplo con delete)
     this.activoService.eliminarActivo(this.activoSeleccionado.idactivo!).subscribe({
       next: () => {
+        this.toastr.warning('Activo eliminado', 'Eliminación');
         // Eliminar activo del array local
         this.activos = this.activos.filter(activo => activo.idactivo !== this.activoSeleccionado?.idactivo);
 
@@ -355,9 +364,6 @@ console.log('Estado mapeado:', estadoMap[formData.estado]);
         // Reiniciar estado y cerrar modal
         this.isSubmitting = false;
         this.showModalDetalles = false;
-
-        // Mostrar mensaje de éxito
-        alert(`Activo "${this.activoSeleccionado?.nombre}" eliminado con éxito`);
       },
       error: (error) => {
         this.isSubmitting = false;
@@ -365,12 +371,5 @@ console.log('Estado mapeado:', estadoMap[formData.estado]);
         alert('Ocurrió un error al eliminar el activo');
       }
     });
-  }
-
-
-  // Cerrar sesión
-  cerrarSesion(): void {
-    // Aquí iría la lógica de cerrar sesión
-    console.log('Cerrando sesión...');
   }
 }

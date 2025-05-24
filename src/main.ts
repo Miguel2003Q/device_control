@@ -6,6 +6,7 @@ import { importProvidersFrom } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AppComponent } from './app/app.component';
 import { provideAnimations } from '@angular/platform-browser/animations';
+import { provideToastr } from 'ngx-toastr';
 
 import { routes } from './app/app.routes';
 
@@ -19,6 +20,7 @@ bootstrapApplication(AppComponent, {
     provideHttpClient(withInterceptorsFromDi()), // 👈 Activa interceptores desde DI
     importProvidersFrom(FormsModule),
     provideAnimations(),
+    provideToastr(),
 
     // ✅ Registro del interceptor
     {

@@ -50,8 +50,8 @@
             <div class="nombre-col">{{activo.nombre}}</div>
             <div class="tipo-col">{{activo.tipoActivo.nombre}}</div>
             <div class="estado-col">
-              <span class="estado-badge" [ngClass]="activo.estado.toLowerCase()">
-                {{activo.estado}}
+              <span class="estado-badge" [ngClass]="estadoMap[activo.estado].toLowerCase()">
+                {{ estadoMap[activo.estado] || activo.estado }}
               </span>
             </div>
             <div class="ambiente-col">{{activo.espacio.nombre}}</div>
@@ -224,7 +224,7 @@
 
         <div class="form-group">
           <label for="detalle-observaciones">Observaciones</label>
-          <textarea id="detalle-observaciones" formControlName="observaciones" placeholder="Observaciones"></textarea>
+          <textarea id="detalle-observaciones" formControlName="observaciones" class="fixed-textarea" placeholder="Observaciones"></textarea>
         </div>
 
         <div class="form-group">

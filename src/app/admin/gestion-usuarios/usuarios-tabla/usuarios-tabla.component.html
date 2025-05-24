@@ -57,12 +57,12 @@
             <tbody>
               <tr *ngFor="let user of filteredUsers">
                 <td>{{ user.nombre }}</td>
-                <td>{{ user.correo }}</td>
+                <td>{{ user.email }}</td>
                 <td>{{ user.rol }}</td>
                 <td>
-                  <span class="status-badge" [ngClass]="user.estado === 'Activo' ? 'active' : 'inactive'">
+                  <!-- <span class="status-badge" [ngClass]="user.estado === 'Activo' ? 'active' : 'inactive'">
                     {{ user.estado }}
-                  </span>
+                  </span> -->
                 </td>
                 <td>
                   <button class="edit-btn" (click)="editUser(user)">
@@ -108,7 +108,7 @@
           <label for="correo">Correo Electrónico</label>
           <div class="input-container">
             <i class="fas fa-envelope"></i>
-            <input type="email" id="correo" [(ngModel)]="currentUser.correo" name="correo" required>
+            <input type="email" id="correo" [(ngModel)]="currentUser.email" name="correo" required>
           </div>
         </div>
         
@@ -128,7 +128,7 @@
         
         <div class="form-group">
           <label for="estado">Estado</label>
-          <div class="toggle-container">
+          <!-- <div class="toggle-container">
             <input type="checkbox" id="estado" class="toggle-input" 
                    [checked]="currentUser.estado === 'Activo'"
                    (change)="onEstadoChange($event)">
@@ -137,7 +137,7 @@
               <span class="toggle-switch"></span>
             </label>
             <span class="toggle-text">{{ currentUser.estado }}</span>
-          </div>
+          </div> -->
         </div>
         
         <div class="form-actions">

@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { TopBarComponent } from "../admin/shared/top-bar/top-bar.component";
 import { SidebarComponent } from "../admin/shared/sidebar/sidebar.component";
 import { FormsModule } from '@angular/forms';
+import { AuthService } from '../core/services/auth.service';
 interface Profile {
   nombre: string;
   correo: string;
@@ -27,10 +28,10 @@ interface Passwords {
 export class PerfilComponent implements OnInit {
   // Profile data
   profile: Profile = {
-    nombre: 'Juan Basque',
-    correo: 'juanbasque@mail.com',
-    telefono: '1123231123',
-    rol: 'Administrador'
+    nombre: 'No auth',
+    correo: 'No auth',
+    telefono: 'No auth',
+    rol: 'No auth'
   };
   
   // Modal states
@@ -47,9 +48,27 @@ export class PerfilComponent implements OnInit {
   // Selected file
   selectedFile: File | null = null;
   
-  constructor() { }
+  constructor(
+    private authService: AuthService,
+  ) { }
 
   ngOnInit(): void {
+    console.log(this.authService.getCurrentUser());
+
+    this.cargarPerfil();
+  }
+
+  cargarPerfil(): void {
+    // Aquí puedes cargar el perfil del usuario desde un servicio
+    const user = this.authService.getCurrentUser();
+    if (user) {
+      this.profile = {
+        nombre: user.nombre ?? '',
+        correo: user.email ?? '',
+        telefono: user.telefono?.toString() ?? '',
+        rol: user.rol ?? ''
+      };
+    }
   }
   
   // Handle profile data changes

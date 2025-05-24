@@ -77,9 +77,17 @@ export class ActivoService {
     }
   }
 
+  actualizarActivo(id: number, activo: Activo): Observable<Activo> {
+    return this.http.put<Activo>(`${this.apiUrl}/actualizar/${id}`, activo, {
+      headers: this.getHeaders()
+    }).pipe(
+      catchError(this.handleError)
+    );
+  }
+
   // Eliminar un activo
   eliminarActivo(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`, { headers: this.getHeaders() }).pipe(
+    return this.http.delete<void>(`${this.apiUrl}/eliminar/${id}`, { headers: this.getHeaders() }).pipe(
       catchError(this.handleError)
     );
   }

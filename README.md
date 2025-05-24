@@ -24,8 +24,9 @@
 - Para poder ver los ionos se puso acceso global en index.html
 - [routerLinkActiveOptions]="{ exact: false } Para que permanezca activo mientras se esta en una ruta hija
 - Organizar activos funcional, crear activo, perfil, 
-- Cmabiar la palabra Ambiente por espacio
+- Cambiar la palabra Ambiente por espacio
 - Poner estado a los espacios?
+- Actualizar el cache al guardar, actualiz o elim un activo
 
 ## Estrucutra
 - admin: Vistas del admin
