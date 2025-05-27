@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule, NgClass } from '@angular/common';
 import { SidebarComponent } from "../../shared/sidebar/sidebar.component";
 import { TopBarComponent } from "../../shared/top-bar/top-bar.component";
-import { RegisterComponent } from "../../register/register.component";
+import { RegisterComponent } from '../register/register.component';
 import { UsuarioService } from '../../../core/services/usuario.service';
 import { Usuario } from '../../../core/models/usuario.model';
 
