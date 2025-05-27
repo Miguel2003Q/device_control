@@ -9,7 +9,6 @@ import { SidebarComponent } from "../shared/sidebar/sidebar.component";
 import { Injectable } from '@angular/core';
 import { EspacioService } from '../../core/services/espacio.service';
 import { AuthService } from '../../core/services/auth.service';
-import { Ambiente } from '../../core/models/ambiente.model';
 import { Espacio } from '../../core/models/Espacio';
 
 @Component({
