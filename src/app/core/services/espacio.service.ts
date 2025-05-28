@@ -2,21 +2,20 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { Observable, of, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
-import { Ambiente } from '../models/ambiente.model';
-import { Espacio } from '../models/Espacio';
+import { Espacio } from '../models/espacio.model'; // Asegúrate de que la ruta sea correcta
 
 @Injectable({
   providedIn: 'root'
 })
 export class EspacioService {
-  private apiUrl = 'http://localhost:8080/espacios'; // Ajusta la URL según tu API Spring Boot
-  private activosCache: Espacio[] | null = null; //Para almacenar en caché los espacios (no hacer consultas innecesarias)
+  private apiUrl = 'http://localhost:8080/espacios'; // Ajusta la URL según tu API
+  private activosCache: Espacio[] | null = null; // Caché para espacios activos
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
   // Método privado para obtener los encabezados con el token
   private getHeaders(): HttpHeaders {
-    const token = localStorage.getItem('token'); // Ajusta 'token' según tu clave (p. ej., 'authToken')
+    const token = localStorage.getItem('token'); // Ajusta 'token' según tu clave
     let headers = new HttpHeaders();
     if (token) {
       headers = headers.set('Authorization', `Bearer ${token}`);
@@ -24,61 +23,105 @@ export class EspacioService {
     return headers;
   }
 
-  // Get all spaces
+  // Obtener todos los espacios
   obtenerTodosLosEspacios(): Observable<Espacio[]> {
     if (this.activosCache) {
-      // Ya tengo los datos en caché, los devuelvo como observable
       return of(this.activosCache);
-    } else {
-      return this.http.get<Espacio[]>(this.apiUrl, { headers: this.getHeaders() }).pipe(
-        tap((data: Espacio[]) => this.activosCache = data),
-        catchError(this.handleError)
-      );
     }
+    return this.http.get<Espacio[]>(this.apiUrl, { headers: this.getHeaders() }).pipe(
+      tap((data: Espacio[]) => this.activosCache = data),
+      catchError(this.handleError)
+    );
   }
 
-  // Get space by ID
+  // Obtener un espacio por ID
   obtenerEspacioPorId(id: number): Observable<Espacio> {
     return this.http.get<Espacio>(`${this.apiUrl}/${id}`, { headers: this.getHeaders() }).pipe(
       catchError(this.handleError)
     );
   }
 
-  // Search spaces by name
+  // Buscar espacios por nombre
   buscarEspaciosPorNombre(nombre: string): Observable<Espacio[]> {
     return this.http.get<Espacio[]>(`${this.apiUrl}/buscarPorNombre?nombre=${encodeURIComponent(nombre)}`, { headers: this.getHeaders() }).pipe(
       catchError(this.handleError)
     );
   }
 
-  // Count spaces
+  // Contar espacios
   contarEspacios(): Observable<number> {
     return this.http.get<number>(`${this.apiUrl}/contar`, { headers: this.getHeaders() }).pipe(
       catchError(this.handleError)
     );
   }
 
-  // Save or update a space
-  guardarEspacio(espacio: Espacio): Observable<Espacio> {
-    const headers = this.getHeaders();
+  // Crear un nuevo espacio
+  crearEspacio(espacio: Espacio): Observable<Espacio> {
+    // Validar que no se proporcione un idespacio
     if (espacio.idespacio) {
-      return this.http.put<Espacio>(`${this.apiUrl}/${espacio.idespacio}`, espacio, { headers }).pipe(
-        catchError(this.handleError)
-      );
-    } else {
-      return this.http.post<Espacio>(this.apiUrl, espacio, { headers }).pipe(
-        catchError(this.handleError)
-      );
+      return throwError(() => new Error('No se debe proporcionar un idespacio para crear un nuevo espacio'));
     }
-  }
 
-  // Delete a space
-  eliminarEspacio(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`, { headers: this.getHeaders() }).pipe(
+    // Validar que el nombre no esté vacío
+    if (!espacio.nombre || espacio.nombre.trim() === '') {
+      return throwError(() => new Error('El nombre del espacio es obligatorio'));
+    }
+
+    return this.http.post<Espacio>(this.apiUrl, espacio, { headers: this.getHeaders() }).pipe(
+      tap((nuevoEspacio: Espacio) => {
+        // Actualizar el caché
+        if (this.activosCache) {
+          this.activosCache.push(nuevoEspacio);
+        }
+      }),
       catchError(this.handleError)
     );
   }
 
+  // Actualizar un espacio existente
+  actualizarEspacio(espacio: Espacio): Observable<Espacio> {
+    // Validar que se proporcione un idespacio
+    if (!espacio.idespacio) {
+      return throwError(() => new Error('Se requiere un idespacio para actualizar un espacio'));
+    }
+
+    // Validar que el nombre no esté vacío
+    if (!espacio.nombre || espacio.nombre.trim() === '') {
+      return throwError(() => new Error('El nombre del espacio es obligatorio'));
+    }
+
+    return this.http.put<Espacio>(`${this.apiUrl}/${espacio.idespacio}`, espacio, { headers: this.getHeaders() }).pipe(
+      tap((espacioActualizado: Espacio) => {
+        // Actualizar el caché
+        if (this.activosCache) {
+          this.activosCache = this.activosCache.map(e =>
+            e.idespacio === espacioActualizado.idespacio ? espacioActualizado : e
+          );
+        }
+      }),
+      catchError(this.handleError)
+    );
+  }
+
+  // Eliminar un espacio
+  eliminarEspacio(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`, { headers: this.getHeaders() }).pipe(
+      tap(() => {
+        // Actualizar el caché
+        if (this.activosCache) {
+          this.activosCache = this.activosCache.filter(e => e.idespacio !== id);
+        }
+      }),
+      catchError(this.handleError)
+    );
+  }
+
+  // Invalidar el caché manualmente
+  invalidarCache(): void {
+    this.activosCache = null;
+  }
+
+  // Manejo de errores
   private handleError(error: HttpErrorResponse): Observable<never> {
     let errorMessage = 'Ocurrió un error desconocido';
     if (error.error instanceof ErrorEvent) {
@@ -86,9 +129,14 @@ export class EspacioService {
       errorMessage = `Error: ${error.error.message}`;
     } else {
       // Error del lado del servidor
-      errorMessage = `Error ${error.status}: ${error.message}`;
+      if (error.status === 400 && error.error) {
+        // Manejar errores específicos del backend (como nombre duplicado)
+        errorMessage = typeof error.error === 'string' ? error.error : error.error.message || `Error ${error.status}: ${error.message}`;
+      } else {
+        errorMessage = `Error ${error.status}: ${error.message}`;
+      }
     }
-    console.error(errorMessage); // Opcional: para depuración
+    console.error(errorMessage);
     return throwError(() => new Error(errorMessage));
   }
 }

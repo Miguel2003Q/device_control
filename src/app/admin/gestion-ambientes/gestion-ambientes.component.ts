@@ -1,16 +1,12 @@
 import { Component, ViewEncapsulation, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormsModule, Validators, ReactiveFormsModule } from '@angular/forms';
-import { HttpClientModule, HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { HttpClientModule } from '@angular/common/http';
 import { TopBarComponent } from "../shared/top-bar/top-bar.component";
 import { SidebarComponent } from "../shared/sidebar/sidebar.component";
-import { Injectable } from '@angular/core';
 import { EspacioService } from '../../core/services/espacio.service';
 import { AuthService } from '../../core/services/auth.service';
-import { Ambiente } from '../../core/models/ambiente.model';
-import { Espacio } from '../../core/models/Espacio';
+import { Espacio } from '../../core/models/espacio.model';
 
 @Component({
   selector: 'app-gestion-ambientes',
@@ -57,17 +53,17 @@ export class GestionAmbientesComponent implements OnInit {
   ) {
     this.screenWidth = window.innerWidth;
 
+    // Definir el formulario para crear/editar ambientes
     this.ambienteForm = this.fb.group({
-      id: [0],
+      idespacio: [null], // Cambiado de 'id' a 'idespacio' para coincidir con el modelo Espacio
       nombre: ['', [Validators.required, Validators.minLength(3)]],
       estado: ['Disponible', Validators.required],
       capacidad: [null, [Validators.required, Validators.min(1), Validators.pattern(/^[0-9]+$/)]],
-      ubicacion: ['', [Validators.required, Validators.minLength(3)]],
-      proyector: [false],
-      computadoras: [false],
-      wifi: [false]
+      descripcion: [''], // Agregado para incluir la descripción
+      eliminado: [0] // Agregado para asegurar que eliminado sea 0
     });
 
+    // Definir el formulario para solicitudes
     this.solicitudForm = this.fb.group({
       fecha: ['', [Validators.required]],
       horaInicio: ['', [Validators.required]],
@@ -82,7 +78,7 @@ export class GestionAmbientesComponent implements OnInit {
     if (this.isLoggedIn()) {
       this.cargarAmbientes();
     } else {
-      alert('Por favor, inicia sesi\u00f3n para acceder a esta funcionalidad.');
+      alert('Por favor, inicia sesión para acceder a esta funcionalidad.');
     }
   }
 
@@ -110,7 +106,7 @@ export class GestionAmbientesComponent implements OnInit {
         this.ambientes = ambientes;
         this.filtrarAmbientes();
       },
-      error: (error: { message: string }) => {
+      error: (error: Error) => {
         alert('Error al cargar los ambientes: ' + error.message);
       }
     });
@@ -120,45 +116,41 @@ export class GestionAmbientesComponent implements OnInit {
     this.ambientesFiltrados = this.ambientes.filter(ambiente => {
       const searchMatch = this.searchTerm === '' ||
         ambiente.nombre.toLowerCase().includes(this.searchTerm.toLowerCase());
-      const filterMatch = this.filtroEstado === '';
+      const filterMatch = this.filtroEstado === '' || ambiente.estado === this.filtroEstado;
       return searchMatch && filterMatch;
     });
   }
 
   abrirModalCrearAmbiente(): void {
     if (!this.isLoggedIn()) {
-      alert('Debes iniciar sesi\u00f3n para crear un ambiente.');
+      alert('Debes iniciar sesión para crear un ambiente.');
       return;
     }
     this.isEditing = false;
     this.ambienteForm.reset({
-      id: 0,
+      idespacio: null,
       nombre: '',
       estado: 'Disponible',
       capacidad: null,
-      ubicacion: '',
-      proyector: false,
-      computadoras: false,
-      wifi: false
+      descripcion: '',
+      eliminado: 0
     });
     this.showModal = true;
   }
 
   editarAmbiente(ambiente: Espacio): void {
     if (!this.isLoggedIn()) {
-      alert('Debes iniciar sesi\u00f3n para editar un ambiente.');
+      alert('Debes iniciar sesión para editar un ambiente.');
       return;
     }
     this.isEditing = true;
     this.ambienteForm.setValue({
-      id: ambiente.idespacio || 0,
-      nombre: ambiente.nombre,
-      // estado: ambiente.estado,
-      // capacidad: ambiente.capacidad,
-      // ubicacion: ambiente.ubicacion,
-      // proyector: ambiente.proyector || false,
-      // computadoras: ambiente.computadoras || false,
-      // wifi: ambiente.wifi || false
+      idespacio: ambiente.idespacio || null,
+      nombre: ambiente.nombre || '',
+      estado: ambiente.estado || 'Disponible',
+      capacidad: ambiente.capacidad || null,
+      descripcion: ambiente.descripcion || '',
+      eliminado: ambiente.eliminado || 0
     });
     this.showModal = true;
     this.showDetallesModal = false;
@@ -166,17 +158,17 @@ export class GestionAmbientesComponent implements OnInit {
 
   eliminarAmbiente(id: number): void {
     if (!this.isLoggedIn()) {
-      alert('Debes iniciar sesi\u00f3n para eliminar un ambiente.');
+      alert('Debes iniciar sesión para eliminar un ambiente.');
       return;
     }
-    if (confirm('\u00bfEst\u00e1s seguro de que deseas eliminar este ambiente?')) {
+    if (confirm('¿Estás seguro de que deseas eliminar este ambiente?')) {
       this.espacioService.eliminarEspacio(id).subscribe({
         next: () => {
           this.ambientes = this.ambientes.filter(a => a.idespacio !== id);
           this.filtrarAmbientes();
-          alert('Ambiente eliminado con \u00e9xito.');
+          alert('Ambiente eliminado con éxito.');
         },
-        error: (error: { message: string }) => {
+        error: (error: Error) => {
           alert('Error al eliminar el ambiente: ' + error.message);
         }
       });
@@ -204,7 +196,7 @@ export class GestionAmbientesComponent implements OnInit {
 
   guardarAmbiente(): void {
     if (!this.isLoggedIn()) {
-      alert('Debes iniciar sesi\u00f3n para guardar un ambiente.');
+      alert('Debes iniciar sesión para guardar un ambiente.');
       return;
     }
     if (this.ambienteForm.invalid) {
@@ -219,7 +211,11 @@ export class GestionAmbientesComponent implements OnInit {
     this.isSubmitting = true;
     const ambienteData: Espacio = this.ambienteForm.value;
 
-    this.espacioService.guardarEspacio(ambienteData).subscribe({
+    const observable = this.isEditing
+      ? this.espacioService.actualizarEspacio(ambienteData)
+      : this.espacioService.crearEspacio(ambienteData);
+
+    observable.subscribe({
       next: (nuevoAmbiente: Espacio) => {
         if (this.isEditing) {
           this.ambientes = this.ambientes.map(a =>
@@ -231,12 +227,12 @@ export class GestionAmbientesComponent implements OnInit {
         this.filtrarAmbientes();
         this.isSubmitting = false;
         this.showModal = false;
-        alert(`Ambiente ${this.isEditing ? 'actualizado' : 'creado'} con \u00e9xito.`);
+        alert(`Ambiente ${this.isEditing ? 'actualizado' : 'creado'} con éxito.`);
         if (this.ambienteSeleccionado) {
           this.ambienteSeleccionado = this.ambientes.find(a => a.idespacio === this.ambienteSeleccionado?.idespacio) || null;
         }
       },
-      error: (error: { message: string }) => {
+      error: (error: Error) => {
         this.isSubmitting = false;
         alert('Error al guardar el ambiente: ' + error.message);
       }
@@ -245,10 +241,13 @@ export class GestionAmbientesComponent implements OnInit {
 
   solicitarAmbiente(ambiente: Espacio): void {
     if (!this.isLoggedIn()) {
-      alert('Debes iniciar sesi\u00f3n para solicitar un ambiente.');
+      alert('Debes iniciar sesión para solicitar un ambiente.');
       return;
     }
-    // if (ambiente.estado !== 'Disponible') return;
+    if (ambiente.estado !== 'Disponible') {
+      alert('Este ambiente no está disponible para solicitud.');
+      return;
+    }
 
     this.ambienteSeleccionado = ambiente;
     this.solicitudForm.reset();
@@ -276,7 +275,7 @@ export class GestionAmbientesComponent implements OnInit {
 
   confirmarSolicitud(): void {
     if (!this.isLoggedIn()) {
-      alert('Debes iniciar sesi\u00f3n para confirmar una solicitud.');
+      alert('Debes iniciar sesión para confirmar una solicitud.');
       return;
     }
     if (this.solicitudForm.invalid) {
@@ -291,17 +290,13 @@ export class GestionAmbientesComponent implements OnInit {
     this.isSubmitting = true;
     const solicitudData = this.solicitudForm.value;
 
-    const periodoDeUso = `${solicitudData.horaInicio} - ${solicitudData.horaFin}`;
-
     if (this.ambienteSeleccionado) {
       const updatedAmbiente: Espacio = {
         ...this.ambienteSeleccionado,
-        // estado: 'Ocupado',
-        // reservadoPor: this.usuarioActual.nombre,
-        // periodoDeUso: periodoDeUso
+        estado: 'Ocupado'
       };
 
-      this.espacioService.guardarEspacio(updatedAmbiente).subscribe({
+      this.espacioService.actualizarEspacio(updatedAmbiente).subscribe({
         next: (nuevoAmbiente: Espacio) => {
           this.ambientes = this.ambientes.map(a =>
             a.idespacio === nuevoAmbiente.idespacio ? nuevoAmbiente : a
@@ -309,9 +304,10 @@ export class GestionAmbientesComponent implements OnInit {
           this.filtrarAmbientes();
           this.isSubmitting = false;
           this.showSolicitarModal = false;
-          alert(`Ambiente ${this.ambienteSeleccionado?.nombre} reservado con \u00e9xito para el ${solicitudData.fecha}, de ${solicitudData.horaInicio} a ${solicitudData.horaFin}`);
+          this.ambienteSeleccionado = nuevoAmbiente;
+          alert(`Ambiente ${this.ambienteSeleccionado?.nombre} reservado con éxito para el ${solicitudData.fecha}, de ${solicitudData.horaInicio} a ${solicitudData.horaFin}`);
         },
-        error: (error: { message: string }) => {
+        error: (error: Error) => {
           this.isSubmitting = false;
           alert('Error al reservar el ambiente: ' + error.message);
         }
@@ -321,7 +317,7 @@ export class GestionAmbientesComponent implements OnInit {
 
   verDetalles(ambiente: Espacio): void {
     if (!this.isLoggedIn()) {
-      alert('Debes iniciar sesi\u00f3n para ver los detalles de un ambiente.');
+      alert('Debes iniciar sesión para ver los detalles de un ambiente.');
       return;
     }
     this.ambienteSeleccionado = ambiente;
@@ -339,6 +335,6 @@ export class GestionAmbientesComponent implements OnInit {
 
   cerrarSesion(): void {
     this.authService.logout();
-    alert('Sesi\u00f3n cerrada con \u00e9xito.');
+    alert('Sesión cerrada con éxito.');
   }
 }

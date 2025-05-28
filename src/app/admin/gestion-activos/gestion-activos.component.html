@@ -50,7 +50,7 @@
             <div class="nombre-col">{{activo.nombre}}</div>
             <div class="tipo-col">{{activo.tipoActivo.nombre}}</div>
             <div class="estado-col">
-              <span class="estado-badge" [ngClass]="estadoMap[activo.estado].toLowerCase()">
+              <span class="estado-badge" [ngClass]="estadoMap[activo.estado]">
                 {{ estadoMap[activo.estado] || activo.estado }}
               </span>
             </div>

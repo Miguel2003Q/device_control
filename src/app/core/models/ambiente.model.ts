@@ -4,9 +4,6 @@ export interface Ambiente {
   estado: 'Disponible' | 'Ocupado' | 'Mantenimiento';
   capacidad: number;
   ubicacion: string;
-  proyector?: boolean;
-  computadoras?: boolean;
-  wifi?: boolean;
   reservadoPor?: string;
   periodoDeUso?: string;
 }

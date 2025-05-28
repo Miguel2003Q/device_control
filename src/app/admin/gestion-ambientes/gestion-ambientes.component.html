@@ -45,15 +45,15 @@
             <div class="ambientes-list">
               <div class="ambiente-card" *ngFor="let ambiente of ambientesFiltrados">
                 <h3>{{ ambiente.nombre }}</h3>
-                <!-- <p>
+                <p>
                   Estado: <span class="estado-badge" [ngClass]="{
                     'disponible': ambiente.estado === 'Disponible',
                     'ocupado': ambiente.estado === 'Ocupado',
                     'mantenimiento': ambiente.estado === 'Mantenimiento'
                   }">{{ ambiente.estado }}</span>
-                </p> -->
-                <!-- <p>Capacidad: {{ ambiente.capacidad }} personas</p>
-                <p>Ubicación: {{ ambiente.ubicacion }}</p> -->
+                </p>
+                <p>Capacidad: {{ ambiente.capacidad }} personas</p>
+                
                 <div class="acciones">
                   <button (click)="verDetalles(ambiente)" class="action-btn detalles">
                     <i class="fas fa-info-circle"></i> Detalles
@@ -64,9 +64,9 @@
                   <button *ngIf="usuarioActual.rol === 'Administrador' && ambiente.idespacio !== undefined" (click)="eliminarAmbiente(ambiente.idespacio!)" class="action-btn delete-btn">
                     <i class="fas fa-trash"></i> Eliminar
                   </button>
-                  <!-- <button *ngIf="ambiente.estado === 'Disponible'" (click)="solicitarAmbiente(ambiente)" class="action-btn solicitar">
+                  <button *ngIf="ambiente.estado === 'Disponible'" (click)="solicitarAmbiente(ambiente)" class="action-btn solicitar">
                     <i class="fas fa-calendar-check"></i> Solicitar
-                  </button> -->
+                  </button>
                 </div>
               </div>
               <div *ngIf="ambientesFiltrados.length === 0" class="no-results">
@@ -113,25 +113,6 @@
                       <input id="capacidad" formControlName="capacidad" type="number" [ngClass]="{'invalid': isInvalid('capacidad')}">
                     </div>
                     <span *ngIf="isInvalid('capacidad')" class="error-message">La capacidad es requerida y debe ser un número positivo.</span>
-                  </div>
-                  <div class="form-group">
-                    <label for="ubicacion">Ubicación</label>
-                    <div class="input-container">
-                      <i class="fas fa-map-marker-alt"></i>
-                      <input id="ubicacion" formControlName="ubicacion" type="text" [ngClass]="{'invalid': isInvalid('ubicacion')}">
-                    </div>
-                    <span *ngIf="isInvalid('ubicacion')" class="error-message">La ubicación es requerida y debe tener al menos 3 caracteres.</span>
-                  </div>
-                  <div class="form-group checkbox-group">
-                    <label class="checkbox-item">
-                      <input type="checkbox" formControlName="proyector"> Proyector
-                    </label>
-                    <label class="checkbox-item">
-                      <input type="checkbox" formControlName="computadoras"> Computadoras
-                    </label>
-                    <label class="checkbox-item">
-                      <input type="checkbox" formControlName="wifi"> WiFi
-                    </label>
                   </div>
                   <div class="form-actions">
                     <button type="button" class="cancel-btn" (click)="cerrarModal($event)">Cancelar</button>
@@ -216,42 +197,24 @@
                   <div class="detalle-item">
                     <span class="detalle-label">Estado</span>
                     <span class="detalle-value">
-                      <!-- <span class="estado-badge" [ngClass]="{
+                      <span class="estado-badge" [ngClass]="{
                         'disponible': ambienteSeleccionado?.estado === 'Disponible',
                         'ocupado': ambienteSeleccionado?.estado === 'Ocupado',
                         'mantenimiento': ambienteSeleccionado?.estado === 'Mantenimiento'
-                      }">{{ ambienteSeleccionado?.estado }}</span> -->
+                      }">{{ ambienteSeleccionado?.estado }}</span>
                     </span>
                   </div>
-                  <!-- <div class="detalle-item">
+                  <div class="detalle-item">
                     <span class="detalle-label">Capacidad</span>
                     <span class="detalle-value">{{ ambienteSeleccionado?.capacidad }} personas</span>
                   </div>
                   <div class="detalle-item">
-                    <span class="detalle-label">Ubicación</span>
-                    <span class="detalle-value">{{ ambienteSeleccionado?.ubicacion }}</span>
-                  </div>
-                  <div class="detalle-item">
                     <span class="detalle-label">Reservado por</span>
-                    <span class="detalle-value">{{ ambienteSeleccionado?.reservadoPor || 'N/A' }}</span>
+                    
                   </div>
                   <div class="detalle-item">
                     <span class="detalle-label">Período de uso</span>
-                    <span class="detalle-value">{{ ambienteSeleccionado?.periodoDeUso || 'N/A' }}</span>
-                  </div> -->
-                  <div class="detalle-item recursos">
-                    <span class="detalle-label">Recursos</span>
-                    <div class="detalle-recursos">
-                      <!-- <span class="recurso-badge" *ngIf="ambienteSeleccionado?.proyector">
-                        <i class="fas fa-projector"></i> Proyector
-                      </span>
-                      <span class="recurso-badge" *ngIf="ambienteSeleccionado?.computadoras">
-                        <i class="fas fa-laptop"></i> Computadoras
-                      </span>
-                      <span class="recurso-badge" *ngIf="ambienteSeleccionado?.wifi">
-                        <i class="fas fa-wifi"></i> WiFi
-                      </span> -->
-                    </div>
+                  
                   </div>
                 </div>
                 <div class="detalles-actions">
@@ -261,9 +224,9 @@
                   <button *ngIf="usuarioActual.rol === 'Administrador' && ambienteSeleccionado?.idespacio !== undefined" (click)="eliminarAmbiente(ambienteSeleccionado!.idespacio!)" class="action-btn delete-btn">
                     <i class="fas fa-trash"></i> Eliminar
                   </button>
-                  <!-- <button *ngIf="ambienteSeleccionado?.estado === 'Disponible'" (click)="solicitarAmbiente(ambienteSeleccionado!)" class="action-btn solicitar">
+                  <button *ngIf="ambienteSeleccionado?.estado === 'Disponible'" (click)="solicitarAmbiente(ambienteSeleccionado!)" class="action-btn solicitar">
                     <i class="fas fa-calendar-check"></i> Solicitar
-                  </button> -->
+                  </button>
                   <button class="cancel-btn" (click)="cerrarModalDetalles($event)">Cerrar</button>
                 </div>
               </div>
