@@ -34,30 +34,6 @@
       </div>
 
       <div class="form-group">
-        <label for="password">Contraseña</label>
-        <div class="input-container">
-          <i class="fas fa-lock"></i>
-          <input [type]="showPassword ? 'text' : 'password'" id="password" [(ngModel)]="registerRequest.clave" name="password" placeholder="Crea una contraseña segura" required (input)="checkPasswordStrength()">
-          <i class="fas fa-eye toggle-password" [ngClass]="{'fa-eye-slash': showPassword}" (click)="togglePasswordVisibility()"></i>
-        </div>
-        <div class="password-strength">
-          <div class="strength-bar">
-            <div class="strength-indicator" [ngClass]="passwordStrengthClass" [style.width.%]="passwordStrengthScore * 25"></div>
-          </div>
-          <span class="strength-text">{{ passwordStrengthText }}</span>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label for="confirmPassword">Confirmar contraseña</label>
-        <div class="input-container">
-          <i class="fas fa-lock"></i>
-          <input [type]="showConfirmPassword ? 'text' : 'password'" id="confirmPassword" [(ngModel)]="confirmPassword" name="confirmPassword" placeholder="Repite tu contraseña" required>
-          <i class="fas fa-eye toggle-password" [ngClass]="{'fa-eye-slash': showConfirmPassword}" (click)="toggleConfirmPasswordVisibility()"></i>
-        </div>
-      </div>
-
-      <div class="form-group">
         <label class="role-label">Tipo de usuario</label>
         <div class="role-options">
           <div class="role-option">

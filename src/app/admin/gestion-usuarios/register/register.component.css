@@ -1,0 +1,371 @@
+/* Importar fuente */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css');
+
+/* Estilos generales */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+}
+
+body {
+  background-color: #E7ECEF;
+}
+
+/* Contenedor de registro */
+.register-container {
+  width: 100%;
+  padding: 0;
+}
+
+.register-card {
+  background-color: #FFFFFF; /* o transparent si ya lo tiene el contenedor padre */
+  border-radius: 0;
+  box-shadow: none;
+  width: 100%;
+  max-width: none;
+  padding: 20px;
+}
+
+.register-card:hover {
+  transform: translateY(-5px);
+}
+
+/* Encabezado con logo */
+.register-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 15px;
+}
+
+.logo {
+  width: 40px;
+  height: 40px;
+  margin-right: 12px;
+  object-fit: contain;
+}
+
+.register-header h1 {
+  color: #274C77;
+  font-weight: 600;
+  font-size: 28px;
+}
+
+.register-header p {
+  color: #777;
+  font-size: 14px;
+}
+
+/* Formulario */
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  color: #274C77;
+  font-weight: 500;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.input-container {
+  position: relative;
+}
+
+.input-container i:not(.toggle-password) {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  left: 15px;
+  color: #6096BA;
+}
+
+.toggle-password {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  right: 15px;
+  color: #6096BA;
+  cursor: pointer;
+  font-size: 16px;
+  transition: color 0.3s;
+}
+
+.toggle-password:hover {
+  color: #274C77;
+}
+
+.form-group input[type="text"],
+.form-group input[type="email"],
+.form-group input[type="password"],
+.form-group input[type="tel"] {
+  width: 100%;
+  padding: 14px 15px 14px 45px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  background-color: #E7ECEF;
+  transition: all 0.3s;
+  font-size: 14px;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #6096BA;
+  box-shadow: 0 0 0 3px rgba(96, 150, 186, 0.2);
+}
+
+.form-group input::placeholder {
+  color: #aaa;
+}
+
+/* Indicador de fortaleza de contraseña */
+.password-strength {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+}
+
+.strength-bar {
+  height: 5px;
+  background-color: #e0e0e0;
+  border-radius: 5px;
+  margin-bottom: 5px;
+  overflow: hidden;
+}
+
+.strength-indicator {
+  height: 100%;
+  transition: width 0.3s, background-color 0.3s;
+  border-radius: 5px;
+}
+
+.strength-indicator.weak {
+  background-color: #e74c3c;
+}
+
+.strength-indicator.medium {
+  background-color: #f1c40f;
+}
+
+.strength-indicator.strong {
+  background-color: #2ecc71;
+}
+
+.strength-text {
+  font-size: 12px;
+  color: #777;
+  text-align: right;
+}
+
+/* Opciones de rol */
+.role-label {
+  margin-bottom: 12px !important;
+}
+
+.role-options {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.role-option {
+  position: relative;
+}
+
+.role-option input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+.role-option label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 15px 5px;
+  background-color: #E7ECEF;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-size: 13px;
+  font-weight: normal;
+  text-align: center;
+  color: #555;
+}
+
+.role-option i {
+  font-size: 18px;
+  margin-bottom: 8px;
+  color: #6096BA;
+}
+
+.role-option input[type="radio"]:checked + label {
+  background-color: #A3CEF1;
+  color: #274C77;
+  font-weight: 500;
+}
+
+.role-option input[type="radio"]:checked + label i {
+  color: #274C77;
+}
+
+.role-option label:hover {
+  background-color: #d0e1ec;
+}
+
+/* Términos y condiciones */
+.terms-container {
+  margin-bottom: 25px;
+}
+
+.checkbox-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.checkbox-container input[type="checkbox"] {
+  margin-right: 10px;
+  accent-color: #6096BA;
+  width: 16px;
+  height: 16px;
+}
+
+.checkbox-container label {
+  font-size: 13px;
+  color: #555;
+}
+
+.terms-link {
+  color: #6096BA;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.terms-link:hover {
+  color: #274C77;
+  text-decoration: underline;
+}
+
+/* Botón de registro */
+.register-btn {
+  width: 100%;
+  padding: 15px;
+  background-color: #274C77;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-size: 15px;
+}
+
+.register-btn:hover {
+  background-color: #6096BA;
+  transform: translateY(-2px);
+}
+
+.register-btn:active {
+  transform: translateY(1px);
+}
+
+/* Mensaje de error */
+.error-message {
+  margin-top: 20px;
+  color: #e74c3c;
+  text-align: center;
+  font-size: 14px;
+  background-color: rgba(231, 76, 60, 0.1);
+  padding: 10px;
+  border-radius: 8px;
+}
+
+/* Enlace de inicio de sesión */
+.login-link {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 14px;
+  color: #777;
+}
+
+.login-link a {
+  color: #6096BA;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s;
+}
+
+.login-link a:hover {
+  color: #274C77;
+  text-decoration: underline;
+}
+
+/* Responsive */
+@media (max-width: 576px) {
+  .register-card {
+    padding: 30px 20px;
+  }
+
+  .register-header h1 {
+    font-size: 24px;
+  }
+
+  .form-group input {
+    padding: 12px 12px 12px 40px;
+  }
+
+  .role-options {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .role-option label {
+    flex-direction: row;
+    justify-content: flex-start;
+    padding: 10px;
+  }
+
+  .role-option i {
+    margin-bottom: 0;
+    margin-right: 10px;
+    min-width: 20px;
+  }
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.register-card {
+  animation: fadeIn 0.5s ease-out;
+}
+
+/* Efectos de validación */
+.form-group input:valid {
+  border-color: #6096BA;
+}
+
+.form-group input:invalid:focus {
+  border-color: #e74c3c;
+  box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.2);
+}

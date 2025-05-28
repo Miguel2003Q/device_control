@@ -2,10 +2,8 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-// Update the path below to the correct location of auth.service.ts
 import { AuthService } from '../../../core/services/auth.service';
 import { HttpClientModule } from '@angular/common/http';
-// Update the path below to the correct location of loading.service.ts
 import { LoadingService } from '../../../core/services/loading.service';
 
 @Component({
@@ -140,7 +138,7 @@ export class RegisterComponent {
 
     // Llamada al servicio para registrar
     this.authService.register(this.registerRequest).subscribe({
-      next: (response: any) => {
+      next: (response) => {
         this.loading = false;
         this.loadingService.hide();
         this.successMessage = '¡Cuenta creada con éxito!';
@@ -150,7 +148,7 @@ export class RegisterComponent {
           this.router.navigate(['/login']);
         }, 1500);
       },
-      error: (err: { status: number; error: { message: string; }; }) => {
+      error: (err) => {
         this.loading = false;
         this.loadingService.hide();
         if (err.status === 409) {
