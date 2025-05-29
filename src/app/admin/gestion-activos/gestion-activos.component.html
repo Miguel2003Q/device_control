@@ -135,7 +135,7 @@
           <label for="espacio">Espacio Asignado</label>
           <div class="input-container select-container">
             <select id="espacio" formControlName="espacio">
-              <option value="">Seleccione un espacio</option>
+              <option [ngValue]="null">Seleccione un espacio</option>
               <option *ngFor="let espacio of espacios" [ngValue]="espacio">
                 {{ espacio.nombre }}
               </option>
@@ -148,7 +148,7 @@
           <label for="tipoActivo">Tipo de Activo</label>
           <div class="input-container select-container">
             <select id="tipoActivo" formControlName="tipoActivo">
-              <option value="">Seleccione un tipo</option>
+              <option [ngValue]="null">Seleccione un tipo</option>
               <option *ngFor="let tipo of tiposActivo" [ngValue]="tipo">
                 {{ tipo.nombre }}
               </option>

@@ -5,7 +5,7 @@
         <img src="assets/img/LOGO_FINAL.png" alt="Logo" class="logo">
         <h1>Device Control</h1>
       </div>
-      <p>Crea una nueva cuenta</p>
+      <p>Crea una nueva cuenta, la contraseña y el telefono deben ser asignados despues por el usuario. Clave predeterminada: senagalan</p>
     </div>
 
     <form (ngSubmit)="onSubmit()">
@@ -22,14 +22,6 @@
         <div class="input-container">
           <i class="fas fa-envelope"></i>
           <input type="email" id="email" [(ngModel)]="registerRequest.email" name="email" placeholder="ejemplo@correo.com" required>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label for="phone">Teléfono</label>
-        <div class="input-container">
-          <i class="fas fa-phone"></i>
-          <input type="tel" id="phone" [(ngModel)]="registerRequest.telefono" name="phone" placeholder="Ingresa tu número de teléfono" required>
         </div>
       </div>
 
@@ -62,25 +54,10 @@
         </div>
       </div>
 
-      <div class="terms-container">
-        <div class="checkbox-container">
-          <input type="checkbox" id="terms" required>
-          <label for="terms">Acepto los <a href="#" class="terms-link">términos y condiciones</a></label>
-        </div>
-
-        <div class="checkbox-container">
-          <input type="checkbox" id="newsletter">
-          <label for="newsletter">Recibir notificaciones y novedades</label>
-        </div>
-      </div>
-
       <button type="submit" class="register-btn">Crear cuenta</button>
 
       <p *ngIf="errorMessage" class="error-message">{{ errorMessage }}</p>
 
-      <div class="login-link">
-        ¿Ya tienes una cuenta? <a href="/login">Iniciar sesión</a>
-      </div>
     </form>
   </div>
 </div>

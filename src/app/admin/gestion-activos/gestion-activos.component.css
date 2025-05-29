@@ -350,17 +350,17 @@ a {
   font-weight: 500;
 }
 
-.estado-badge.disponible {
+.estado-badge.Disponible {
   background-color: rgba(76, 175, 80, 0.1);
   color: #4CAF50;
 }
 
-.estado-badge.ocupado {
+.estado-badge.Ocupado {
   background-color: rgba(244, 67, 54, 0.1);
   color: #F44336;
 }
 
-.estado-badge.mantenimiento {
+.estado-badge.Mantenimiento {
   background-color: rgba(255, 152, 0, 0.1);
   color: #FF9800;
 }

@@ -127,10 +127,10 @@ export class ActivosComponent implements OnInit {
     });
   }
 
-  // Cargar espacios y tipos de activos disponibles
+  // Cargar espacios y tipos de activos disponibles en los combobox
   cargarEspaciosYTipoActivos(): void {
 
-    this.espacioService.obtenerTodosLosEspacios().subscribe({
+    this.espacioService.obtenerTodosLosEspacios().subscribe({  //Estoy cargando objetos, por eso al guardar activo, se selecciona el objeto completo
       next: (data) => {
         this.espacios = data;
       },

@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { HttpClientModule } from '@angular/common/http';
 import { LoadingService } from '../../../core/services/loading.service';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-register',
@@ -17,8 +17,8 @@ export class RegisterComponent {
   registerRequest = {
     nombre: '',
     email: '',
-    telefono: '',
-    clave: '',
+    telefono: '', //Devería ser senagalan por defecto
+    clave: 'senagalan', //Devería ser vacío por defecto
     rol: ''
   };
 
@@ -38,51 +38,9 @@ export class RegisterComponent {
 
   constructor(
     private authService: AuthService,
-    private router: Router,
-    private loadingService: LoadingService
+    private loadingService: LoadingService,
+    private toast: ToastrService
   ) {}
-
-  // Método para alternar visibilidad de la contraseña
-  togglePasswordVisibility() {
-    this.showPassword = !this.showPassword;
-  }
-
-  // Método para alternar visibilidad de la confirmación de contraseña
-  toggleConfirmPasswordVisibility() {
-    this.showConfirmPassword = !this.showConfirmPassword;
-  }
-
-  // Método para evaluar la fuerza de la contraseña
-  checkPasswordStrength() {
-    const password = this.registerRequest.clave;
-    let score = 0;
-
-    // Criterios de evaluación
-    if (password.length >= 8) score++;
-    if (/[A-Z]/.test(password)) score++;
-    if (/[0-9]/.test(password)) score++;
-    if (/[^A-Za-z0-9]/.test(password)) score++;
-
-    this.passwordStrengthScore = score;
-
-    // Actualizar texto y clase según el puntaje
-    switch (score) {
-      case 0:
-      case 1:
-        this.passwordStrengthText = 'Débil';
-        this.passwordStrengthClass = 'weak';
-        break;
-      case 2:
-        this.passwordStrengthText = 'Media';
-        this.passwordStrengthClass = 'medium';
-        break;
-      case 3:
-      case 4:
-        this.passwordStrengthText = 'Fuerte';
-        this.passwordStrengthClass = 'strong';
-        break;
-    }
-  }
 
   onSubmit() {
     this.loadingService.show();
@@ -96,24 +54,8 @@ export class RegisterComponent {
     this.loading = true;
 
     // Validación de campos requeridos
-    if (!this.registerRequest.nombre || !this.registerRequest.email || !this.registerRequest.clave) {
+    if (!this.registerRequest.nombre || !this.registerRequest.email) {
       this.errorMessage = 'Por favor, completa todos los campos obligatorios.';
-      this.loading = false;
-      this.loadingService.hide();
-      return;
-    }
-
-    // Validación de contraseña
-    if (this.registerRequest.clave !== this.confirmPassword) {
-      this.errorMessage = 'Las contraseñas no coinciden.';
-      this.loading = false;
-      this.loadingService.hide();
-      return;
-    }
-
-    // Validación de fuerza de contraseña (mínimo Media)
-    if (this.passwordStrengthScore < 2) {
-      this.errorMessage = 'La contraseña es demasiado débil. Usa al menos 8 caracteres, incluyendo mayúsculas, números y caracteres especiales.';
       this.loading = false;
       this.loadingService.hide();
       return;
@@ -142,11 +84,12 @@ export class RegisterComponent {
         this.loading = false;
         this.loadingService.hide();
         this.successMessage = '¡Cuenta creada con éxito!';
-        
-        // Redirigir después de un breve retraso
-        setTimeout(() => {
-          this.router.navigate(['/login']);
-        }, 1500);
+        this.toast.success(this.successMessage, 'Éxito', {
+          timeOut: 3000,
+          progressBar: true,
+          closeButton: true
+        });
+      
       },
       error: (err) => {
         this.loading = false;
@@ -154,7 +97,7 @@ export class RegisterComponent {
         if (err.status === 409) {
           this.errorMessage = 'El nombre de usuario o correo electrónico ya está en uso.';
         } else {
-          this.errorMessage = err.error?.message || 'Error al crear la cuenta. Por favor, intenta nuevamente.';
+          this.errorMessage = err.error || 'Error al crear la cuenta. Por favor, intenta nuevamente.';
         }
         console.error('Error en registro:', err);
       }
