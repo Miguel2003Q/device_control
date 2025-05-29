@@ -1,10 +1,14 @@
 import { Routes } from '@angular/router';
 import { LoginComponent } from './public/login/login.component';
 import { RegisterComponent } from './admin/register/register.component';
+import { LandingPageComponent } from './public/landing-page/landing-page.component';
 
 export const routes: Routes = [ //Lazy Loading lo que significa que los componentes se cargarán solo cuando el usuario navegue hacia esa ruta específica.
     {
-        path: '', redirectTo: '/login', pathMatch: 'full'
+        path: '', redirectTo: '/landing-page', pathMatch: 'full'
+    },
+    {
+        path: 'landing-page', component: LandingPageComponent
     },
     {
         path: 'login', component: LoginComponent
@@ -30,8 +34,7 @@ export const routes: Routes = [ //Lazy Loading lo que significa que los componen
     },
     {
         path: 'estadisticas',
-        loadComponent: () => import('./admin/estadisticas/estadisticas.component').then(m => m.EstadisticasComponent)
-        
+        loadComponent: () => import('./admin/estadisticas/estadisticas.component').then(m => m.EstadisticasComponent)   
     },
     {
         path: 'home1',

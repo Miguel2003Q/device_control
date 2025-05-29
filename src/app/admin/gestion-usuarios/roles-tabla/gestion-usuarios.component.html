@@ -11,7 +11,7 @@
       <div class="roles-container">
         <!-- Pestañas de navegación -->
         <div class="tabs-container">
-          <a class="tab" [routerLink]="'/gestion-usuarios/usuarios-tabla'" routerLinkActive="active">Usuario</a>
+          <a class="tab" [routerLink]="'/gestion-usuarios/usuarios-tabla'" routerLinkActive="active">Usuarios</a>
           <a class="tab" [routerLink]="'/gestion-usuarios/roles-tabla'" routerLinkActive="active">Roles</a>
         </div>
 
@@ -50,25 +50,25 @@
                 <td>Administrador</td>
                 <td>Acceso Total</td>
                 <td>Acceso Total al Sistema</td>
-                <td>3</td>
+                <td>{{ getCantidadPorRol('Administrador') }}</td>
               </tr>
               <tr>
                 <td>Almacén</td>
                 <td>Control de inventario</td>
                 <td>Ambientes y Activos</td>
-                <td>5</td>
+                <td>{{ getCantidadPorRol('Almacén') }}</td>
               </tr>
               <tr>
                 <td>Instructor</td>
                 <td>Solicitud de Ambientes</td>
                 <td>Solicitar y Consultar Ambiente</td>
-                <td>8</td>
+                <td>{{ getCantidadPorRol('Instructor') }}</td>
               </tr>
               <tr>
                 <td>Vigilante</td>
                 <td>Supervisión y validación</td>
-                <td>Supervisión Ambientes, Aprobación Traslado de Activos</td>
-                <td>10</td>
+                <td>Supervisión Ambientes, aprobación solicitudes de ambientes</td>
+                <td>{{ getCantidadPorRol('Vigilante') }}</td>
               </tr>
             </tbody>
           </table>

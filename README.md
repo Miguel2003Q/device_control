@@ -27,6 +27,7 @@
 - Cambiar la palabra Ambiente por espacio
 - Poner estado a los espacios?
 - Actualizar el cache al guardar, actualiz o elim un activo
+- Poner funciones del landing, poner topbar en login, poner logo en pestaña favicon
 
 ## Estrucutra
 - admin: Vistas del admin

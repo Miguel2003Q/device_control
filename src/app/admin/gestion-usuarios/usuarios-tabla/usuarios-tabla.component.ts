@@ -77,14 +77,14 @@ export class UsuariosTablaComponent implements OnInit {
 
   // Cargar lista de usuarios
   cargarUsuarios(): void {
-  this.usuarioService.obtenerTodosLosUsuarios().subscribe({
-    next: (data) => {
-      this.usuarios = data;
-      this.filteredUsers = [...this.usuarios]; // <- Esto sí espera a que lleguen los datos
-    },
-    error: (err) => console.error('Error al obtener usuarios', err)
-  });
-}
+    this.usuarioService.obtenerTodosLosUsuarios().subscribe({
+      next: (data) => {
+        this.usuarios = data;
+        this.filteredUsers = [...this.usuarios]; // <- Esto sí espera a que lleguen los datos
+      },
+      error: (err) => console.error('Error al obtener usuarios', err)
+    });
+  }
 
 
   // Filtrar usuarios según términos de búsqueda y filtros
@@ -149,6 +149,14 @@ export class UsuariosTablaComponent implements OnInit {
     // Cerrar modal
     this.showModal = false;
   }
+
+  rolNombreMap: Record<number, string> = {
+    4: 'Administrador',
+    3: 'Almacén',
+    2: 'Instructor',
+    1: 'Vigilante'
+  };
+
 
   // Obtener usuario vacío para el formulario
   // getEmptyUser(): Usuario {

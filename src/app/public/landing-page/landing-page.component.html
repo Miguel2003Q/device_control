@@ -1,0 +1,251 @@
+<!-- landing-page.component.html -->
+<div class="landing-container">
+  <!-- Header -->
+  <header class="header" [class.scrolled]="isScrolled">
+    <div class="header-content">
+      <div class="logo">
+        <h1>Device Control</h1>
+      </div>
+      <nav class="nav-menu" [class.active]="isMenuOpen">
+        <a href="#features" (click)="scrollToSection('features')">Características</a>
+        <a href="#benefits" (click)="scrollToSection('benefits')">Beneficios</a>
+        <a href="#about" (click)="scrollToSection('about')">Acerca de</a>
+        <a href="#contact" (click)="scrollToSection('contact')">Contacto</a>
+        <button class="btn-login" (click)="navigateToLogin()">
+          <i class="fas fa-sign-in-alt"></i>
+          Iniciar Sesión
+        </button>
+      </nav>
+      <button class="menu-toggle" (click)="toggleMenu()">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-content">
+      <div class="hero-text" [@fadeInLeft]>
+        <h2>Sistema Integral de Gestión de Dispositivos y Ambientes</h2>
+        <p>Optimiza el control y administración de activos, espacios y usuarios en tu institución con nuestra plataforma intuitiva y poderosa.</p>
+        <div class="hero-buttons">
+          <button class="btn-primary" (click)="navigateToLogin()">
+            Comenzar Ahora
+            <i class="fas fa-arrow-right"></i>
+          </button>
+          <button class="btn-secondary" (click)="scrollToSection('features')">
+            Explorar Funciones
+          </button>
+        </div>
+      </div>
+      <div class="hero-image" [@fadeInRight]>
+        <div class="dashboard-preview">
+          <div class="preview-header">
+            <span class="dot red"></span>
+            <span class="dot yellow"></span>
+            <span class="dot green"></span>
+          </div>
+          <div class="preview-content">
+            <img src="..\assets\img\dashBoardPreview.png" alt="Dashboard Preview">
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="wave-separator">
+      <svg viewBox="0 0 1440 120" preserveAspectRatio="none">
+        <path d="M0,32L80,37.3C160,43,320,53,480,58.7C640,64,800,64,960,58.7C1120,53,1280,43,1360,37.3L1440,32L1440,120L1360,120C1280,120,1120,120,960,120C800,120,640,120,480,120C320,120,160,120,80,120L0,120Z"></path>
+      </svg>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section id="features" class="features">
+    <div class="container">
+      <div class="section-header" [@fadeIn]>
+        <h3>Características Principales</h3>
+        <p>Todo lo que necesitas para gestionar eficientemente tus recursos</p>
+      </div>
+      <div class="features-grid">
+        <div class="feature-card" [@staggerAnimation]="0">
+          <div class="feature-icon">
+            <i class="fas fa-users"></i>
+          </div>
+          <h4>Gestión de Usuarios</h4>
+          <p>Administra usuarios, roles y permisos de forma centralizada y segura.</p>
+        </div>
+        <div class="feature-card" [@staggerAnimation]="1">
+          <div class="feature-icon">
+            <i class="fas fa-laptop"></i>
+          </div>
+          <h4>Control de Activos</h4>
+          <p>Registra y monitorea todos los dispositivos y equipos de tu institución.</p>
+        </div>
+        <div class="feature-card" [@staggerAnimation]="2">
+          <div class="feature-icon">
+            <i class="fas fa-building"></i>
+          </div>
+          <h4>Gestión de Ambientes</h4>
+          <p>Organiza y optimiza el uso de espacios, aulas y laboratorios.</p>
+        </div>
+        <div class="feature-card" [@staggerAnimation]="3">
+          <div class="feature-icon">
+            <i class="fas fa-chart-line"></i>
+          </div>
+          <h4>Estadísticas en Tiempo Real</h4>
+          <p>Visualiza métricas y genera reportes detallados para la toma de decisiones.</p>
+        </div>
+        <div class="feature-card" [@staggerAnimation]="4">
+          <div class="feature-icon">
+            <i class="fas fa-cog"></i>
+          </div>
+          <h4>Configuración Flexible</h4>
+          <p>Personaliza el sistema según las necesidades específicas de tu organización.</p>
+        </div>
+        <div class="feature-card" [@staggerAnimation]="5">
+          <div class="feature-icon">
+            <i class="fas fa-shield-alt"></i>
+          </div>
+          <h4>Seguridad Avanzada</h4>
+          <p>Protege tus datos con autenticación robusta y control de acceso granular.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Benefits Section -->
+  <section id="benefits" class="benefits">
+    <div class="container">
+      <div class="benefits-content">
+        <div class="benefits-image" [@fadeInLeft]>
+          <div class="stats-card">
+            <div class="stat">
+              <h5>85%</h5>
+              <p>Reducción en tiempo de gestión</p>
+            </div>
+            <div class="stat">
+              <h5>100+</h5>
+              <p>Instituciones confían en nosotros</p>
+            </div>
+            <div class="stat">
+              <h5>24/7</h5>
+              <p>Disponibilidad del sistema</p>
+            </div>
+          </div>
+        </div>
+        <div class="benefits-text" [@fadeInRight]>
+          <h3>¿Por qué elegir Device Control?</h3>
+          <div class="benefit-item">
+            <i class="fas fa-check-circle"></i>
+            <div>
+              <h5>Interfaz Intuitiva</h5>
+              <p>Diseño limpio y moderno que facilita la navegación y uso diario.</p>
+            </div>
+          </div>
+          <div class="benefit-item">
+            <i class="fas fa-check-circle"></i>
+            <div>
+              <h5>Escalabilidad</h5>
+              <p>Crece con tu institución sin perder rendimiento ni funcionalidad.</p>
+            </div>
+          </div>
+          <div class="benefit-item">
+            <i class="fas fa-check-circle"></i>
+            <div>
+              <h5>Soporte Continuo</h5>
+              <p>Equipo dedicado para resolver dudas y optimizar tu experiencia.</p>
+            </div>
+          </div>
+          <div class="benefit-item">
+            <i class="fas fa-check-circle"></i>
+            <div>
+              <h5>Actualizaciones Constantes</h5>
+              <p>Nuevas funcionalidades y mejoras basadas en feedback de usuarios.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- About Section -->
+  <section id="about" class="about">
+    <div class="container">
+      <div class="section-header" [@fadeIn]>
+        <h3>Acerca de Device Control</h3>
+        <p>Una solución integral diseñada para instituciones educativas</p>
+      </div>
+      <div class="about-content">
+        <div class="about-card">
+          <h4>Nuestra Misión</h4>
+          <p>Simplificar la gestión de recursos tecnológicos y espacios físicos mediante una plataforma unificada, eficiente y fácil de usar.</p>
+        </div>
+        <div class="about-card">
+          <h4>Nuestra Visión</h4>
+          <p>Ser la herramienta líder en gestión institucional, reconocida por su innovación, confiabilidad y excelencia en el servicio.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="cta">
+    <div class="container">
+      <div class="cta-content" [@fadeIn]>
+        <h3>¿Listo para transformar la gestión de tu institución?</h3>
+        <p>Únete a las instituciones que ya optimizan sus recursos con Device Control</p>
+        <button class="btn-cta" (click)="navigateToLogin()">
+          Iniciar Sesión Ahora
+          <i class="fas fa-arrow-right"></i>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer id="contact" class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-section">
+          <h4>Device Control</h4>
+          <p>Sistema integral de gestión diseñado para instituciones educativas modernas.</p>
+          <div class="social-links">
+            <a href="#" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+            <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+            <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+            <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+          </div>
+        </div>
+        <div class="footer-section">
+          <h5>Enlaces Rápidos</h5>
+          <ul>
+            <li><a href="#features">Características</a></li>
+            <li><a href="#benefits">Beneficios</a></li>
+            <li><a href="#about">Acerca de</a></li>
+            <li><a href="#" (click)="navigateToLogin()">Iniciar Sesión</a></li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h5>Contacto</h5>
+          <ul>
+            <li><i class="fas fa-envelope"></i> info&#64;devicecontrol.com</li>
+            <li><i class="fas fa-phone"></i> +1 234 567 890</li>
+            <li><i class="fas fa-map-marker-alt"></i> Ciudad, País</li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h5>Horario de Atención</h5>
+          <ul>
+            <li>Lunes - Viernes: 8:00 AM - 6:00 PM</li>
+            <li>Sábado: 9:00 AM - 1:00 PM</li>
+            <li>Domingo: Cerrado</li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2024 Device Control. Todos los derechos reservados.</p>
+      </div>
+    </div>
+  </footer>
+</div>
