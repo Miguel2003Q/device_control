@@ -1,0 +1,305 @@
+<app-top-bar></app-top-bar>
+<app-sidebar></app-sidebar>
+
+<!-- estadisticas-espacio.component.html -->
+<div class="estadisticas-container">
+  <!-- Header con acciones -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1>Estadísticas de Espacios</h1>
+      <p class="subtitle">Análisis completo del estado y utilización de espacios</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn-action" (click)="refreshData()" [disabled]="loading">
+        <i class="fas fa-sync-alt" [class.fa-spin]="loading"></i>
+        Actualizar
+      </button>
+      <button class="btn-primary" (click)="viewPDF()">
+        <i class="fas fa-file-pdf"></i>
+        Ver PDF
+      </button>
+      <button class="btn-success" (click)="downloadPDF()">
+        <i class="fas fa-download"></i>
+        Descargar PDF
+      </button>
+      <button class="btn-excel" (click)="downloadExcel()">
+        <i class="fas fa-file-excel"></i>
+        Descargar Excel
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading Spinner -->
+  <div class="loading-container" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>Cargando estadísticas...</p>
+  </div>
+
+  <!-- Contenido principal -->
+  <div class="estadisticas-content" *ngIf="!loading && estadisticas">
+    
+    <!-- Tarjetas de resumen -->
+    <div class="stats-grid">
+      <div class="stat-card primary">
+        <div class="stat-icon">
+          <i class="fas fa-building"></i>
+        </div>
+        <div class="stat-content">
+          <h3>{{ estadisticas.totalEspacios }}</h3>
+          <p>Total Espacios</p>
+        </div>
+      </div>
+
+      <div class="stat-card success">
+        <div class="stat-icon">
+          <i class="fas fa-check-circle"></i>
+        </div>
+        <div class="stat-content">
+          <h3>{{ estadisticas.totalEspaciosActivos }}</h3>
+          <p>Espacios Activos</p>
+          <span class="percentage">{{ estadisticas.porcentajeEspaciosActivos | number:'1.1-1' }}%</span>
+        </div>
+      </div>
+
+      <div class="stat-card danger">
+        <div class="stat-icon">
+          <i class="fas fa-times-circle"></i>
+        </div>
+        <div class="stat-content">
+          <h3>{{ estadisticas.totalEspaciosEliminados }}</h3>
+          <p>Espacios Eliminados</p>
+          <span class="percentage">{{ estadisticas.porcentajeEspaciosEliminados | number:'1.1-1' }}%</span>
+        </div>
+      </div>
+
+      <div class="stat-card info">
+        <div class="stat-icon">
+          <i class="fas fa-users"></i>
+        </div>
+        <div class="stat-content">
+          <h3>{{ estadisticas.capacidadTotal }}</h3>
+          <p>Capacidad Total</p>
+          <span class="average">Promedio: {{ estadisticas.capacidadPromedio | number:'1.1-1' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Gráficos y tablas -->
+    <div class="charts-section">
+      <!-- Distribución por Estado -->
+      <div class="chart-card">
+        <div class="card-header">
+          <h2>Distribución por Estado</h2>
+          <button class="btn-icon" (click)="toggleView('estado')">
+            <i class="fas" [ngClass]="{'fa-chart-pie': viewMode.estado === 'table', 'fa-table': viewMode.estado === 'chart'}"></i>
+          </button>
+        </div>
+        <div class="card-body">
+          <div *ngIf="viewMode.estado === 'chart'" class="chart-container">
+            <canvas #estadoChart></canvas>
+          </div>
+          <div *ngIf="viewMode.estado === 'table'" class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Estado</th>
+                  <th>Cantidad</th>
+                  <th>Porcentaje</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let estado of getEstadosList()">
+                  <td>
+                    <span class="status-badge" [ngClass]="getStatusClass(estado.key)">
+                      {{ estado.key }}
+                    </span>
+                  </td>
+                  <td class="text-center">{{ estado.value }}</td>
+                  <td class="text-center">
+                    <div class="progress-bar-container">
+                      <div class="progress-bar" [style.width.%]="getPercentage(estado.value, estadisticas.totalEspaciosActivos)">
+                        <span>{{ getPercentage(estado.value, estadisticas.totalEspaciosActivos) | number:'1.1-1' }}%</span>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Rangos de Capacidad -->
+      <div class="chart-card">
+        <div class="card-header">
+          <h2>Análisis de Capacidad</h2>
+          <button class="btn-icon" (click)="toggleView('capacidad')">
+            <i class="fas" [ngClass]="{'fa-chart-bar': viewMode.capacidad === 'table', 'fa-table': viewMode.capacidad === 'chart'}"></i>
+          </button>
+        </div>
+        <div class="card-body">
+          <div class="capacity-stats">
+            <div class="capacity-item">
+              <span class="label">Mínima:</span>
+              <span class="value">{{ estadisticas.capacidadMinima }}</span>
+            </div>
+            <div class="capacity-item">
+              <span class="label">Máxima:</span>
+              <span class="value">{{ estadisticas.capacidadMaxima }}</span>
+            </div>
+            <div class="capacity-item">
+              <span class="label">Promedio:</span>
+              <span class="value">{{ estadisticas.capacidadPromedio | number:'1.1-1' }}</span>
+            </div>
+          </div>
+          
+          <div *ngIf="viewMode.capacidad === 'chart'" class="chart-container">
+            <canvas #capacidadChart></canvas>
+          </div>
+          <div *ngIf="viewMode.capacidad === 'table'" class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Rango de Capacidad</th>
+                  <th>Cantidad de Espacios</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let rango of getRangosList()">
+                  <td>
+                    <i class="fas fa-users range-icon"></i>
+                    {{ rango.key }}
+                  </td>
+                  <td class="text-center">
+                    <span class="badge">{{ rango.value }}</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Top Espacios por Capacidad -->
+    <div class="top-section">
+      <div class="section-card">
+        <div class="card-header">
+          <h2>Top 10 Espacios por Capacidad</h2>
+          <span class="badge-info">Mayor capacidad</span>
+        </div>
+        <div class="card-body">
+          <div class="top-list">
+            <div class="top-item" *ngFor="let espacio of getTopEspaciosList(); let i = index">
+              <div class="rank" [class.gold]="i === 0" [class.silver]="i === 1" [class.bronze]="i === 2">
+                {{ i + 1 }}
+              </div>
+              <div class="item-info">
+                <h4>{{ espacio.key }}</h4>
+                <div class="capacity-bar">
+                  <div class="capacity-fill" [style.width.%]="(espacio.value / estadisticas.capacidadMaxima) * 100"></div>
+                  <span class="capacity-value">{{ espacio.value }} personas</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Análisis de Utilización -->
+    <div class="utilization-section">
+      <div class="section-card">
+        <div class="card-header">
+          <h2>Análisis de Utilización por Estado</h2>
+        </div>
+        <div class="card-body">
+          <div class="utilization-grid">
+            <div class="utilization-card" *ngFor="let util of getUtilizacionList()">
+              <div class="util-header">
+                <span class="status-badge" [ngClass]="getStatusClass(util.key)">
+                  {{ util.key }}
+                </span>
+              </div>
+              <div class="util-content">
+                <div class="circular-progress" [attr.data-percentage]="util.value">
+                  <svg class="progress-ring" width="120" height="120">
+                    <circle class="progress-ring__circle" 
+                            stroke-width="8" 
+                            fill="transparent"
+                            r="52"
+                            cx="60"
+                            cy="60"
+                            [style.stroke-dasharray]="326.73"
+                            [style.stroke-dashoffset]="326.73 - (326.73 * util.value / 100)">
+                    </circle>
+                  </svg>
+                  <div class="percentage-text">{{ util.value | number:'1.1-1' }}%</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- JSON Viewer (Expandible) -->
+    <div class="json-section">
+      <div class="section-card">
+        <div class="card-header">
+          <h2>Datos Raw (JSON)</h2>
+          <button class="btn-icon" (click)="toggleJsonView()">
+            <i class="fas" [ngClass]="{'fa-chevron-down': !showJson, 'fa-chevron-up': showJson}"></i>
+          </button>
+        </div>
+        <div class="card-body" *ngIf="showJson">
+          <div class="json-toolbar">
+            <button class="btn-sm" (click)="copyJson()">
+              <i class="fas fa-copy"></i>
+              Copiar
+            </button>
+            <button class="btn-sm" (click)="downloadJson()">
+              <i class="fas fa-download"></i>
+              Descargar JSON
+            </button>
+          </div>
+          <pre class="json-viewer">{{ estadisticas | json }}</pre>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Estado vacío -->
+  <div class="empty-state" *ngIf="!loading && !estadisticas">
+    <i class="fas fa-chart-bar"></i>
+    <h3>No hay datos disponibles</h3>
+    <p>No se pudieron cargar las estadísticas. Por favor, intenta nuevamente.</p>
+    <button class="btn-primary" (click)="loadEstadisticas()">
+      <i class="fas fa-refresh"></i>
+      Reintentar
+    </button>
+  </div>
+</div>
+
+<!-- Modal para vista previa de PDF -->
+<div class="modal" *ngIf="showPdfModal" (click)="closePdfModal($event)">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Vista Previa del Reporte</h3>
+      <button class="btn-close" (click)="closePdfModal($event)">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+      <iframe [src]="pdfUrl" width="100%" height="600px"></iframe>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="closePdfModal($event)">Cerrar</button>
+      <button class="btn-primary" (click)="downloadPDF()">
+        <i class="fas fa-download"></i>
+        Descargar
+      </button>
+    </div>
+  </div>
+</div>

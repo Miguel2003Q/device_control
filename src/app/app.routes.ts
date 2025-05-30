@@ -37,10 +37,6 @@ export const routes: Routes = [ //Lazy Loading lo que significa que los componen
         loadComponent: () => import('./admin/estadisticas/estadisticas.component').then(m => m.EstadisticasComponent)   
     },
     {
-        path: 'home1',
-        loadComponent: () => import('./public/home/home.component').then(m => m.HomeComponent1)
-    },
-    {
         path: 'gestion-usuarios/usuarios-tabla',
         loadComponent: () => import('./admin/gestion-usuarios/usuarios-tabla/usuarios-tabla.component').then(m => m.UsuariosTablaComponent)
     },
@@ -55,6 +51,10 @@ export const routes: Routes = [ //Lazy Loading lo que significa que los componen
     {
         path: 'solicitudes',
         loadComponent: () => import('./instructor/solicitud-ambiente/solicitud-ambiente.component').then(m => m.SolicitudAmbienteComponent)
+    },
+    {
+        path: 'stats/espaciosStats',
+        loadComponent: () => import('./admin/stats/estadisticas-espacio/estadisticas-espacio.component').then(m => m.EstadisticasEspacioComponent)
     }
 ];
 
