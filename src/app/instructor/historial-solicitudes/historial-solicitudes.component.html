@@ -1,0 +1,416 @@
+<app-top-bar></app-top-bar>
+<app-sidebar [active]="sidebarActive"></app-sidebar>
+
+<!-- historial-solicitudes.component.html -->
+<div class="content-wrapper">
+<div class="historial-container">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1>
+        <i class="fas fa-history"></i>
+        Mi Historial de Solicitudes
+      </h1>
+      <p class="subtitle">Revisa el estado y detalles de todas tus solicitudes</p>
+    </div>
+    
+    <div class="header-actions">
+      <button class="export-btn" (click)="exportarHistorial()">
+        <i class="fas fa-file-excel"></i>
+        Exportar
+      </button>
+      <button class="refresh-btn" (click)="actualizarHistorial()">
+        <i class="fas fa-sync-alt" [class.fa-spin]="loading"></i>
+        Actualizar
+      </button>
+    </div>
+  </div>
+
+  <!-- Filtros y búsqueda -->
+  <div class="filters-section">
+    <div class="search-box">
+      <i class="fas fa-search"></i>
+      <input 
+        type="text" 
+        placeholder="Buscar por ambiente, fecha o descripción..." 
+        [(ngModel)]="searchTerm" 
+        (keyup)="filtrarSolicitudes()">
+    </div>
+    
+    <div class="filters">
+      <div class="filter-group">
+        <label>Estado:</label>
+        <select [(ngModel)]="filtroEstado" (change)="filtrarSolicitudes()">
+          <option value="">Todos</option>
+          <option value="Pendiente">Pendiente</option>
+          <option value="Aprobado">Aprobado</option>
+          <option value="Rechazado">Rechazado</option>
+          <option value="Cancelado">Cancelado</option>
+          <option value="Completado">Completado</option>
+        </select>
+      </div>
+      
+      <div class="filter-group">
+        <label>Período:</label>
+        <select [(ngModel)]="filtroPeriodo" (change)="filtrarSolicitudes()">
+          <option value="">Todo el tiempo</option>
+          <option value="hoy">Hoy</option>
+          <option value="semana">Esta semana</option>
+          <option value="mes">Este mes</option>
+          <option value="trimestre">Últimos 3 meses</option>
+          <option value="año">Este año</option>
+        </select>
+      </div>
+      
+      <div class="filter-group">
+        <label>Tipo:</label>
+        <select [(ngModel)]="filtroTipo" (change)="filtrarSolicitudes()">
+          <option value="">Todos</option>
+          <option value="ambiente">Ambientes</option>
+          <option value="activo">Activos</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Resumen de estadísticas -->
+  <div class="stats-summary">
+    <div class="stat-item">
+      <div class="stat-icon pending">
+        <i class="fas fa-clock"></i>
+      </div>
+      <div class="stat-details">
+        <h3>{{estadisticas.pendientes}}</h3>
+        <p>Pendientes</p>
+      </div>
+    </div>
+    
+    <div class="stat-item">
+      <div class="stat-icon approved">
+        <i class="fas fa-check-circle"></i>
+      </div>
+      <div class="stat-details">
+        <h3>{{estadisticas.aprobadas}}</h3>
+        <p>Aprobadas</p>
+      </div>
+    </div>
+    
+    <div class="stat-item">
+      <div class="stat-icon rejected">
+        <i class="fas fa-times-circle"></i>
+      </div>
+      <div class="stat-details">
+        <h3>{{estadisticas.rechazadas}}</h3>
+        <p>Rechazadas</p>
+      </div>
+    </div>
+    
+    <div class="stat-item">
+      <div class="stat-icon completed">
+        <i class="fas fa-check-double"></i>
+      </div>
+      <div class="stat-details">
+        <h3>{{estadisticas.completadas}}</h3>
+        <p>Completadas</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lista de solicitudes -->
+  <div class="solicitudes-list">
+    <div class="list-header">
+      <h2>Historial de Solicitudes</h2>
+      <span class="results-count">{{solicitudesFiltradas.length}} solicitudes encontradas</span>
+    </div>
+    
+    <!-- Loading -->
+    <div class="loading-state" *ngIf="loading">
+      <div class="spinner"></div>
+      <p>Cargando historial...</p>
+    </div>
+    
+    <!-- Timeline de solicitudes -->
+    <div class="timeline" *ngIf="!loading && solicitudesFiltradas.length > 0">
+      <div class="timeline-item" *ngFor="let solicitud of solicitudesFiltradas">
+        <div class="timeline-marker" [class]="getTimelineClass(solicitud.estado)">
+          <i class="fas" [ngClass]="getStatusIcon(solicitud.estado)"></i>
+        </div>
+        
+        <div class="timeline-content">
+          <div class="solicitud-card">
+            <div class="card-header">
+              <div class="header-info">
+                <h3>
+                  <i class="fas" [ngClass]="solicitud.tipo === 'ambiente' ? 'fa-door-open' : 'fa-box'"></i>
+                  {{solicitud.tipo === 'ambiente' ? solicitud.ambiente : solicitud.activo}}
+                </h3>
+                <span class="solicitud-id">#{{solicitud.id}}</span>
+              </div>
+              <span class="status-badge" [class]="solicitud.estado.toLowerCase()">
+                {{solicitud.estado}}
+              </span>
+            </div>
+            
+            <div class="card-body">
+              <div class="solicitud-details">
+                <div class="detail-row">
+                  <div class="detail-item">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>
+                      <strong>Fecha Solicitud:</strong> 
+                      {{solicitud.fechaSolicitud | date:'dd/MM/yyyy HH:mm'}}
+                    </span>
+                  </div>
+                  
+                  <div class="detail-item" *ngIf="solicitud.tipo === 'ambiente'">
+                    <i class="fas fa-calendar-check"></i>
+                    <span>
+                      <strong>Período:</strong> 
+                      {{solicitud.fechaInicio | date:'dd/MM/yyyy'}} - 
+                      {{solicitud.fechaFin | date:'dd/MM/yyyy'}}
+                    </span>
+                  </div>
+                </div>
+                
+                <div class="detail-row">
+                  <div class="detail-item">
+                    <i class="fas fa-comment-alt"></i>
+                    <span>
+                      <strong>Motivo:</strong> 
+                      {{solicitud.motivo}}
+                    </span>
+                  </div>
+                </div>
+                
+                <div class="detail-row" *ngIf="solicitud.observaciones">
+                  <div class="detail-item">
+                    <i class="fas fa-sticky-note"></i>
+                    <span>
+                      <strong>Observaciones:</strong> 
+                      {{solicitud.observaciones}}
+                    </span>
+                  </div>
+                </div>
+                
+                <div class="detail-row" *ngIf="solicitud.tipo === 'ambiente'">
+                  <div class="detail-item">
+                    <i class="fas fa-users"></i>
+                    <span>
+                      <strong>Asistentes:</strong> 
+                      {{solicitud.numAsistentes}} personas
+                    </span>
+                  </div>
+                  
+                  <div class="detail-item">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span>
+                      <strong>Ubicación:</strong> 
+                      {{solicitud.ubicacion}}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="card-footer">
+                <div class="footer-info">
+                  <span class="update-time">
+                    <i class="fas fa-clock"></i>
+                    Última actualización: {{solicitud.fechaActualizacion | date:'dd/MM/yyyy HH:mm'}}
+                  </span>
+                  <span class="responsable" *ngIf="solicitud.responsable">
+                    <i class="fas fa-user-check"></i>
+                    Procesado por: {{solicitud.responsable}}
+                  </span>
+                </div>
+                
+                <div class="card-actions">
+                  <button 
+                    class="action-btn view" 
+                    (click)="verDetalles(solicitud)"
+                    title="Ver detalles completos">
+                    <i class="fas fa-eye"></i>
+                  </button>
+                  
+                  <button 
+                    class="action-btn cancel" 
+                    *ngIf="solicitud.estado === 'Pendiente'"
+                    (click)="cancelarSolicitud(solicitud)"
+                    title="Cancelar solicitud">
+                    <i class="fas fa-ban"></i>
+                  </button>
+                  
+                  <button 
+                    class="action-btn duplicate" 
+                    *ngIf="solicitud.tipo === 'ambiente' && (solicitud.estado === 'Completado' || solicitud.estado === 'Aprobado')"
+                    (click)="duplicarSolicitud(solicitud)"
+                    title="Duplicar solicitud">
+                    <i class="fas fa-copy"></i>
+                  </button>
+                  
+                  <button 
+                    class="action-btn download" 
+                    *ngIf="solicitud.estado === 'Aprobado'"
+                    (click)="descargarComprobante(solicitud)"
+                    title="Descargar comprobante">
+                    <i class="fas fa-download"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Estado vacío -->
+    <div class="empty-state" *ngIf="!loading && solicitudesFiltradas.length === 0">
+      <i class="fas fa-inbox"></i>
+      <h3>No se encontraron solicitudes</h3>
+      <p>{{searchTerm || filtroEstado || filtroPeriodo ? 'Intenta ajustar los filtros de búsqueda' : 'Aún no has realizado ninguna solicitud'}}</p>
+      <button class="btn-primary" routerLink="/ambientes">
+        <i class="fas fa-plus"></i>
+        Nueva Solicitud
+      </button>
+    </div>
+  </div>
+  
+  <!-- Paginación -->
+  <div class="pagination" *ngIf="!loading && totalPages > 1">
+    <button 
+      class="page-btn" 
+      [disabled]="currentPage === 1"
+      (click)="cambiarPagina(currentPage - 1)">
+      <i class="fas fa-chevron-left"></i>
+    </button>
+    
+    <div class="page-numbers">
+      <button 
+        class="page-number" 
+        *ngFor="let page of getPageNumbers()"
+        [class.active]="page === currentPage"
+        (click)="cambiarPagina(page)">
+        {{page}}
+      </button>
+    </div>
+    
+    <button 
+      class="page-btn" 
+      [disabled]="currentPage === totalPages"
+      (click)="cambiarPagina(currentPage + 1)">
+      <i class="fas fa-chevron-right"></i>
+    </button>
+  </div>
+  <button class="menu-toggle" [ngClass]="{'active': sidebarActive}" (click)="toggleSidebar()">
+      <i class="fas" [ngClass]="sidebarActive ? 'fa-times' : 'fa-bars'"></i>
+    </button>
+</div>
+</div>
+
+<!-- Modal de detalles -->
+<div class="modal-overlay" *ngIf="showModalDetalles" (click)="cerrarModal($event)">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>
+        <i class="fas fa-file-alt"></i>
+        Detalles de la Solicitud #{{solicitudSeleccionada?.id}}
+      </h2>
+      <button class="close-btn" (click)="cerrarModal($event)">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    
+    <div class="modal-body">
+      <div class="detail-section">
+        <h3>Información General</h3>
+        <div class="info-grid">
+          <div class="info-item">
+            <label>Tipo de Solicitud:</label>
+            <span>{{solicitudSeleccionada?.tipo === 'ambiente' ? 'Ambiente' : 'Activo'}}</span>
+          </div>
+          <div class="info-item">
+            <label>Estado:</label>
+            <span class="status-badge" [class]="solicitudSeleccionada?.estado?.toLowerCase()">
+              {{solicitudSeleccionada?.estado}}
+            </span>
+          </div>
+          <div class="info-item">
+            <label>Fecha de Solicitud:</label>
+            <span>{{solicitudSeleccionada?.fechaSolicitud | date:'dd/MM/yyyy HH:mm'}}</span>
+          </div>
+          <div class="info-item" *ngIf="solicitudSeleccionada?.responsable">
+            <label>Procesado por:</label>
+            <span>{{solicitudSeleccionada?.responsable}}</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="detail-section" *ngIf="solicitudSeleccionada?.tipo === 'ambiente'">
+        <h3>Detalles del Ambiente</h3>
+        <div class="info-grid">
+          <div class="info-item">
+            <label>Ambiente:</label>
+            <span>{{solicitudSeleccionada?.ambiente}}</span>
+          </div>
+          <div class="info-item">
+            <label>Ubicación:</label>
+            <span>{{solicitudSeleccionada?.ubicacion}}</span>
+          </div>
+          <div class="info-item">
+            <label>Fecha de Inicio:</label>
+            <span>{{solicitudSeleccionada?.fechaInicio | date:'dd/MM/yyyy'}} {{solicitudSeleccionada?.horaInicio}}</span>
+          </div>
+          <div class="info-item">
+            <label>Fecha de Fin:</label>
+            <span>{{solicitudSeleccionada?.fechaFin | date:'dd/MM/yyyy'}} {{solicitudSeleccionada?.horaFin}}</span>
+          </div>
+          <div class="info-item">
+            <label>Número de Asistentes:</label>
+            <span>{{solicitudSeleccionada?.numAsistentes}} personas</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="detail-section">
+        <h3>Motivo y Observaciones</h3>
+        <div class="text-content">
+          <p><strong>Motivo:</strong></p>
+          <p class="text-block">{{solicitudSeleccionada?.motivo}}</p>
+          
+          <p *ngIf="solicitudSeleccionada?.observaciones"><strong>Observaciones:</strong></p>
+          <p class="text-block" *ngIf="solicitudSeleccionada?.observaciones">
+            {{solicitudSeleccionada?.observaciones}}
+          </p>
+        </div>
+      </div>
+      
+      <div class="timeline-section">
+        <h3>Historial de Estados</h3>
+        <div class="status-timeline">
+          <div class="status-item" *ngFor="let historial of solicitudSeleccionada?.historialEstados">
+            <div class="status-marker" [class]="historial.estado.toLowerCase()">
+              <i class="fas" [ngClass]="getStatusIcon(historial.estado)"></i>
+            </div>
+            <div class="status-info">
+              <span class="status-name">{{historial.estado}}</span>
+              <span class="status-date">{{historial.fecha | date:'dd/MM/yyyy HH:mm'}}</span>
+              <span class="status-user" *ngIf="historial.usuario">por {{historial.usuario}}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="cerrarModal($event)">
+        Cerrar
+      </button>
+      <button 
+        class="btn-primary" 
+        *ngIf="solicitudSeleccionada?.estado === 'Aprobado'"
+        (click)="descargarComprobante(solicitudSeleccionada!)">
+        <i class="fas fa-download"></i>
+        Descargar Comprobante
+      </button>
+    </div>
+  </div>
+</div>

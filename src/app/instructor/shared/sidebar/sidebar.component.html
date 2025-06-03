@@ -1,0 +1,32 @@
+<div class="sidebar" [ngClass]="{ 'active': active }">
+
+  <nav class="sidebar-menu">
+    <a routerLink="/ins/home" routerLinkActive="active" class="menu-item">
+      <i class="fas fa-home"></i>
+      <span>Inicio</span>
+    </a>
+    <a routerLink="/ins/profile" routerLinkActive="active" class="menu-item">
+      <i class="fas fa-user"></i>
+      <span>Perfil</span>
+    </a>
+    <!-- <a routerLink="/gestion-activos" routerLinkActive="active" class="menu-item"> Módulo opcional?
+      <i class="fas fa-box"></i>
+      <span>Gestión de Activos</span>
+    </a> -->
+    <a routerLink="/ins/solicitar-ambiente" routerLinkActive="active" class="menu-item">
+      <i class="fas fa-door-open"></i>
+      <span>Solicitud de Ambiente</span>
+    </a>
+    <a routerLink="/ins/historial-solicitudes" routerLinkActive="active" class="menu-item">
+      <i class="fas fa-door-open"></i>
+      <span>Historial de Solicitudes</span>
+    </a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <a href="#" class="logout-btn">
+      <i class="fas fa-sign-out-alt"></i>
+      <span>Cerrar Sesión</span>
+    </a>
+  </div>
+</div>

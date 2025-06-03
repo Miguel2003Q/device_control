@@ -5,32 +5,59 @@ import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { LoadingService } from '../../core/services/loading.service';
+import { trigger, style, animate, transition, state } from '@angular/animations';
 
 @Component({
   selector: 'app-login',
   standalone: true,
   imports: [FormsModule, CommonModule],
   templateUrl: './login.component.html',
-  styleUrls: ['./login.component.css']
+  styleUrls: ['./login.component.css'],
+  animations: [
+    trigger('fadeIn', [
+      transition(':enter', [
+        style({ opacity: 0 }),
+        animate('300ms ease-in', style({ opacity: 1 }))
+      ])
+    ]),
+    trigger('slideIn', [
+      transition(':enter', [
+        style({ transform: 'translateY(20px)', opacity: 0 }),
+        animate('400ms ease-out', style({ transform: 'translateY(0)', opacity: 1 }))
+      ])
+    ]),
+    trigger('slideUp', [
+      transition(':enter', [
+        style({ transform: 'translateY(50px)', opacity: 0 }),
+        animate('300ms ease-out', style({ transform: 'translateY(0)', opacity: 1 }))
+      ])
+    ]),
+    trigger('shake', [
+      transition(':enter', [
+        animate('500ms', style({ transform: 'translateX(0)' }))
+      ])
+    ])
+  ]
 })
+
 export class LoginComponent {
   loginRequest: LoginRequest = { email: '', clave: '' };
   errorMessage: string = '';
   successMessage: string = '';
   logoUrl: string = 'assets/logo.png'; // URL de la imagen del logo
-  loading: boolean = false;
-  showPassword: boolean = false;
+
+  // Nuevas propiedades, para estilos
+  usernameFocused = false;
+  passwordFocused = false;
+  showPassword = false;
+  loading = false;
+  showRegisterModal = false;
 
   constructor(
     private authService: AuthService,
     private router: Router,
     private loadingService: LoadingService
-  ) {}
-
-  // Toggle password visibility
-  togglePasswordVisibility() {
-    this.showPassword = !this.showPassword;
-  }
+  ) { }
 
   onSubmit() {
     this.loadingService.show();
@@ -71,14 +98,26 @@ export class LoginComponent {
       (err) => {
         this.loading = false;
         this.loadingService.hide();
-        this.errorMessage = err.error || 'Credenciales incorrectas. Por favor, intenta nuevamente.';
+        this.errorMessage = err.error || 'Usuario o contraseña incorrectos';
         console.error('Error en login:', err);
       }
     );
   }
 
-  // Navigate to register page
-  goToRegister() {
-    this.router.navigate(['/register']);
+  // Método para alternar visibilidad de contraseña
+  togglePassword(): void {
+    this.showPassword = !this.showPassword;
   }
+
+  // Método para abrir modal de registro
+  openRegisterModal(): void {
+    this.showRegisterModal = true;
+  }
+
+  // Método para cerrar modal de registro
+  closeRegisterModal(event: Event): void {
+    event.preventDefault();
+    this.showRegisterModal = false;
+  }
+
 }

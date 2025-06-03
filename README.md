@@ -21,13 +21,13 @@
   margin-top: 60px;
 }
 
-- Para poder ver los ionos se puso acceso global en index.html
-- [routerLinkActiveOptions]="{ exact: false } Para que permanezca activo mientras se esta en una ruta hija
-- Organizar activos funcional, crear activo, perfil, 
-- Cambiar la palabra Ambiente por espacio
-- Poner estado a los espacios?
+- Para poder ver los iconos se puso acceso global en index.html
+- [routerLinkActiveOptions]="{ exact: false } Para que permanezca activo mientras se esta en una ruta hija 
 - Actualizar el cache al guardar, actualiz o elim un activo
-- Poner funciones del landing, poner topbar en login, poner logo en pestaña favicon
+- Poner funciones del landing
+- Tener en cuenta el reponsive del sidebar
+- La creación de atributos entidad se asocia solo con el id
+- Probar creacion de solicitudes
 
 ## Estrucutra
 - admin: Vistas del admin

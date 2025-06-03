@@ -16,6 +16,7 @@ export const routes: Routes = [ //Lazy Loading lo que significa que los componen
     {
         path: 'register', component: RegisterComponent
     },
+    //Admin Routes
     {
         path: 'home',
         loadComponent: () => import('./admin/home/home.component').then(m => m.HomeComponent)
@@ -46,15 +47,45 @@ export const routes: Routes = [ //Lazy Loading lo que significa que los componen
     },
     {
         path: 'perfil',
-        loadComponent: () => import('./perfil/perfil.component').then(m => m.PerfilComponent)
-    },
-    {
-        path: 'solicitudes',
-        loadComponent: () => import('./instructor/solicitud-ambiente/solicitud-ambiente.component').then(m => m.SolicitudAmbienteComponent)
+        loadComponent: () => import('./admin/perfil/perfil.component').then(m => m.PerfilComponent)
     },
     {
         path: 'stats/espaciosStats',
         loadComponent: () => import('./admin/stats/estadisticas-espacio/estadisticas-espacio.component').then(m => m.EstadisticasEspacioComponent)
+    },
+    //Instructor Routes
+    {
+        path: 'ins/solicitudes', //Esta ruta es de ejemplo
+        loadComponent: () => import('./instructor/solicitud-ambiente/solicitud-ambiente.component').then(m => m.SolicitudAmbienteComponent)
+    },
+    {
+        path: 'ins/home',
+        loadComponent: () => import('./instructor/home/home.component').then(m => m.HomeInstructorComponent)
+    },
+    {
+        path: 'ins/profile',
+        loadComponent: () => import('./instructor/profile/profile.component').then(m => m.ProfileComponent)
+    },
+    {
+        path: 'ins/solicitar-ambiente',
+        loadComponent: () => import('./instructor/solicitar-espacio/solicitar-espacio.component').then(m => m.SolicitarEspacioComponent)
+    },
+    {
+        path: 'ins/historial-solicitudes',
+        loadComponent: () => import('./instructor/historial-solicitudes/historial-solicitudes.component').then(m => m.HistorialSolicitudesComponent)
+    },
+    //Vigilante Routes
+    {
+        path: 'vig/home',
+        loadComponent: () => import('./vigilante/home/home.component').then(m => m.HomeVigilanteComponent)
+    },
+    {
+        path: 'vig/perfil',
+        loadComponent: () => import('./vigilante/perfil/perfil.component').then(m => m.PerfilVigilanteComponent)
+    },
+    {
+        path: 'vig/solicitudes-espacios',
+        loadComponent: () => import('./vigilante/solicitudes-espacios/solicitudes-espacios.component').then(m => m.SolicitudesEspaciosComponent)
     }
 ];
 

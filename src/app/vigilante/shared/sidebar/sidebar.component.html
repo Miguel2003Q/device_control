@@ -1,0 +1,28 @@
+<div class="sidebar" [ngClass]="{ 'active': active }">
+
+  <nav class="sidebar-menu">
+    <a routerLink="/vig/home" routerLinkActive="active" class="menu-item">
+      <i class="fas fa-home"></i>
+      <span>Inicio</span>
+    </a>
+    <a routerLink="/vig/perfil" routerLinkActive="active" class="menu-item">
+      <i class="fas fa-user"></i>
+      <span>Perfil</span>
+    </a>
+    <!-- <a routerLink="/gestion-activos" routerLinkActive="active" class="menu-item"> Opcional?
+      <i class="fas fa-box"></i>
+      <span>Gestión de Activos</span>
+    </a> -->
+    <a routerLink="/vig/solicitudes-espacios" routerLinkActive="active" class="menu-item">
+      <i class="fas fa-door-open"></i>
+      <span>Solicitudes de Espacios</span>
+    </a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <a href="#" class="logout-btn">
+      <i class="fas fa-sign-out-alt"></i>
+      <span>Cerrar Sesión</span>
+    </a>
+  </div>
+</div>

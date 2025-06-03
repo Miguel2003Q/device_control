@@ -2,10 +2,10 @@
 
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TopBarComponent } from "../admin/shared/top-bar/top-bar.component";
-import { SidebarComponent } from "../admin/shared/sidebar/sidebar.component";
+import { TopBarComponent } from '../shared/top-bar/top-bar.component';
+import { SidebarComponent } from '../shared/sidebar/sidebar.component';
 import { FormsModule } from '@angular/forms';
-import { AuthService } from '../core/services/auth.service';
+import { AuthService } from '../../core/services/auth.service';
 interface Profile {
   nombre: string;
   correo: string;
