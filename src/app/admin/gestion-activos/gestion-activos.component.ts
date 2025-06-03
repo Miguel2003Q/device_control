@@ -22,6 +22,7 @@ import { TipoActivoService } from '../../core/services/tipoactivo.service';
 })
 export class ActivosComponent implements OnInit {
   // Propiedades del componente
+  activeTab: 'activos' | 'tipoActivos' = 'activos';
   activos: Activo[] = [];
   activosFiltrados: Activo[] = [];
   espacios: Espacio[] = [];
@@ -371,5 +372,18 @@ export class ActivosComponent implements OnInit {
         alert('Ocurrió un error al eliminar el activo');
       }
     });
+  }
+
+  // Cambiar pestaña activa
+  setActiveTab(tab: 'activos' | 'tipoActivos'): void {
+    this.activeTab = tab;
+    this.searchTerm = '';
+    // this.filtroEstado = '';
+    
+    if (tab === 'activos') {
+      this.filtrarActivos();
+    } else {
+      // this.filtrarSolicitudes();
+    }
   }
 }

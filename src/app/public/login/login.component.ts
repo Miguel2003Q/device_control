@@ -74,13 +74,13 @@ export class LoginComponent {
     }
 
     // Basic email validation
-    const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
-    if (!emailPattern.test(this.loginRequest.email)) {
-      this.errorMessage = 'Por favor, ingresa un correo electrónico válido.';
-      this.loading = false;
-      this.loadingService.hide();
-      return;
-    }
+    // const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+    // if (!emailPattern.test(this.loginRequest.email)) {
+    //   this.errorMessage = 'Por favor, ingresa un correo electrónico válido.';
+    //   this.loading = false;
+    //   this.loadingService.hide();
+    //   return;
+    // }
 
     // Call the login service
     this.authService.login(this.loginRequest).subscribe(

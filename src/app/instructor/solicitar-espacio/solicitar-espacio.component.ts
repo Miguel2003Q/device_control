@@ -164,16 +164,17 @@ export class SolicitarEspacioComponent implements OnInit {
 
     const nuevaSolicitud: SolicitudEspacio = {
       espacio: formData.ambiente,
-      fechaPrestamo: new Date(`${formData.fechaPrestamo}T${formData.horaPrestamo}`),
-      fechaDevolucion: new Date(`${formData.fechaDevolucion}T${formData.horaDevolucion}`),
+      fechaSolicitud: new Date().toISOString().slice(0, 16), // "YYYY-MM-DDTHH:mm"
+      fechaPres: `${formData.fechaPrestamo}T${formData.horaPrestamo}`,
+      fechaDevol: `${formData.fechaDevolucion}T${formData.horaDevolucion}`,
       motivo: formData.motivo,
       estado: 'Pendiente', // Default state
-      solicitante: solicitante,
+      usuario: solicitante,
     };
 
     this.solicitudService.guardarSolicitud(nuevaSolicitud).subscribe({
       next: (solicitudCreada) => {
-        this.toastr.success(`Solicitud para "${formData.ambiente}" creada`, 'Éxito');
+        this.toastr.success(`Solicitud para "${formData.ambiente.nombre}" creada`, 'Éxito');
         this.isSubmitting = false;
         this.showModalSolicitud = false;
         this.solicitudForm.reset();

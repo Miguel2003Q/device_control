@@ -14,6 +14,19 @@
     <!-- Contenido de activos -->
     <div class="content-wrapper">
       <div class="activos-container">
+
+<!-- Pestañas de navegación -->
+        <div class="tabs-container">
+          <div class="tab" [ngClass]="{'active': activeTab === 'activos'}" (click)="setActiveTab('activos')">
+            <i class="fas fa-door-open"></i>
+            <span>Ambientes</span>
+          </div>
+          <div class="tab" [ngClass]="{'active': activeTab === 'tipoActivos'}" (click)="setActiveTab('tipoActivos')">
+            <i class="fas fa-clipboard-list"></i>
+            <span>Solicitudes</span>
+          </div>
+        </div>
+
         <div class="section-header">
           <h2>Activos Información</h2>
         </div>
