@@ -1,26 +1,27 @@
 import { Component, OnInit, HostListener } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, Validators } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+import { CommonModule, NgIf } from '@angular/common';
 import  {ToastrService} from 'ngx-toastr';
 import { ReactiveFormsModule } from '@angular/forms';
-import { TopBarComponent } from "../shared/top-bar/top-bar.component";
-import { SidebarComponent } from "../shared/sidebar/sidebar.component";
-import { ActivoService } from '../../core/services/activo.service';
-import { Activo } from '../../core/models/activo.model';
-import { LoadingService } from '../../core/services/loading.service';
-import { TipoActivo } from '../../core/models/TipoActivo';
-import { Espacio } from '../../core/models/Espacio';
-import { EspacioService } from '../../core/services/espacio.service';
-import { TipoActivoService } from '../../core/services/tipoactivo.service';
+import { TopBarComponent } from "../../shared/top-bar/top-bar.component";
+import { SidebarComponent } from "../../shared/sidebar/sidebar.component";
+import { ActivoService } from '../../../core/services/activo.service';
+import { Activo } from '../../../core/models/activo.model';
+import { LoadingService } from '../../../core/services/loading.service';
+import { TipoActivo } from '../../../core/models/TipoActivo';
+import { Espacio } from '../../../core/models/Espacio';
+import { EspacioService } from '../../../core/services/espacio.service';
+import { TipoActivoService } from '../../../core/services/tipoactivo.service';
+import { TiposActivosComponent } from "../tipos-activos/tipos-activos.component";
 
 @Component({
   selector: 'app-activos',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, TopBarComponent, SidebarComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, TopBarComponent, SidebarComponent, TiposActivosComponent],
   templateUrl: './gestion-activos.component.html',
   styleUrls: ['./gestion-activos.component.css']
 })
-export class ActivosComponent implements OnInit {
+export class GestionActivosComponent implements OnInit {
   // Propiedades del componente
   activeTab: 'activos' | 'tipoActivos' = 'activos';
   activos: Activo[] = [];

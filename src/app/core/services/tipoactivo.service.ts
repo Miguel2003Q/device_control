@@ -51,15 +51,15 @@ export class TipoActivoService {
   // Guardar o actualizar tipo activo
   guardarTipoActivo(tipoActivo: TipoActivo): Observable<TipoActivo> {
     const headers = this.getHeaders();
-    if (tipoActivo.idtipoact) {
-      return this.http.put<TipoActivo>(`${this.apiUrl}/${tipoActivo.idtipoact}`, tipoActivo, { headers }).pipe(
-        catchError(this.handleError)
-      );
-    } else {
+    // if (tipoActivo.idtipoact) {
+    //   return this.http.put<TipoActivo>(`${this.apiUrl}/${tipoActivo.idtipoact}`, tipoActivo, { headers }).pipe(
+    //     catchError(this.handleError)
+    //   );
+    // } else {
       return this.http.post<TipoActivo>(this.apiUrl, tipoActivo, { headers }).pipe(
         catchError(this.handleError)
       );
-    }
+    // }
   }
 
   // Eliminar tipo activo

@@ -27,7 +27,7 @@ export const routes: Routes = [ //Lazy Loading lo que significa que los componen
     },
     {
         path: 'gestion-activos',
-        loadComponent: () => import('./admin/gestion-activos/gestion-activos.component').then(m => m.ActivosComponent)
+        loadComponent: () => import('./admin/activos/gestion-activos/gestion-activos.component').then(m => m.GestionActivosComponent)
     },
     {
         path: 'gestion-ambientes',

@@ -1,0 +1,121 @@
+<!-- Contenido de Tipos de Activos -->
+<div class="activos-container" *ngIf="activeTab === 'tipoActivos'">
+
+  <!-- Barra de herramientas -->
+  <div class="activos-toolbar">
+    <div class="toolbar-left">
+      <div class="search-box">
+        <i class="fas fa-search"></i>
+        <input type="text" placeholder="Buscar tipos de activos" [(ngModel)]="searchTerm" (keyup)="filtrarTiposActivos()">
+      </div>
+    </div>
+    <div class="toolbar-right">
+      <button class="create-btn" (click)="abrirModalCrearTipoActivo()">
+        <span>Crear Tipo de Activo</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Tabla de tipos de activos -->
+  <div class="activos-table-header">
+    <div class="nombre-col">Nombre</div>
+    <div class="cantidad-col">Cantidad de Activos</div>
+    <div class="acciones-col">Acciones</div>
+  </div>
+
+  <div class="activos-list">
+    <div class="activo-row" *ngFor="let tipo of tiposActivosFiltrados">
+      <div class="nombre-col">{{tipo.nombre}}</div>
+      <div class="cantidad-col">{{tipo.cantidadActivos}}</div>
+      <div class="acciones-col">
+        <button class="action-btn detalles" (click)="verDetallesTipo(tipo)">
+          Ver detalles
+        </button>
+      </div>
+    </div>
+
+    <!-- Mensaje si no hay resultados -->
+    <div *ngIf="tiposActivosFiltrados.length === 0" class="no-results">
+      <p>No se encontraron tipos de activos que coincidan con la búsqueda</p>
+    </div>
+  </div>
+</div>
+
+<!-- Modal para crear tipo de activo -->
+<div class="modal-overlay" *ngIf="showModalCrearTipo" (click)="cerrarModalCrearTipo($event)">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Crear Tipo de Activo</h2>
+      <button class="close-modal-btn" (click)="cerrarModalCrearTipo($event)">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <form [formGroup]="tipoActivoForm" (ngSubmit)="guardarTipoActivo()">
+        <!-- Nombre -->
+        <div class="form-group">
+          <label for="nombre-tipo">Nombre</label>
+          <div class="input-container">
+            <input type="text" id="nombre-tipo" formControlName="nombre" placeholder="Ej: Computadora">
+          </div>
+          <div class="error-message" *ngIf="isInvalidTipo('nombre')">
+            <span>El nombre es requerido</span>
+          </div>
+        </div>
+
+        <!-- Botón de envío -->
+        <div class="form-actions">
+          <button type="submit" class="save-btn" [disabled]="tipoActivoForm.invalid || isSubmitting">
+            <span *ngIf="!isSubmitting">Crear Tipo</span>
+            <div class="loader" *ngIf="isSubmitting"></div>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal para ver/editar detalles -->
+<div class="modal-overlay" *ngIf="showModalDetallesTipo" (click)="cerrarModalDetallesTipo($event)">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Detalles Tipo de Activo</h2>
+      <button class="close-modal-btn" (click)="cerrarModalDetallesTipo($event)">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <form [formGroup]="detallesTipoForm" (ngSubmit)="actualizarTipoActivo()">
+        <div class="form-group">
+          <label for="detalle-nombre-tipo">Nombre</label>
+          <div class="input-container">
+            <input type="text" id="detalle-nombre-tipo" formControlName="nombre" placeholder="Ej: Computadora">
+          </div>
+          <div class="error-message" *ngIf="isInvalidTipo('nombre')">
+            <span>El nombre es requerido</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="detalle-cantidad">Cantidad de Activos</label>
+          <div class="input-container">
+            <input type="text" id="detalle-cantidad" formControlName="cantidadActivos" [disabled]="true">
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="delete-btn" (click)="eliminarTipoActivo()">
+            <span *ngIf="!isSubmitting">Eliminar Tipo</span>
+            <div class="loader" *ngIf="isSubmitting"></div>
+          </button>
+          <button type="submit" class="save-btn" [disabled]="detallesTipoForm.invalid || isSubmitting">
+            <span *ngIf="!isSubmitting">Actualizar Tipo</span>
+            <div class="loader" *ngIf="isSubmitting"></div>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

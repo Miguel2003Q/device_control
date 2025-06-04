@@ -19,19 +19,25 @@
         <div class="tabs-container">
           <div class="tab" [ngClass]="{'active': activeTab === 'activos'}" (click)="setActiveTab('activos')">
             <i class="fas fa-door-open"></i>
-            <span>Ambientes</span>
+            <span>Activos</span>
           </div>
           <div class="tab" [ngClass]="{'active': activeTab === 'tipoActivos'}" (click)="setActiveTab('tipoActivos')">
             <i class="fas fa-clipboard-list"></i>
-            <span>Solicitudes</span>
+            <span>Tipos de Activos</span>
           </div>
         </div>
 
-        <div class="section-header">
+        <!-- <div class="section-header">
           <h2>Activos Información</h2>
+        </div> -->
+
+        <!-- Contenido de tipo de activos -->
+        <div *ngIf="activeTab === 'tipoActivos'">
+          <app-tipos-activos></app-tipos-activos>
         </div>
 
-        <!-- Barra de herramientas -->
+        <!-- Contenido de activos -->
+        <div *ngIf="activeTab === 'activos'">
         <div class="activos-toolbar">
           <div class="toolbar-left">
             <div class="search-box">
@@ -79,6 +85,7 @@
           <div *ngIf="activosFiltrados.length === 0" class="no-results">
             <p>No se encontraron activos que coincidan con la búsqueda</p>
           </div>
+        </div>
         </div>
       </div>
     </div>

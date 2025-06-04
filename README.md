@@ -27,7 +27,8 @@
 - Poner funciones del landing
 - Tener en cuenta el reponsive del sidebar
 - La creación de atributos entidad se asocia solo con el id
-- Probar creacion de solicitudes
+- Hacer validaciones de usuario logueado
+- Ver cascades, peticion de borrar, numero de activos
 
 ## Estrucutra
 - admin: Vistas del admin
