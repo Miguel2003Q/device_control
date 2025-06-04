@@ -1,133 +1,173 @@
 <app-top-bar></app-top-bar>
-<app-sidebar></app-sidebar>
+<app-sidebar [active]="sidebarActive"></app-sidebar>
 
-<main class="profile-container">
-  <div class="profile-card">
+<div class="content-wrapper">
+  <div class="profile-container">
+    <div class="section-header">
+      <h2>
+        <i class="fas fa-user-circle"></i>
+        Perfil de Usuario
+      </h2>
+      <div class="section-actions">
+        <button class="action-btn edit" (click)="openEditModal()">
+          <i class="fas fa-edit"></i>
+          Editar Perfil
+        </button>
+        <button class="action-btn change-password" (click)="openPasswordModal()">
+          <i class="fas fa-lock"></i>
+          Cambiar Contraseña
+        </button>
+      </div>
+    </div>
+
     <div class="profile-content">
-      <!-- Avatar -->
-      <div class="profile-avatar">
-        <span class="avatar-icon"></span>
+      <div class="profile-card">
+        <div class="profile-avatar">
+          <i class="fas fa-user-circle"></i>
+        </div>
+        <div class="profile-details">
+          <div class="detail-item">
+            <i class="fas fa-user"></i>
+            <span class="label">Nombre:</span>
+            <span class="value">{{user.nombre}}</span>
+          </div>
+          <div class="detail-item">
+            <i class="fas fa-envelope"></i>
+            <span class="label">Correo:</span>
+            <span class="value">{{user.correo}}</span>
+          </div>
+          <div class="detail-item">
+            <i class="fas fa-phone"></i>
+            <span class="label">Teléfono:</span>
+            <span class="value">{{user.telefono}}</span>
+          </div>
+          <div class="detail-item">
+            <i class="fas fa-briefcase"></i>
+            <span class="label">Rol:</span>
+            <span class="value">{{user.rol}}</span>
+          </div>
+        </div>
       </div>
+    </div>
 
-      <!-- Profile Fields -->
-      <div class="profile-fields">
-        <div class="field-group">
-          <label class="field-label">Nombre</label>
-          <div class="field-value">{{ profile.nombre }}</div>
-        </div>
-        <div class="field-group">
-          <label class="field-label">Correo</label>
-          <div class="field-value">{{ profile.correo }}</div>
-        </div>
-        <div class="field-group">
-          <label class="field-label">Teléfono</label>
-          <div class="field-value">{{ profile.telefono }}</div>
-        </div>
-        <div class="field-group">
-          <label class="field-label">Rol</label>
-          <div class="field-value">{{ profile.rol }}</div>
-        </div>
-      </div>
-
-      <!-- Action Buttons -->
-      <div class="button-group">
-        <button (click)="openEditModal()" class="btn-primary">Editar Perfil</button>
-        <button (click)="openPasswordModal()" class="btn-secondary">Cambiar la Contraseña</button>
-      </div>
+    <div class="notification" *ngIf="notificationMessage">
+      <span [ngClass]="{'success': notificationType === 'success', 'error': notificationType === 'error'}">
+        {{notificationMessage}}
+      </span>
     </div>
   </div>
 
-  <!-- Edit Profile Modal -->
-  <div *ngIf="showEditModal" class="modal-overlay">
-    <div class="modal-container" (click)="$event.stopPropagation()">
+  <!-- Modal para editar perfil -->
+  <div class="modal-overlay" *ngIf="showEditModal" (click)="closeEditModal($event)">
+    <div class="modal-container">
       <div class="modal-header">
-        <h2 class="modal-title">Editar Perfil</h2>
-        <span class="close-btn" (click)="closeAllModals()">×</span>
+        <h2>
+          <i class="fas fa-user-edit"></i>
+          Editar Perfil
+        </h2>
+        <button class="close-modal-btn" (click)="closeEditModal($event)">
+          <i class="fas fa-times"></i>
+        </button>
       </div>
       <div class="modal-body">
-        <div class="edit-avatar-container">
-          <div class="profile-avatar">
-            <span class="avatar-icon"></span>
-          </div>
-          <button (click)="openPhotoModal()" class="photo-link">Cambiar Foto</button>
-        </div>
-        <div class="form-fields">
+        <form [formGroup]="editForm" (ngSubmit)="saveProfile()">
           <div class="form-group">
-            <label class="form-label" for="nombre">Nombre</label>
-            <input id="nombre" type="text" name="nombre" [(ngModel)]="profile.nombre" (input)="handleProfileChange($event)" class="form-input" />
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="correo">Correo</label>
-            <input id="correo" type="email" name="correo" [(ngModel)]="profile.correo" (input)="handleProfileChange($event)" class="form-input" />
+            <label for="nombre">Nombre</label>
+            <div class="input-container">
+              <i class="fas fa-user"></i>
+              <input type="text" id="nombre" formControlName="nombre" placeholder="Ingresa tu nombre">
+            </div>
+            <div class="error-message" *ngIf="isInvalid('nombre', editForm)">
+              El nombre es requerido
+            </div>
           </div>
           <div class="form-group">
-            <label class="form-label" for="telefono">Teléfono</label>
-            <input id="telefono" type="tel" name="telefono" [(ngModel)]="profile.telefono" (input)="handleProfileChange($event)" class="form-input" />
+            <label for="telefono">Teléfono</label>
+            <div class="input-container">
+              <i class="fas fa-phone"></i>
+              <input type="tel" id="telefono" formControlName="telefono" placeholder="Ingresa tu teléfono">
+            </div>
+            <div class="error-message" *ngIf="isInvalid('telefono', editForm)">
+              El teléfono es requerido
+            </div>
           </div>
-          <div class="form-group">
-            <label class="form-label" for="rol">Rol</label>
-            <input id="rol" type="text" name="rol" [(ngModel)]="profile.rol" (input)="handleProfileChange($event)" class="form-input" />
+          <div class="form-actions">
+            <button type="button" class="cancel-btn" (click)="closeEditModal($event)">
+              <i class="fas fa-times"></i>
+              Cancelar
+            </button>
+            <button type="submit" class="save-btn" [disabled]="editForm.invalid || isSubmitting">
+              <i class="fas fa-save" *ngIf="!isSubmitting"></i>
+              <div class="loader" *ngIf="isSubmitting"></div>
+              <span *ngIf="!isSubmitting">Guardar</span>
+            </button>
           </div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button (click)="closeAllModals()" class="btn-secondary">Cancelar</button>
-        <button (click)="saveProfile()" class="btn-primary">Guardar</button>
+        </form>
       </div>
     </div>
   </div>
 
-  <!-- Change Photo Modal -->
-  <div *ngIf="showPhotoModal" class="modal-overlay">
-    <div class="modal-container" (click)="$event.stopPropagation()">
+  <!-- Modal para cambiar contraseña -->
+  <div class="modal-overlay" *ngIf="showPasswordModal" (click)="closePasswordModal($event)">
+    <div class="modal-container">
       <div class="modal-header">
-        <h2 class="modal-title">Cambiar Foto de Perfil</h2>
-        <span class="close-btn" (click)="closeAllModals()">×</span>
+        <h2>
+          <i class="fas fa-lock"></i>
+          Cambiar Contraseña
+        </h2>
+        <button class="close-modal-btn" (click)="closePasswordModal($event)">
+          <i class="fas fa-times"></i>
+        </button>
       </div>
       <div class="modal-body">
-        <div class="photo-upload-container">
-          <div class="profile-avatar large">
-            <span class="avatar-icon"></span>
+        <form [formGroup]="passwordForm" (ngSubmit)="changePassword()">
+          <div class="form-group">
+            <label for="currentPassword">Contraseña Actual</label>
+            <div class="input-container">
+              <i class="fas fa-key"></i>
+              <input type="password" id="currentPassword" formControlName="currentPassword" placeholder="Ingresa tu contraseña actual">
+            </div>
+            <div class="error-message" *ngIf="isInvalid('currentPassword', passwordForm)">
+              La contraseña actual es requerida
+            </div>
           </div>
-          <p class="photo-status">Esta es la foto actual del perfil.</p>
-          <label class="file-input-label">
-            <input type="file" (change)="onFileSelected($event)" accept=".jpg,.jpeg,.png" class="file-input" />
-            Seleccionar Archivo
-          </label>
-          <p class="file-formats">Formatos permitidos: JPG, PNG</p>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button (click)="closeAllModals()" class="btn-secondary">Cancelar</button>
-        <button (click)="savePhoto()" class="btn-primary">Guardar</button>
+          <div class="form-group">
+            <label for="newPassword">Nueva Contraseña</label>
+            <div class="input-container">
+              <i class="fas fa-key"></i>
+              <input type="password" id="newPassword" formControlName="newPassword" placeholder="Ingresa tu nueva contraseña">
+            </div>
+            <div class="error-message" *ngIf="isInvalid('newPassword', passwordForm)">
+              La nueva contraseña debe tener al menos 8 caracteres
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="confirmPassword">Confirmar Contraseña</label>
+            <div class="input-container">
+              <i class="fas fa-key"></i>
+              <input type="password" id="confirmPassword" formControlName="confirmPassword" placeholder="Confirma tu nueva contraseña">
+            </div>
+            <div class="error-message" *ngIf="passwordForm.hasError('mismatch') && passwordForm.get('confirmPassword')?.touched">
+              Las contraseñas no coinciden
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="button" class="cancel-btn" (click)="closePasswordModal($event)">
+              <i class="fas fa-times"></i>
+              Cancelar
+            </button>
+            <button type="submit" class="save-btn" [disabled]="passwordForm.invalid || isSubmittingPassword">
+              <i class="fas fa-save" *ngIf="!isSubmittingPassword"></i>
+              <div class="loader" *ngIf="isSubmittingPassword"></div>
+              <span *ngIf="!isSubmittingPassword">Cambiar Contraseña</span>
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   </div>
 
-  <!-- Change Password Modal -->
-  <div *ngIf="showPasswordModal" class="modal-overlay">
-    <div class="modal-container" (click)="$event.stopPropagation()">
-      <div class="modal-header">
-        <h2 class="modal-title">Cambiar Contraseña</h2>
-        <span class="close-btn" (click)="closeAllModals()">×</span>
-      </div>
-      <div class="modal-body">
-        <p class="password-instruction">Introduce una nueva contraseña para tu cuenta.</p>
-        <div class="form-fields">
-          <div class="form-group">
-            <label class="form-label" for="new-password">Contraseña Nueva</label>
-            <input id="new-password" type="password" name="new" [(ngModel)]="passwords.new" (input)="handlePasswordChange($event)" class="form-input" />
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="confirm-password">Confirmar Contraseña</label>
-            <input id="confirm-password" type="password" name="confirm" [(ngModel)]="passwords.confirm" (input)="handlePasswordChange($event)" class="form-input" />
-          </div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button (click)="closeAllModals()" class="btn-secondary">Cancelar</button>
-        <button (click)="savePassword()" class="btn-primary">Guardar</button>
-      </div>
-    </div>
-  </div>
-</main>
+  <button class="menu-toggle" [ngClass]="{'active': sidebarActive}" (click)="toggleSidebarEmit()">
+    <i class="fas" [ngClass]="sidebarActive ? 'fa-times' : 'fa-bars'"></i>
+  </button>
+</div>

@@ -53,9 +53,9 @@
                   }">{{ ambiente.estado }}</span>
                 </p>
                 <p>Capacidad: {{ ambiente.capacidad }} personas</p>
-                
+                <p *ngIf="ambiente.descripcion">Descripción: {{ ambiente.descripcion }}</p>
                 <div class="acciones">
-                  <button (click)="verDetalles(ambiente)" class="action-btn detalles">
+                  <button (click)="verDetalles(ambiente)" class MUY IMPORTANTE class="action-btn detalles">
                     <i class="fas fa-info-circle"></i> Detalles
                   </button>
                   <button *ngIf="usuarioActual.rol === 'Administrador'" (click)="editarAmbiente(ambiente)" class="action-btn edit-btn">
@@ -113,6 +113,14 @@
                       <input id="capacidad" formControlName="capacidad" type="number" [ngClass]="{'invalid': isInvalid('capacidad')}">
                     </div>
                     <span *ngIf="isInvalid('capacidad')" class="error-message">La capacidad es requerida y debe ser un número positivo.</span>
+                  </div>
+                  <div class="form-group">
+                    <label for="descripcion">Descripción</label>
+                    <div class="textarea-container">
+                      <i class="fas fa-comment"></i>
+                      <textarea id="descripcion" formControlName="descripcion" [ngClass]="{'invalid': isInvalid('descripcion')}"></textarea>
+                    </div>
+                    <span *ngIf="isInvalid('descripcion')" class="error-message">La descripción debe tener al menos 5 caracteres.</span>
                   </div>
                   <div class="form-actions">
                     <button type="button" class="cancel-btn" (click)="cerrarModal($event)">Cancelar</button>
@@ -209,13 +217,17 @@
                     <span class="detalle-value">{{ ambienteSeleccionado?.capacidad }} personas</span>
                   </div>
                   <div class="detalle-item">
+                    <span class="detalle-label">Descripción</span>
+                    <span class="detalle-value">{{ ambienteSeleccionado?.descripcion || 'Sin descripción' }}</span>
+                  </div>
+                  <!-- <div class="detalle-item">
                     <span class="detalle-label">Reservado por</span>
-                    
-                  </div>
-                  <div class="detalle-item">
+                    <span class="detalle-value">{{ ambienteSeleccionado?.reservadoPor || 'N/A' }}</span>
+                  </div> -->
+                  <!-- <div class="detalle-item">
                     <span class="detalle-label">Período de uso</span>
-                  
-                  </div>
+                    <span class="detalle-value">{{ ambienteSeleccionado?.periodoUso || 'N/A' }}</span>
+                  </div> -->
                 </div>
                 <div class="detalles-actions">
                   <button *ngIf="usuarioActual.rol === 'Administrador'" (click)="editarAmbiente(ambienteSeleccionado!)" class="edit-btn">

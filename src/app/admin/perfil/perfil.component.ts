@@ -1,145 +1,219 @@
-// perfil.component.ts
-
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { TopBarComponent } from '../shared/top-bar/top-bar.component';
 import { SidebarComponent } from '../shared/sidebar/sidebar.component';
-import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../core/services/auth.service';
-interface Profile {
+
+interface User {
   nombre: string;
   correo: string;
   telefono: string;
   rol: string;
-}
-
-interface Passwords {
-  new: string;
-  confirm: string;
+  photoUrl?: string;
 }
 
 @Component({
   selector: 'app-perfil',
   standalone: true,
-  imports: [CommonModule, TopBarComponent, SidebarComponent,FormsModule],
+  imports: [CommonModule, ReactiveFormsModule, TopBarComponent, SidebarComponent],
   templateUrl: './perfil.component.html',
   styleUrls: ['./perfil.component.css']
 })
 export class PerfilComponent implements OnInit {
-  // Profile data
-  profile: Profile = {
-    nombre: 'No auth',
-    correo: 'No auth',
-    telefono: 'No auth',
-    rol: 'No auth'
+  @Input() sidebarActive: boolean = false;
+  @Output() toggleSidebar = new EventEmitter<void>();
+
+  user: User = {
+    nombre: '',
+    correo: '',
+    telefono: '',
+    rol: '',
+    photoUrl: ''
   };
-  
-  // Modal states
-  showEditModal = false;
-  showPhotoModal = false;
-  showPasswordModal = false;
-  
-  // Password fields
-  passwords: Passwords = {
-    new: '',
-    confirm: ''
-  };
-  
-  // Selected file
+
+  showEditModal: boolean = false;
+  showPhotoModal: boolean = false;
+  showPasswordModal: boolean = false;
+  editForm: FormGroup;
+  passwordForm: FormGroup;
+  isSubmitting: boolean = false;
+  isSubmittingPassword: boolean = false;
+  notificationMessage: string = '';
+  notificationType: 'success' | 'error' | null = null;
   selectedFile: File | null = null;
-  
-  constructor(
-    private authService: AuthService,
-  ) { }
 
-  ngOnInit(): void {
-    console.log(this.authService.getCurrentUser());
+  constructor(private fb: FormBuilder, private authService: AuthService) {
+    this.editForm = this.fb.group({
+      nombre: ['', Validators.required],
+      telefono: ['', Validators.required]
+    });
 
-    this.cargarPerfil();
+    this.passwordForm = this.fb.group({
+      currentPassword: ['', Validators.required],
+      newPassword: ['', [Validators.required, Validators.minLength(8)]],
+      confirmPassword: ['', Validators.required]
+    }, { validators: this.passwordMatchValidator });
   }
 
-  cargarPerfil(): void {
-    // Aquí puedes cargar el perfil del usuario desde un servicio
+  ngOnInit(): void {
+    this.loadUserData();
+  }
+
+  loadUserData(): void {
     const user = this.authService.getCurrentUser();
     if (user) {
-      this.profile = {
+      this.user = {
         nombre: user.nombre ?? '',
         correo: user.email ?? '',
         telefono: user.telefono?.toString() ?? '',
-        rol: user.rol ?? ''
+        rol: user.rol ?? '',
+        photoUrl: user.photoUrl ?? ''
       };
+      this.editForm.patchValue({
+        nombre: this.user.nombre, // Corrección aplicada
+        telefono: this.user.telefono
+      });
     }
   }
-  
-  // Handle profile data changes
-  handleProfileChange(event: any): void {
-    const { name, value } = event.target;
-    this.profile = {
-      ...this.profile,
-      [name]: value
-    };
+
+  passwordMatchValidator(form: FormGroup) {
+    const newPassword = form.get('newPassword')?.value;
+    const confirmPassword = form.get('confirmPassword')?.value;
+    return newPassword && confirmPassword && newPassword === confirmPassword
+      ? null
+      : { mismatch: true };
   }
-  
-  // Handle password changes
-  handlePasswordChange(event: any): void {
-    const { name, value } = event.target;
-    this.passwords = {
-      ...this.passwords,
-      [name]: value
-    };
+
+  isInvalid(controlName: string, form: FormGroup): boolean {
+    const control = form.get(controlName);
+    return control ? control.invalid && (control.dirty || control.touched) : false;
   }
-  
-  // Handle file selection
+
+  openEditModal(): void {
+    this.editForm.patchValue({
+      nombre: this.user.nombre,
+      telefono: this.user.telefono
+    });
+    this.showEditModal = true;
+  }
+
+  closeEditModal(event: Event): void {
+    if (event.target === event.currentTarget || (event.target as HTMLElement).closest('.close-modal-btn, .cancel-btn')) {
+      this.showEditModal = false;
+      this.editForm.reset();
+      this.isSubmitting = false;
+    }
+  }
+
+  saveProfile(): void {
+    if (this.editForm.valid && !this.isSubmitting) {
+      this.isSubmitting = true;
+      this.authService.updateUserProfile({
+        ...this.user,
+        nombre: this.editForm.value.nombre,
+        telefono: this.editForm.value.telefono
+      }).subscribe({
+        next: () => {
+          this.user = {
+            ...this.user,
+            nombre: this.editForm.value.nombre,
+            telefono: this.editForm.value.telefono
+          };
+          this.showNotification('Perfil actualizado exitosamente', 'success');
+          this.closeEditModal(new Event('click'));
+        },
+        error: () => {
+          this.showNotification('Error al actualizar el perfil', 'error');
+        },
+        complete: () => {
+          this.isSubmitting = false;
+        }
+      });
+    }
+  }
+
+  openPhotoModal(): void {
+    this.showPhotoModal = true;
+    this.showEditModal = false;
+  }
+
+  closePhotoModal(event: Event): void {
+    if (event.target === event.currentTarget || (event.target as HTMLElement).closest('.close-modal-btn, .cancel-btn')) {
+      this.showPhotoModal = false;
+      this.selectedFile = null;
+    }
+  }
+
   onFileSelected(event: any): void {
     if (event.target.files.length > 0) {
       this.selectedFile = event.target.files[0];
     }
   }
-  
-  // Handle form submissions
-  saveProfile(): void {
-    // Here you would typically send the data to an API
-    console.log('Profile saved:', this.profile);
-    this.showEditModal = false;
-  }
-  
-  savePassword(): void {
-    // Check if passwords match
-    if (this.passwords.new !== this.passwords.confirm) {
-      alert('Las contraseñas no coinciden');
-      return;
-    }
-    // Here you would typically send the password to an API
-    console.log('Password changed:', this.passwords);
-    this.showPasswordModal = false;
-    // Reset password fields
-    this.passwords = { new: '', confirm: '' };
-  }
-  
+
   savePhoto(): void {
-    // Here you would typically handle photo upload logic
-    console.log('Photo saved', this.selectedFile);
-    this.showPhotoModal = false;
-    this.selectedFile = null;
+    if (this.selectedFile) {
+      this.isSubmitting = true;
+      this.authService.uploadProfilePhoto(this.selectedFile).subscribe({
+        next: (photoUrl: string) => {
+          this.user.photoUrl = photoUrl;
+          this.showNotification('Foto de perfil actualizada', 'success');
+          this.closePhotoModal(new Event('click'));
+        },
+        error: () => {
+          this.showNotification('Error al subir la foto', 'error');
+        },
+        complete: () => {
+          this.isSubmitting = false;
+        }
+      });
+    }
   }
-  
-  // Toggle modals
-  openEditModal(): void {
-    this.showEditModal = true;
-  }
-  
-  openPhotoModal(): void {
-    this.showPhotoModal = true;
-    this.showEditModal = false;
-  }
-  
+
   openPasswordModal(): void {
+    this.passwordForm.reset();
     this.showPasswordModal = true;
   }
-  
-  closeAllModals(): void {
-    this.showEditModal = false;
-    this.showPhotoModal = false;
-    this.showPasswordModal = false;
+
+  closePasswordModal(event: Event): void {
+    if (event.target === event.currentTarget || (event.target as HTMLElement).closest('.close-modal-btn, .cancel-btn')) {
+      this.showPasswordModal = false;
+      this.passwordForm.reset();
+      this.isSubmittingPassword = false;
+    }
+  }
+
+  changePassword(): void {
+    if (this.passwordForm.valid && !this.isSubmittingPassword) {
+      this.isSubmittingPassword = true;
+      this.authService.changePassword(
+        this.passwordForm.value.currentPassword,
+        this.passwordForm.value.newPassword
+      ).subscribe({
+        next: () => {
+          this.showNotification('Contraseña cambiada exitosamente', 'success');
+          this.closePasswordModal(new Event('click'));
+        },
+        error: () => {
+          this.showNotification('Error al cambiar la contraseña', 'error');
+        },
+        complete: () => {
+          this.isSubmittingPassword = false;
+        }
+      });
+    }
+  }
+
+  showNotification(message: string, type: 'success' | 'error'): void {
+    this.notificationMessage = message;
+    this.notificationType = type;
+    setTimeout(() => {
+      this.notificationMessage = '';
+      this.notificationType = null;
+    }, 3000);
+  }
+
+  toggleSidebarEmit(): void {
+    this.toggleSidebar.emit();
   }
 }

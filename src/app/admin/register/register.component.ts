@@ -136,8 +136,17 @@ export class RegisterComponent {
       return;
     }
 
+    // Map fields to match RegisterRequest interface
+    const payload = {
+      username: this.registerRequest.nombre,
+      email: this.registerRequest.email,
+      phone: this.registerRequest.telefono,
+      password: this.registerRequest.clave,
+      role: this.registerRequest.rol
+    };
+
     // Llamada al servicio para registrar
-    this.authService.register(this.registerRequest).subscribe({
+    this.authService.register(payload).subscribe({
       next: (response) => {
         this.loading = false;
         this.loadingService.hide();

@@ -55,12 +55,12 @@ export class GestionAmbientesComponent implements OnInit {
 
     // Definir el formulario para crear/editar ambientes
     this.ambienteForm = this.fb.group({
-      idespacio: [null], // Cambiado de 'id' a 'idespacio' para coincidir con el modelo Espacio
+      idespacio: [null],
       nombre: ['', [Validators.required, Validators.minLength(3)]],
       estado: ['Disponible', Validators.required],
       capacidad: [null, [Validators.required, Validators.min(1), Validators.pattern(/^[0-9]+$/)]],
-      descripcion: [''], // Agregado para incluir la descripción
-      eliminado: [0] // Agregado para asegurar que eliminado sea 0
+      descripcion: ['', [Validators.minLength(5)]], // Validación para mínimo 5 caracteres, no obligatoria
+      eliminado: [0]
     });
 
     // Definir el formulario para solicitudes
