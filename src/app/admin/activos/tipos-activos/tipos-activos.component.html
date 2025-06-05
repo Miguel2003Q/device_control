@@ -26,7 +26,7 @@
   <div class="activos-list">
     <div class="activo-row" *ngFor="let tipo of tiposActivosFiltrados">
       <div class="nombre-col">{{tipo.nombre}}</div>
-      <div class="cantidad-col">{{tipo.cantidadActivos}}</div>
+      <div class="cantidad-col">{{ getCantidadPorTipo(tipo.idtipoact!) }}</div>
       <div class="acciones-col">
         <button class="action-btn detalles" (click)="verDetallesTipo(tipo)">
           Ver detalles
@@ -95,13 +95,6 @@
           </div>
           <div class="error-message" *ngIf="isInvalidTipo('nombre')">
             <span>El nombre es requerido</span>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label for="detalle-cantidad">Cantidad de Activos</label>
-          <div class="input-container">
-            <input type="text" id="detalle-cantidad" formControlName="cantidadActivos" [disabled]="true">
           </div>
         </div>
 

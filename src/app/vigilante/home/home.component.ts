@@ -11,4 +11,8 @@ import { SidebarComponent } from "../shared/sidebar/sidebar.component";
 export class HomeVigilanteComponent {
 
   sidebarActive: boolean = false;
+
+    toggleSidebar(): void {
+    this.sidebarActive = !this.sidebarActive;
+  }
 }

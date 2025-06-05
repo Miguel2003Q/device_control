@@ -20,11 +20,15 @@ export class AuthService {
   private tokenKey = 'authToken';
 
   constructor(private http: HttpClient) {
-    const storedUser = localStorage.getItem(this.userKey);
-    if (storedUser) {
-      this.currentUser = JSON.parse(storedUser);
-    }
+  const storedUser = localStorage.getItem(this.userKey);
+  try {
+    this.currentUser = storedUser ? JSON.parse(storedUser) : null;
+  } catch (e) {
+    console.error('Error al parsear currentUser desde localStorage', e);
+    localStorage.removeItem(this.userKey); // Limpia el dato corrupto
+    this.currentUser = null;
   }
+} 
 
   login(loginRequest: LoginRequest): Observable<LoginResponseDTO> {
     return this.http.post<LoginResponseDTO>(`${this.apiUrl}/login`, loginRequest).pipe(

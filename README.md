@@ -28,7 +28,7 @@
 - Tener en cuenta el reponsive del sidebar
 - La creación de atributos entidad se asocia solo con el id
 - Hacer validaciones de usuario logueado
-- Ver cascades, peticion de borrar, numero de activos
+- Ver cascades, numero de activos
 
 ## Estrucutra
 - admin: Vistas del admin

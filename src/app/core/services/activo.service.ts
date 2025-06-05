@@ -9,7 +9,7 @@ import { Activo } from '../models/activo.model'; // Asegúrate de tener este mod
 })
 export class ActivoService {
   private apiUrl = 'http://localhost:8080/activos'; // Ajusta según tu API Spring Boot
-  private activosCache: Activo[] | null = null; //Para almacenar en caché los activos (no hacer consultas innecesarias)
+  public activosCache: Activo[] | null = null; //Para almacenar en caché los activos (no hacer consultas innecesarias)
 
 
   constructor(private http: HttpClient) { }

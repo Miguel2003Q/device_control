@@ -18,7 +18,8 @@ interface User {
   imports: [CommonModule, ReactiveFormsModule, TopBarComponent, SidebarComponent]
 })
 export class PerfilVigilanteComponent implements OnInit {
-  @Input() sidebarActive: boolean = false;
+  // @Input() sidebarActive: boolean = false;
+  sidebarActive = false;
 
   user: User = {
     nombre: 'Juan Pérez',
@@ -142,7 +143,7 @@ export class PerfilVigilanteComponent implements OnInit {
     }, 3000);
   }
 
-  toggleSidebarEmit(): void {
+  toggleSidebarEmit() {
     this.sidebarActive = !this.sidebarActive;
   }
 }
