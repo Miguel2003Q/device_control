@@ -1,34 +1,39 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { TopBarComponent } from "../shared/top-bar/top-bar.component";
-import { SidebarComponent } from "../shared/sidebar/sidebar.component";
 import { CommonModule } from '@angular/common';
+import { TopBarComponent } from '../shared/top-bar/top-bar.component';
+import { SidebarComponent } from '../shared/sidebar/sidebar.component';
+import { AuthService } from '../../core/services/auth.service';
 
 interface User {
   nombre: string;
-  correo: string;
+  email: string;
   telefono: string;
   rol: string;
+  photoUrl?: string;
 }
 
 @Component({
-  selector: 'app-profile',
+  selector: 'app-perfil',
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule, TopBarComponent, SidebarComponent],
   templateUrl: './profile.component.html',
-  styleUrls: ['./profile.component.css'],
-  imports: [CommonModule, ReactiveFormsModule, TopBarComponent, SidebarComponent]
+  styleUrls: ['./profile.component.css']
 })
 export class ProfileComponent implements OnInit {
   @Input() sidebarActive: boolean = false;
   @Output() toggleSidebar = new EventEmitter<void>();
 
   user: User = {
-    nombre: 'Juan Pérez',
-    correo: 'juan.perez@example.com',
-    telefono: '+1234567890',
-    rol: 'Administrador'
+    nombre: '',
+    email: '',
+    telefono: '',
+    rol: '',
+    photoUrl: ''
   };
 
   showEditModal: boolean = false;
+  showPhotoModal: boolean = false;
   showPasswordModal: boolean = false;
   editForm: FormGroup;
   passwordForm: FormGroup;
@@ -36,8 +41,9 @@ export class ProfileComponent implements OnInit {
   isSubmittingPassword: boolean = false;
   notificationMessage: string = '';
   notificationType: 'success' | 'error' | null = null;
+  selectedFile: File | null = null;
 
-  constructor(private fb: FormBuilder) {
+  constructor(private fb: FormBuilder, private authService: AuthService) {
     this.editForm = this.fb.group({
       nombre: ['', Validators.required],
       telefono: ['', Validators.required]
@@ -55,11 +61,20 @@ export class ProfileComponent implements OnInit {
   }
 
   loadUserData(): void {
-    // Mock data (replace with service call)
-    this.editForm.patchValue({
-      nombre: this.user.nombre,
-      telefono: this.user.telefono
-    });
+    const user = this.authService.getCurrentUser();
+    if (user) {
+      this.user = {
+        nombre: user.nombre ?? '',
+        email: user.email ?? '',
+        telefono: user.telefono?.toString() ?? '',
+        rol: user.rol ?? '',
+        photoUrl: user.photoUrl ?? ''
+      };
+      this.editForm.patchValue({
+        nombre: this.user.nombre, // Corrección aplicada
+        telefono: this.user.telefono
+      });
+    }
   }
 
   passwordMatchValidator(form: FormGroup) {
@@ -91,11 +106,17 @@ export class ProfileComponent implements OnInit {
     }
   }
 
-  saveProfile(): void {
-    if (this.editForm.valid && !this.isSubmitting) {
-      this.isSubmitting = true;
-      // Simulate API call
-      setTimeout(() => {
+ saveProfile(): void {
+  if (this.editForm.valid && !this.isSubmitting) {
+    this.isSubmitting = true;
+    this.authService.updateUserProfile({
+      nombre: this.editForm.value.nombre,
+      telefono: this.editForm.value.telefono,
+      email: this.user.email,   // Usa email aquí
+      rol: this.user.rol,
+      photoUrl: this.user.photoUrl
+    }).subscribe({
+      next: () => {
         this.user = {
           ...this.user,
           nombre: this.editForm.value.nombre,
@@ -103,8 +124,52 @@ export class ProfileComponent implements OnInit {
         };
         this.showNotification('Perfil actualizado exitosamente', 'success');
         this.closeEditModal(new Event('click'));
+      },
+      error: () => {
+        this.showNotification('Error al actualizar el perfil', 'error');
+      },
+      complete: () => {
         this.isSubmitting = false;
-      }, 1000);
+      }
+    });
+  }
+}
+
+
+  openPhotoModal(): void {
+    this.showPhotoModal = true;
+    this.showEditModal = false;
+  }
+
+  closePhotoModal(event: Event): void {
+    if (event.target === event.currentTarget || (event.target as HTMLElement).closest('.close-modal-btn, .cancel-btn')) {
+      this.showPhotoModal = false;
+      this.selectedFile = null;
+    }
+  }
+
+  onFileSelected(event: any): void {
+    if (event.target.files.length > 0) {
+      this.selectedFile = event.target.files[0];
+    }
+  }
+
+  savePhoto(): void {
+    if (this.selectedFile) {
+      this.isSubmitting = true;
+      this.authService.uploadProfilePhoto(this.selectedFile).subscribe({
+        next: (photoUrl: string) => {
+          this.user.photoUrl = photoUrl;
+          this.showNotification('Foto de perfil actualizada', 'success');
+          this.closePhotoModal(new Event('click'));
+        },
+        error: () => {
+          this.showNotification('Error al subir la foto', 'error');
+        },
+        complete: () => {
+          this.isSubmitting = false;
+        }
+      });
     }
   }
 
@@ -124,13 +189,21 @@ export class ProfileComponent implements OnInit {
   changePassword(): void {
     if (this.passwordForm.valid && !this.isSubmittingPassword) {
       this.isSubmittingPassword = true;
-      // Simulate API call
-      setTimeout(() => {
-        // Add actual password change logic here
-        this.showNotification('Contraseña cambiada exitosamente', 'success');
-        this.closePasswordModal(new Event('click'));
-        this.isSubmittingPassword = false;
-      }, 1000);
+      this.authService.changePassword(
+        this.passwordForm.value.currentPassword,
+        this.passwordForm.value.newPassword
+      ).subscribe({
+        next: () => {
+          this.showNotification('Contraseña cambiada exitosamente', 'success');
+          this.closePasswordModal(new Event('click'));
+        },
+        error: () => {
+          this.showNotification('Error al cambiar la contraseña', 'error');
+        },
+        complete: () => {
+          this.isSubmittingPassword = false;
+        }
+      });
     }
   }
 

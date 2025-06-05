@@ -112,7 +112,8 @@ export class PerfilComponent implements OnInit {
       this.authService.updateUserProfile({
         ...this.user,
         nombre: this.editForm.value.nombre,
-        telefono: this.editForm.value.telefono
+        telefono: this.editForm.value.telefono,
+        email: ''
       }).subscribe({
         next: () => {
           this.user = {

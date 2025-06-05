@@ -5,6 +5,11 @@ import { LoginRequest } from '../models/login-request';
 import { RegisterRequest } from '../models/register-request';
 import { User } from '../models/user';
 
+interface LoginResponseDTO {
+  token: string;
+  usuario: User;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -21,11 +26,12 @@ export class AuthService {
     }
   }
 
-  login(loginRequest: LoginRequest): Observable<User> {
-    return this.http.post<User>(`${this.apiUrl}/login`, loginRequest).pipe(
-      tap(user => {
-        this.currentUser = user;
-        localStorage.setItem(this.userKey, JSON.stringify(user));
+  login(loginRequest: LoginRequest): Observable<LoginResponseDTO> {
+    return this.http.post<LoginResponseDTO>(`${this.apiUrl}/login`, loginRequest).pipe(
+      tap(response => {
+        this.currentUser = response.usuario;
+        localStorage.setItem(this.userKey, JSON.stringify(response.usuario));
+        localStorage.setItem(this.tokenKey, response.token);
       })
     );
   }
@@ -35,7 +41,7 @@ export class AuthService {
   }
 
   isLoggedIn(): boolean {
-    return !!this.currentUser;
+    return !!this.currentUser && !!localStorage.getItem(this.tokenKey);
   }
 
   getCurrentUser(): User | null {
@@ -48,26 +54,27 @@ export class AuthService {
     localStorage.removeItem(this.tokenKey);
   }
 
-  updateUserProfile(user: { nombre: string; telefono: string; correo: string; rol: string; photoUrl?: string }): Observable<User> {
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${localStorage.getItem(this.tokenKey)}` // Asumiendo que el token se almacena
-    });
+ updateUserProfile(user: { nombre: string; telefono: string; email: string; rol: string; photoUrl?: string }): Observable<User> {
+  const headers = new HttpHeaders({
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${localStorage.getItem(this.tokenKey) || ''}`
+  });
 
-    return this.http.put<User>(`${this.apiUrl}/profile`, user, { headers }).pipe(
-      tap(updatedUser => {
-        this.currentUser = { ...this.currentUser, ...updatedUser };
-        localStorage.setItem(this.userKey, JSON.stringify(this.currentUser));
-      })
-    );
-  }
+  return this.http.post<User>(`${this.apiUrl}`, user, { headers }).pipe(
+    tap(updatedUser => {
+      this.currentUser = { ...this.currentUser, ...updatedUser };
+      localStorage.setItem(this.userKey, JSON.stringify(this.currentUser));
+    })
+  );
+}
+
 
   uploadProfilePhoto(file: File): Observable<string> {
     const formData = new FormData();
     formData.append('file', file);
 
     const headers = new HttpHeaders({
-      'Authorization': `Bearer ${localStorage.getItem(this.tokenKey)}`
+      'Authorization': `Bearer ${localStorage.getItem(this.tokenKey) || ''}`
     });
 
     return this.http.post<string>(`${this.apiUrl}/upload-photo`, formData, { headers }).pipe(
@@ -83,7 +90,7 @@ export class AuthService {
   changePassword(currentPassword: string, newPassword: string): Observable<any> {
     const headers = new HttpHeaders({
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${localStorage.getItem(this.tokenKey)}`
+      'Authorization': `Bearer ${localStorage.getItem(this.tokenKey) || ''}`
     });
 
     const body = { currentPassword, newPassword };
