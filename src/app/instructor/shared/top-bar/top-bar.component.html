@@ -1,5 +1,8 @@
 <header class="top-bar">
   <div class="left-section">
+    <button class="menu-toggle" [ngClass]="{'active': sidebarActive}" (click)="toggleSidebarEmit()">
+      <i class="fas" [ngClass]="sidebarActive ? 'fa-times' : 'fa-bars'"></i>
+    </button>
     <h1>Device Control</h1>
     <!-- <div class="search-container">
       <i class="fas fa-search"></i>

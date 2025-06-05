@@ -21,4 +21,8 @@ export class HomeInstructorComponent {
   ngOnInit(): void {
     // Aquí puedes cargar datos iniciales si es necesario
   }
+
+  toggleSidebarEmit() {
+    this.sidebarActive = !this.sidebarActive;
+  }
 }

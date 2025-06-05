@@ -1,4 +1,4 @@
-<app-top-bar></app-top-bar>
+<app-top-bar (toggleSidebar)="toggleSidebar()"></app-top-bar>
 <app-sidebar [active]="sidebarActive"></app-sidebar>
 
 <div class="content-wrapper">
@@ -238,8 +238,8 @@
         </div>
       </div>
     </div>
-    <button class="menu-toggle" [ngClass]="{'active': sidebarActive}" (click)="toggleSidebar()">
+    <!-- <button class="menu-toggle" [ngClass]="{'active': sidebarActive}" (click)="toggleSidebar()">
       <i class="fas" [ngClass]="sidebarActive ? 'fa-times' : 'fa-bars'"></i>
-    </button>
+    </button> -->
   </div>
 </div>

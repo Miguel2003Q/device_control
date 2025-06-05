@@ -1,9 +1,10 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 import { AuthService } from '../../../core/services/auth.service';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-top-bar',
-  imports: [],
+  imports: [CommonModule],
   templateUrl: './top-bar.component.html',
   styleUrl: './top-bar.component.css'
 })

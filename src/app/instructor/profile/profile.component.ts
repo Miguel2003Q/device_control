@@ -217,6 +217,6 @@ export class ProfileComponent implements OnInit {
   }
 
   toggleSidebarEmit(): void {
-    this.toggleSidebar.emit();
+    this.sidebarActive = !this.sidebarActive;
   }
 }

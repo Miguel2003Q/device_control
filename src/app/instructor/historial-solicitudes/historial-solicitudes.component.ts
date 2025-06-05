@@ -318,7 +318,7 @@ export class HistorialSolicitudesComponent implements OnInit {
     return date1.getFullYear() === date2.getFullYear();
   }
 
-  toggleSidebar(): void {
+  toggleSidebarEmit(): void {
     this.sidebarActive = !this.sidebarActive;
   }
 }
