@@ -17,8 +17,8 @@ export class RegisterComponent {
   registerRequest = {
     nombre: '',
     email: '',
-    telefono: '',
-    clave: 'senagalan',
+    telefono: '', //Devería ser senagalan por defecto
+    clave: 'senagalan', //Devería ser vacío por defecto
     rol: ''
   };
 
@@ -27,9 +27,11 @@ export class RegisterComponent {
   successMessage: string = '';
   loading: boolean = false;
 
+  // Propiedades para la visibilidad de contraseñas
   showPassword: boolean = false;
   showConfirmPassword: boolean = false;
 
+  // Propiedades para la fuerza de la contraseña
   passwordStrengthScore: number = 0;
   passwordStrengthText: string = 'Débil';
   passwordStrengthClass: string = 'weak';
@@ -42,13 +44,16 @@ export class RegisterComponent {
 
   onSubmit() {
     this.loadingService.show();
+    
+    // Resetear mensajes
     this.errorMessage = '';
     this.successMessage = '';
 
-    if (this.loading) return;
+    if (this.loading) return; // Evita múltiples envíos
 
     this.loading = true;
 
+    // Validación de campos requeridos
     if (!this.registerRequest.nombre || !this.registerRequest.email) {
       this.errorMessage = 'Por favor, completa todos los campos obligatorios.';
       this.loading = false;
@@ -56,6 +61,7 @@ export class RegisterComponent {
       return;
     }
 
+    // Validación de rol seleccionado
     if (!this.registerRequest.rol) {
       this.errorMessage = 'Por favor, selecciona un rol.';
       this.loading = false;
@@ -63,6 +69,7 @@ export class RegisterComponent {
       return;
     }
 
+    // Validación básica de email
     const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
     if (!emailPattern.test(this.registerRequest.email)) {
       this.errorMessage = 'Por favor, ingresa un correo electrónico válido.';
@@ -71,16 +78,8 @@ export class RegisterComponent {
       return;
     }
 
-    // 🔁 Mapeo del objeto para que coincida con el tipo RegisterRequest
-    const payload = {
-      username: this.registerRequest.nombre,
-      email: this.registerRequest.email,
-      phone: this.registerRequest.telefono,
-      password: this.registerRequest.clave,
-      rol: this.registerRequest.rol
-    };
-
-    this.authService.register(payload).subscribe({
+    // Llamada al servicio para registrar
+    this.authService.register(this.registerRequest).subscribe({
       next: (response) => {
         this.loading = false;
         this.loadingService.hide();
@@ -90,6 +89,7 @@ export class RegisterComponent {
           progressBar: true,
           closeButton: true
         });
+      
       },
       error: (err) => {
         this.loading = false;
@@ -104,6 +104,7 @@ export class RegisterComponent {
     });
   }
 
+  // Método auxiliar para limpiar el formulario
   resetForm() {
     this.registerRequest = {
       nombre: '',

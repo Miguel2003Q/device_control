@@ -68,12 +68,15 @@ export class PerfilComponent implements OnInit {
         correo: user.email ?? '',
         telefono: user.telefono?.toString() ?? '',
         rol: user.rol ?? '',
-        photoUrl: user.photoUrl ?? ''
       };
       this.editForm.patchValue({
         nombre: this.user.nombre, // Corrección aplicada
         telefono: this.user.telefono
       });
+
+      console.log('User data loaded:', this.user);
+    } else {
+      console.error('No se pudo cargar el usuario actual. Asegúrate de que el usuario esté autenticado.');
     }
   }
 
@@ -109,28 +112,28 @@ export class PerfilComponent implements OnInit {
   saveProfile(): void {
     if (this.editForm.valid && !this.isSubmitting) {
       this.isSubmitting = true;
-      this.authService.updateUserProfile({
-        ...this.user,
-        nombre: this.editForm.value.nombre,
-        telefono: this.editForm.value.telefono,
-        email: ''
-      }).subscribe({
-        next: () => {
-          this.user = {
-            ...this.user,
-            nombre: this.editForm.value.nombre,
-            telefono: this.editForm.value.telefono
-          };
-          this.showNotification('Perfil actualizado exitosamente', 'success');
-          this.closeEditModal(new Event('click'));
-        },
-        error: () => {
-          this.showNotification('Error al actualizar el perfil', 'error');
-        },
-        complete: () => {
-          this.isSubmitting = false;
-        }
-      });
+      // this.authService.updateUserProfile({
+      //   ...this.user,
+      //   nombre: this.editForm.value.nombre,
+      //   telefono: this.editForm.value.telefono,
+      //   email: ''
+      // }).subscribe({
+      //   next: () => {
+      //     this.user = {
+      //       ...this.user,
+      //       nombre: this.editForm.value.nombre,
+      //       telefono: this.editForm.value.telefono
+      //     };
+      //     this.showNotification('Perfil actualizado exitosamente', 'success');
+      //     this.closeEditModal(new Event('click'));
+      //   },
+      //   error: () => {
+      //     this.showNotification('Error al actualizar el perfil', 'error');
+      //   },
+      //   complete: () => {
+      //     this.isSubmitting = false;
+      //   }
+      // });
     }
   }
 
@@ -152,25 +155,6 @@ export class PerfilComponent implements OnInit {
     }
   }
 
-  savePhoto(): void {
-    if (this.selectedFile) {
-      this.isSubmitting = true;
-      this.authService.uploadProfilePhoto(this.selectedFile).subscribe({
-        next: (photoUrl: string) => {
-          this.user.photoUrl = photoUrl;
-          this.showNotification('Foto de perfil actualizada', 'success');
-          this.closePhotoModal(new Event('click'));
-        },
-        error: () => {
-          this.showNotification('Error al subir la foto', 'error');
-        },
-        complete: () => {
-          this.isSubmitting = false;
-        }
-      });
-    }
-  }
-
   openPasswordModal(): void {
     this.passwordForm.reset();
     this.showPasswordModal = true;
@@ -187,21 +171,21 @@ export class PerfilComponent implements OnInit {
   changePassword(): void {
     if (this.passwordForm.valid && !this.isSubmittingPassword) {
       this.isSubmittingPassword = true;
-      this.authService.changePassword(
-        this.passwordForm.value.currentPassword,
-        this.passwordForm.value.newPassword
-      ).subscribe({
-        next: () => {
-          this.showNotification('Contraseña cambiada exitosamente', 'success');
-          this.closePasswordModal(new Event('click'));
-        },
-        error: () => {
-          this.showNotification('Error al cambiar la contraseña', 'error');
-        },
-        complete: () => {
-          this.isSubmittingPassword = false;
-        }
-      });
+      // this.authService.changePassword(
+      //   this.passwordForm.value.currentPassword,
+      //   this.passwordForm.value.newPassword
+      // ).subscribe({
+      //   next: () => {
+      //     this.showNotification('Contraseña cambiada exitosamente', 'success');
+      //     this.closePasswordModal(new Event('click'));
+      //   },
+      //   error: () => {
+      //     this.showNotification('Error al cambiar la contraseña', 'error');
+      //   },
+      //   complete: () => {
+      //     this.isSubmittingPassword = false;
+      //   }
+      // });
     }
   }
 

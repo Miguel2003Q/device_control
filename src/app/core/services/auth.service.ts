@@ -1,14 +1,9 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, tap } from 'rxjs';
+import { HttpClient,HttpHeaders } from '@angular/common/http';
+import { Observable, tap , } from 'rxjs';
 import { LoginRequest } from '../models/login-request';
-import { RegisterRequest } from '../models/register-request';
 import { User } from '../models/user';
 
-interface LoginResponseDTO {
-  token: string;
-  usuario: User;
-}
 
 @Injectable({
   providedIn: 'root'
@@ -16,36 +11,34 @@ interface LoginResponseDTO {
 export class AuthService {
   private apiUrl = 'http://localhost:8080/usuarios';
   private currentUser: User | null = null;
-  private userKey = 'currentUser';
-  private tokenKey = 'authToken';
+  private userkey = 'currentUser';
+  private tokenley = 'authToken';
 
+    
   constructor(private http: HttpClient) {
-  const storedUser = localStorage.getItem(this.userKey);
-  try {
-    this.currentUser = storedUser ? JSON.parse(storedUser) : null;
-  } catch (e) {
-    console.error('Error al parsear currentUser desde localStorage', e);
-    localStorage.removeItem(this.userKey); // Limpia el dato corrupto
-    this.currentUser = null;
+    const storedUser = localStorage.getItem('currentUser');
+    if (storedUser) {
+      this.currentUser = JSON.parse(storedUser);
+    }
   }
-} 
 
-  login(loginRequest: LoginRequest): Observable<LoginResponseDTO> {
-    return this.http.post<LoginResponseDTO>(`${this.apiUrl}/login`, loginRequest).pipe(
-      tap(response => {
-        this.currentUser = response.usuario;
-        localStorage.setItem(this.userKey, JSON.stringify(response.usuario));
-        localStorage.setItem(this.tokenKey, response.token);
+  login(loginRequest: LoginRequest): Observable<User> {
+    return this.http.post<User>(`${this.apiUrl}/login`, loginRequest).pipe(
+      tap(user => {
+        // Almacenar el usuario en localStorage y en la variable currentUser
+        this.currentUser = user;
+        localStorage.setItem('currentUser', JSON.stringify(user));
       })
     );
   }
 
-  register(registerRequest: RegisterRequest): Observable<any> {
+ register(registerRequest: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/register`, registerRequest);
   }
 
+
   isLoggedIn(): boolean {
-    return !!this.currentUser && !!localStorage.getItem(this.tokenKey);
+    return !!this.currentUser;
   }
 
   getCurrentUser(): User | null {
@@ -53,51 +46,8 @@ export class AuthService {
   }
 
   logout(): void {
+    // Limpiar el usuario almacenado
     this.currentUser = null;
-    localStorage.removeItem(this.userKey);
-    localStorage.removeItem(this.tokenKey);
-  }
-
- updateUserProfile(user: { nombre: string; telefono: string; email: string; rol: string; photoUrl?: string }): Observable<User> {
-  const headers = new HttpHeaders({
-    'Content-Type': 'application/json',
-    'Authorization': `Bearer ${localStorage.getItem(this.tokenKey) || ''}`
-  });
-
-  return this.http.post<User>(`${this.apiUrl}`, user, { headers }).pipe(
-    tap(updatedUser => {
-      this.currentUser = { ...this.currentUser, ...updatedUser };
-      localStorage.setItem(this.userKey, JSON.stringify(this.currentUser));
-    })
-  );
-}
-
-
-  uploadProfilePhoto(file: File): Observable<string> {
-    const formData = new FormData();
-    formData.append('file', file);
-
-    const headers = new HttpHeaders({
-      'Authorization': `Bearer ${localStorage.getItem(this.tokenKey) || ''}`
-    });
-
-    return this.http.post<string>(`${this.apiUrl}/upload-photo`, formData, { headers }).pipe(
-      tap(photoUrl => {
-        if (this.currentUser) {
-          this.currentUser = { ...this.currentUser, photoUrl };
-          localStorage.setItem(this.userKey, JSON.stringify(this.currentUser));
-        }
-      })
-    );
-  }
-
-  changePassword(currentPassword: string, newPassword: string): Observable<any> {
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${localStorage.getItem(this.tokenKey) || ''}`
-    });
-
-    const body = { currentPassword, newPassword };
-    return this.http.post(`${this.apiUrl}/change-password`, body, { headers });
+    localStorage.removeItem('currentUser');
   }
 }

@@ -28,6 +28,6 @@ export class TopBarComponent {
 
   // Función opcional para obtener el nombre del rol
   getNombreRol(): string {
-    return this.rolesMap[this.usuario.rol] || 'Desconocido';
+    return this.usuario?.rol ? this.rolesMap[this.usuario.rol] ?? 'Desconocido' : 'Desconocido';
   }
 }

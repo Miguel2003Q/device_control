@@ -1,5 +1,4 @@
-export interface User {
-    photoUrl: string; //Este modelo se usa para representar al usuario autenticado en la aplicación.
+export interface User { //Este modelo se usa para representar al usuario autenticado en la aplicación.
     idusuario: number;
     nombre: string;
     email?: string;
