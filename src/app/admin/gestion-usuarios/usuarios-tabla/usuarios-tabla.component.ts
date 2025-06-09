@@ -32,7 +32,7 @@ export class UsuariosTablaComponent implements OnInit {
   filteredUsers: Usuario[] = [];
   searchTerm: string = '';
   selectedFilter: string = '';
-  sidebarActive: boolean = true;
+  sidebarActive: boolean = false;
   screenWidth: number;
 
   // Propiedades para el modal
@@ -156,6 +156,10 @@ export class UsuariosTablaComponent implements OnInit {
     2: 'Instructor',
     1: 'Vigilante'
   };
+
+  toggleSidebarEmit(): void {
+    this.sidebarActive = !this.sidebarActive;
+  }
 
 
   // Obtener usuario vacío para el formulario

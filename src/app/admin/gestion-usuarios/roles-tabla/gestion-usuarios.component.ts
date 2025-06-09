@@ -14,6 +14,8 @@ import { Usuario } from '../../../core/models/usuario.model';
   styleUrls: ['./gestion-usuarios.component.css']
 })
 export class RolesTablaComponent implements OnInit {
+
+  sidebarActive: boolean = false;
   conteoPorRol: Record<number, number> = {};
 
   constructor(private usuarioService: UsuarioService) { }
@@ -48,5 +50,9 @@ export class RolesTablaComponent implements OnInit {
   getCantidadPorRol(nombre: string): number {
     const rolId = this.rolIds[nombre];
     return this.conteoPorRol[rolId] || 0;
+  }
+
+  toggleSidebarEmit(): void {
+    this.sidebarActive = !this.sidebarActive;
   }
 }

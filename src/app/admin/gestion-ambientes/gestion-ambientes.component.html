@@ -1,14 +1,7 @@
+<app-top-bar (toggleSidebar)="toggleSidebarEmit()"></app-top-bar>
+<app-sidebar [active]="sidebarActive"></app-sidebar>
+
 <div class="dashboard-container">
-  <!-- Top Bar -->
-  <app-top-bar></app-top-bar>
-
-  <!-- Sidebar -->
-  <app-sidebar [active]="sidebarActive" (toggle)="toggleSidebar()" (cerrarSesion)="cerrarSesion()"></app-sidebar>
-
-  <!-- Menu Toggle for Mobile -->
-  <button class="menu-toggle" [ngClass]="{'active': sidebarActive}" (click)="toggleSidebar()">
-    <i class="fas fa-bars"></i>
-  </button>
 
   <!-- Main Content -->
   <div class="main-content" [ngClass]="{'sidebar-active': sidebarActive}">

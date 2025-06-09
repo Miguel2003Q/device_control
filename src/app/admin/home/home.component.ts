@@ -11,4 +11,11 @@ import { TopBarComponent } from "../shared/top-bar/top-bar.component";
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css']
 })
-export class HomeComponent {}
+export class HomeComponent {
+
+  sidebarActive: boolean = false;
+
+  toggleSidebarEmit(): void {
+    this.sidebarActive = !this.sidebarActive;
+  }
+}

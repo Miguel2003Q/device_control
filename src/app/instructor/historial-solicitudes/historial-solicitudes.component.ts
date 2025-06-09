@@ -1,60 +1,40 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { RouterLink, Router } from '@angular/router';
 import { TopBarComponent } from '../shared/top-bar/top-bar.component';
 import { SidebarComponent } from "../shared/sidebar/sidebar.component";
-
-interface HistorialEstado {
-  estado: string;
-  fecha: Date;
-  usuario?: string;
-}
-
-interface Solicitud {
-  id: number;
-  tipo: 'ambiente' | 'activo';
-  ambiente?: string;
-  activo?: string;
-  estado: 'Pendiente' | 'Aprobado' | 'Rechazado' | 'Cancelado' | 'Completado';
-  fechaSolicitud: Date;
-  fechaInicio?: Date;
-  fechaFin?: Date;
-  horaInicio?: string;
-  horaFin?: string;
-  motivo: string;
-  observaciones?: string;
-  numAsistentes?: number;
-  ubicacion?: string;
-  fechaActualizacion: Date;
-  responsable?: string;
-  historialEstados: HistorialEstado[];
-}
+import { SolicitudEspacio } from '../../core/models/solicitudEspacio.model';
+import { SolicitudEspacioService } from '../../core/services/solicitudEspacio.service';
+import { Subject, takeUntil } from 'rxjs';
 
 interface Estadisticas {
   pendientes: number;
   aprobadas: number;
   rechazadas: number;
   completadas: number;
+  canceladas: number;
 }
 
 @Component({
   selector: 'app-historial-solicitudes',
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, TopBarComponent, SidebarComponent],
+  standalone: true,
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterLink, TopBarComponent, SidebarComponent],
   templateUrl: './historial-solicitudes.component.html',
   styleUrls: ['./historial-solicitudes.component.css'],
   providers: [DatePipe]
 })
-export class HistorialSolicitudesComponent implements OnInit {
+export class HistorialSolicitudesComponent implements OnInit, OnDestroy {
   // Properties for filtering and search
   searchTerm: string = '';
   filtroEstado: string = '';
   filtroPeriodo: string = '';
-  filtroTipo: string = '';
 
   // Data and state
-  solicitudes: Solicitud[] = [];
-  solicitudesFiltradas: Solicitud[] = [];
-  estadisticas: Estadisticas = { pendientes: 0, aprobadas: 0, rechazadas: 0, completadas: 0 };
+  solicitudes: SolicitudEspacio[] = [];
+  solicitudesFiltradas: SolicitudEspacio[] = [];
+  solicitudesEnPagina: SolicitudEspacio[] = [];
+  estadisticas: Estadisticas = { pendientes: 0, aprobadas: 0, rechazadas: 0, completadas: 0, canceladas: 0 };
   loading: boolean = false;
 
   // Pagination
@@ -64,68 +44,51 @@ export class HistorialSolicitudesComponent implements OnInit {
 
   // Modal
   showModalDetalles: boolean = false;
-  solicitudSeleccionada: Solicitud | null = null;
+  solicitudSeleccionada: SolicitudEspacio | null = null;
 
+  // Sidebar
   sidebarActive: boolean = false;
 
-  constructor(private datePipe: DatePipe) {}
+  // Subscriptions
+  private destroy$ = new Subject<void>();
+
+  constructor(
+    private datePipe: DatePipe,
+    private solicitudService: SolicitudEspacioService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
     this.cargarHistorial();
   }
 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   cargarHistorial(): void {
     this.loading = true;
-    // Mock data for demonstration (replace with service call)
-    this.solicitudes = [
-      {
-        id: 1,
-        tipo: 'ambiente',
-        ambiente: 'Aula 101',
-        estado: 'Aprobado',
-        fechaSolicitud: new Date('2025-05-20T10:00:00'),
-        fechaInicio: new Date('2025-06-01T09:00:00'),
-        fechaFin: new Date('2025-06-01T12:00:00'),
-        horaInicio: '09:00',
-        horaFin: '12:00',
-        motivo: 'Clase de Matemáticas',
-        numAsistentes: 30,
-        ubicacion: 'Edificio A',
-        fechaActualizacion: new Date('2025-05-21T15:00:00'),
-        responsable: 'Admin Juan',
-        historialEstados: [
-          { estado: 'Pendiente', fecha: new Date('2025-05-20T10:00:00'), usuario: 'Usuario' },
-          { estado: 'Aprobado', fecha: new Date('2025-05-21T15:00:00'), usuario: 'Admin Juan' }
-        ]
-      },
-      {
-        id: 2,
-        tipo: 'activo',
-        activo: 'Proyector Epson',
-        estado: 'Pendiente',
-        fechaSolicitud: new Date('2025-05-22T14:00:00'),
-        motivo: 'Presentación de proyecto',
-        fechaActualizacion: new Date('2025-05-22T14:00:00'),
-        historialEstados: [
-          { estado: 'Pendiente', fecha: new Date('2025-05-22T14:00:00'), usuario: 'Usuario' }
-        ]
-      }
-      // Add more mock data as needed
-    ];
-
-    setTimeout(() => { // Simulate API delay
-      this.actualizarEstadisticas();
-      this.filtrarSolicitudes();
-      this.loading = false;
-    }, 1000);
+    
+    this.solicitudService.getMisSolicitudes()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (solicitudes) => {
+          this.solicitudes = solicitudes;
+          this.actualizarEstadisticas();
+          this.filtrarSolicitudes();
+          this.loading = false;
+        },
+        error: (error) => {
+          console.error('Error al cargar el historial:', error);
+          this.loading = false;
+          // Aquí puedes agregar una notificación de error
+        }
+      });
   }
 
   actualizarHistorial(): void {
-    this.loading = true;
-    // Placeholder for service call to refresh data
-    setTimeout(() => {
-      this.cargarHistorial();
-    }, 1000);
+    this.cargarHistorial();
   }
 
   filtrarSolicitudes(): void {
@@ -135,11 +98,11 @@ export class HistorialSolicitudesComponent implements OnInit {
     if (this.searchTerm) {
       const term = this.searchTerm.toLowerCase();
       filtered = filtered.filter(solicitud =>
-        (solicitud.ambiente?.toLowerCase().includes(term) ||
-         solicitud.activo?.toLowerCase().includes(term) ||
-         solicitud.motivo.toLowerCase().includes(term) ||
-         this.datePipe.transform(solicitud.fechaSolicitud, 'dd/MM/yyyy')?.includes(term) ||
-         solicitud.observaciones?.toLowerCase().includes(term))
+        solicitud.espacio.nombre?.toLowerCase().includes(term) ||
+        solicitud.espacio.ubicacion?.toLowerCase().includes(term) ||
+        solicitud.motivo?.toLowerCase().includes(term) ||
+        this.datePipe.transform(solicitud.fechaSolicitud, 'dd/MM/yyyy')?.includes(term) ||
+        solicitud.usuario.nombre?.toLowerCase().includes(term)
       );
     }
 
@@ -148,16 +111,11 @@ export class HistorialSolicitudesComponent implements OnInit {
       filtered = filtered.filter(solicitud => solicitud.estado === this.filtroEstado);
     }
 
-    // Filter by type
-    if (this.filtroTipo) {
-      filtered = filtered.filter(solicitud => solicitud.tipo === this.filtroTipo);
-    }
-
     // Filter by period
     if (this.filtroPeriodo) {
       const now = new Date();
       filtered = filtered.filter(solicitud => {
-        const fecha = solicitud.fechaSolicitud;
+        const fecha = new Date(solicitud.fechaSolicitud);
         switch (this.filtroPeriodo) {
           case 'hoy':
             return this.isSameDay(fecha, now);
@@ -175,6 +133,11 @@ export class HistorialSolicitudesComponent implements OnInit {
       });
     }
 
+    // Sort by date (most recent first)
+    filtered.sort((a, b) => {
+      return new Date(b.fechaSolicitud).getTime() - new Date(a.fechaSolicitud).getTime();
+    });
+
     this.solicitudesFiltradas = filtered;
     this.updatePagination();
   }
@@ -182,19 +145,21 @@ export class HistorialSolicitudesComponent implements OnInit {
   actualizarEstadisticas(): void {
     this.estadisticas = {
       pendientes: this.solicitudes.filter(s => s.estado === 'Pendiente').length,
-      aprobadas: this.solicitudes.filter(s => s.estado === 'Aprobado').length,
-      rechazadas: this.solicitudes.filter(s => s.estado === 'Rechazado').length,
-      completadas: this.solicitudes.filter(s => s.estado === 'Completado').length
+      aprobadas: this.solicitudes.filter(s => s.estado === 'Aprobada').length,
+      rechazadas: this.solicitudes.filter(s => s.estado === 'Rechazada').length,
+      completadas: this.solicitudes.filter(s => s.estado === 'Completada').length,
+      canceladas: this.solicitudes.filter(s => s.estado === 'Cancelada').length
     };
   }
 
   updatePagination(): void {
     this.totalPages = Math.ceil(this.solicitudesFiltradas.length / this.pageSize);
     this.currentPage = Math.min(this.currentPage, this.totalPages || 1);
-    this.solicitudesFiltradas = this.solicitudesFiltradas.slice(
-      (this.currentPage - 1) * this.pageSize,
-      this.currentPage * this.pageSize
-    );
+    
+    const startIndex = (this.currentPage - 1) * this.pageSize;
+    const endIndex = this.currentPage * this.pageSize;
+    
+    this.solicitudesEnPagina = this.solicitudesFiltradas.slice(startIndex, endIndex);
   }
 
   getPageNumbers(): number[] {
@@ -215,63 +180,87 @@ export class HistorialSolicitudesComponent implements OnInit {
 
   cambiarPagina(page: number): void {
     this.currentPage = page;
-    this.filtrarSolicitudes();
+    this.updatePagination();
   }
 
-  verDetalles(solicitud: Solicitud): void {
+  verDetalles(solicitud: SolicitudEspacio): void {
     this.solicitudSeleccionada = solicitud;
     this.showModalDetalles = true;
   }
 
   cerrarModal(event: Event): void {
-    if (event.target === event.currentTarget || (event.target as HTMLElement).closest('.close-btn, .btn-secondary')) {
-      this.showModalDetalles = false;
-      this.solicitudSeleccionada = null;
-    }
+    this.showModalDetalles = false;
+    this.solicitudSeleccionada = null;
   }
 
-  cancelarSolicitud(solicitud: Solicitud): void {
+  cancelarSolicitud(solicitud: SolicitudEspacio): void {
     if (confirm('¿Estás seguro de que deseas cancelar esta solicitud?')) {
-      // Placeholder for service call
-      solicitud.estado = 'Cancelado';
-      solicitud.fechaActualizacion = new Date();
-      solicitud.historialEstados.push({
-        estado: 'Cancelado',
-        fecha: new Date(),
-        usuario: 'Usuario Actual' // Replace with actual user
-      });
-      this.actualizarEstadisticas();
-      this.filtrarSolicitudes();
+      this.loading = true;
+      
+      this.solicitudService.cancelarSolicitud(solicitud.idmov!)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: () => {
+            // Actualizar el estado localmente
+            solicitud.estado = 'Cancelada';
+            this.actualizarEstadisticas();
+            this.filtrarSolicitudes();
+            this.loading = false;
+            // Aquí puedes agregar una notificación de éxito
+          },
+          error: (error) => {
+            console.error('Error al cancelar la solicitud:', error);
+            this.loading = false;
+            // Aquí puedes agregar una notificación de error
+          }
+        });
     }
   }
 
-  duplicarSolicitud(solicitud: Solicitud): void {
-    // Placeholder for duplicating request
-    const nuevaSolicitud: Solicitud = {
-      ...solicitud,
-      id: this.solicitudes.length + 1,
-      estado: 'Pendiente',
-      fechaSolicitud: new Date(),
-      fechaActualizacion: new Date(),
-      historialEstados: [
-        { estado: 'Pendiente', fecha: new Date(), usuario: 'Usuario Actual' }
-      ]
-    };
-    this.solicitudes.push(nuevaSolicitud);
-    this.actualizarEstadisticas();
-    this.filtrarSolicitudes();
+  duplicarSolicitud(solicitud: SolicitudEspacio): void {
+    // Navegar a la página de nueva solicitud con los datos pre-llenados
+    this.solicitudService.setSolicitudParaDuplicar(solicitud);
+    this.router.navigate(['/espacios/nueva-solicitud']);
   }
 
-  descargarComprobante(solicitud: Solicitud): void {
-    // Placeholder for downloading receipt
-    console.log(`Descargando comprobante para solicitud #${solicitud.id}`);
-    // Example: window.open(`/api/comprobante/${solicitud.id}`, '_blank');
+  descargarComprobante(solicitud: SolicitudEspacio): void {
+    this.solicitudService.descargarComprobante(solicitud.idmov!)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (blob) => {
+          // Crear un enlace temporal para descargar el archivo
+          const url = window.URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = `comprobante_solicitud_${solicitud.idmov}.pdf`;
+          link.click();
+          window.URL.revokeObjectURL(url);
+        },
+        error: (error) => {
+          console.error('Error al descargar el comprobante:', error);
+          // Aquí puedes agregar una notificación de error
+        }
+      });
   }
 
   exportarHistorial(): void {
-    // Placeholder for exporting history
-    console.log('Exportando historial a Excel');
-    // Example: Use a library like XLSX to export solicitudesFiltradas
+    this.solicitudService.exportarHistorial(this.solicitudesFiltradas)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (blob) => {
+          // Crear un enlace temporal para descargar el archivo
+          const url = window.URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = `historial_solicitudes_${new Date().toISOString().split('T')[0]}.xlsx`;
+          link.click();
+          window.URL.revokeObjectURL(url);
+        },
+        error: (error) => {
+          console.error('Error al exportar el historial:', error);
+          // Aquí puedes agregar una notificación de error
+        }
+      });
   }
 
   getStatusIcon(estado: string): string {
@@ -287,6 +276,21 @@ export class HistorialSolicitudesComponent implements OnInit {
 
   getTimelineClass(estado: string): string {
     return estado.toLowerCase();
+  }
+
+  // Método para calcular la duración de la reserva
+  getDuracionReserva(fechaPres: string, fechaDevol: string): string {
+    const inicio = new Date(fechaPres);
+    const fin = new Date(fechaDevol);
+    const diffMs = fin.getTime() - inicio.getTime();
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+    
+    if (diffHours > 0) {
+      return `${diffHours}h ${diffMinutes}min`;
+    } else {
+      return `${diffMinutes}min`;
+    }
   }
 
   // Helper methods for period filtering

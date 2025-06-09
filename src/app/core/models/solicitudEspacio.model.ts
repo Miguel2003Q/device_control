@@ -9,7 +9,7 @@ export interface SolicitudEspacio {
   fechaDevol: string;
   usuario: User;
   motivo: string; //No esta en el backend, pero se puede agregar para mayor claridad
-  estado: 'Pendiente' | 'Aprobado' | 'Rechazado' | 'Cancelado' | 'Completado';
+  estado: 'Pendiente' | 'Aprobada' | 'Rechazada' | 'Cancelada' | 'Completada';
 }
 
 // {

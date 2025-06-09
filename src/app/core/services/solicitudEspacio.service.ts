@@ -1,90 +1,170 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
-import { Observable, throwError, of } from 'rxjs';
-import { catchError, tap } from 'rxjs/operators';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Observable, BehaviorSubject } from 'rxjs';
 import { SolicitudEspacio } from '../models/solicitudEspacio.model';
+import { AuthService } from './auth.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class SolicitudEspacioService {
-  private apiUrl = 'http://localhost:8080/movespacios'; // Ajusta según tu backend
-  private solicitudesCache: SolicitudEspacio[] | null = null;
+  private apiUrl = 'http://localhost:8080/movespacios';
+  private solicitudParaDuplicar = new BehaviorSubject<SolicitudEspacio | null>(null);
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private auth: AuthService) {}
 
-  private getHeaders(): HttpHeaders {
-    const token = localStorage.getItem('token');
-    let headers = new HttpHeaders();
-    if (token) {
-      headers = headers.set('Authorization', `Bearer ${token}`);
-    }
-    return headers;
+  /**
+   * Obtiene todas las solicitudes del usuario actual
+   */
+  getMisSolicitudes(): Observable<SolicitudEspacio[]> {
+    return this.http.get<SolicitudEspacio[]>(`${this.apiUrl}/buscarPorUsuario/${this.auth.getCurrentUser()?.idusuario}`);
   }
 
-  obtenerTodasLasSolicitudes(): Observable<SolicitudEspacio[]> {
-    if (this.solicitudesCache) {
-      return of(this.solicitudesCache);
-    } else {
-      return this.http.get<SolicitudEspacio[]>(this.apiUrl, { headers: this.getHeaders() }).pipe(
-        tap((data: SolicitudEspacio[]) => this.solicitudesCache = data),
-        catchError(this.handleError)
-      );
-    }
+  /**
+   * Obtiene una solicitud específica por ID
+   */
+  getSolicitudById(id: number): Observable<SolicitudEspacio> {
+    return this.http.get<SolicitudEspacio>(`${this.apiUrl}/${id}`);
   }
 
-  limpiarCache(): void {
-    this.solicitudesCache = null;
+  /**
+   * Crea una nueva solicitud de espacio
+   */
+  crearSolicitud(solicitud: Partial<SolicitudEspacio>): Observable<SolicitudEspacio> {
+    return this.http.post<SolicitudEspacio>(this.apiUrl, solicitud);
   }
 
-  obtenerSolicitudPorId(id: number): Observable<SolicitudEspacio> {
-    return this.http.get<SolicitudEspacio>(`${this.apiUrl}/${id}`, { headers: this.getHeaders() }).pipe(
-      catchError(this.handleError)
-    );
+  /**
+   * Actualiza el estado de una solicitud
+   */
+  actualizarEstado(id: number, estado: string): Observable<SolicitudEspacio> {
+    return this.http.patch<SolicitudEspacio>(`${this.apiUrl}/${id}/estado`, { estado });
   }
 
-  guardarSolicitud(solicitud: SolicitudEspacio): Observable<SolicitudEspacio> {
-    return this.http.post<SolicitudEspacio>(this.apiUrl, solicitud, { headers: this.getHeaders() }).pipe(
-      catchError(this.handleError)
-    );
+  /**
+   * Cancela una solicitud pendiente
+   */
+  cancelarSolicitud(id: number): Observable<void> {
+    return this.http.put<void>(`${this.apiUrl}/cancelar/${id}`, {});
   }
 
-  actualizarSolicitud(id: number, solicitud: SolicitudEspacio): Observable<SolicitudEspacio> {
-    return this.http.put<SolicitudEspacio>(`${this.apiUrl}/actualizar/${id}`, solicitud, {
-      headers: this.getHeaders()
-    }).pipe(
-      catchError(this.handleError)
-    );
+  /**
+   * Descarga el comprobante PDF de una solicitud aprobada
+   */
+  descargarComprobante(id: number): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/${id}/comprobante`, {
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        'Accept': 'application/pdf'
+      })
+    });
   }
 
-  eliminarSolicitud(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/eliminar/${id}`, { headers: this.getHeaders() }).pipe(
-      catchError(this.handleError)
-    );
+  /**
+   * Exporta el historial de solicitudes a Excel
+   */
+  exportarHistorial(solicitudes?: SolicitudEspacio[]): Observable<Blob> {
+    const body = solicitudes ? { solicitudes } : {};
+    
+    return this.http.post(`${this.apiUrl}/exportar`, body, {
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        'Accept': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      })
+    });
   }
 
-  buscarPorEstado(estado: string): Observable<SolicitudEspacio[]> {
-    return this.http.get<SolicitudEspacio[]>(`${this.apiUrl}/buscarPorEstado?estado=${encodeURIComponent(estado)}`, {
-      headers: this.getHeaders()
-    }).pipe(
-      catchError(this.handleError)
-    );
+  /**
+   * Busca solicitudes con filtros
+   */
+  buscarSolicitudes(filtros: {
+    estado?: string;
+    fechaInicio?: string;
+    fechaFin?: string;
+    espacio?: string;
+  }): Observable<SolicitudEspacio[]> {
+    let params: any = {};
+    
+    if (filtros.estado) params.estado = filtros.estado;
+    if (filtros.fechaInicio) params.fechaInicio = filtros.fechaInicio;
+    if (filtros.fechaFin) params.fechaFin = filtros.fechaFin;
+    if (filtros.espacio) params.espacio = filtros.espacio;
+
+    return this.http.get<SolicitudEspacio[]>(`${this.apiUrl}/buscar`, { params });
   }
 
-  contarSolicitudes(): Observable<number> {
-    return this.http.get<number>(`${this.apiUrl}/contar`, { headers: this.getHeaders() }).pipe(
-      catchError(this.handleError)
-    );
+  /**
+   * Verifica disponibilidad de un espacio en un rango de fechas
+   */
+  verificarDisponibilidad(espacioId: number, fechaInicio: string, fechaFin: string): Observable<boolean> {
+    return this.http.get<boolean>(`${this.apiUrl}/verificar-disponibilidad`, {
+      params: {
+        espacioId: espacioId.toString(),
+        fechaInicio,
+        fechaFin
+      }
+    });
   }
 
-  private handleError(error: HttpErrorResponse): Observable<never> {
-    let errorMessage = 'Ocurrió un error desconocido';
-    if (error.error instanceof ErrorEvent) {
-      errorMessage = `Error del cliente: ${error.error.message}`;
-    } else {
-      errorMessage = `Error del servidor ${error.status}: ${error.message}`;
-    }
-    console.error(errorMessage);
-    return throwError(() => new Error(errorMessage));
+  /**
+   * Obtiene las solicitudes pendientes de aprobación (para administradores)
+   */
+  getSolicitudesPendientes(): Observable<SolicitudEspacio[]> {
+    return this.http.get<SolicitudEspacio[]>(`${this.apiUrl}/pendientes`);
+  }
+
+  /**
+   * Aprueba una solicitud (para administradores)
+   */
+  aprobarSolicitud(id: number, observaciones?: string): Observable<SolicitudEspacio> {
+    return this.http.put<SolicitudEspacio>(`${this.apiUrl}/${id}/aprobar`, { observaciones });
+  }
+
+  /**
+   * Rechaza una solicitud (para administradores)
+   */
+  rechazarSolicitud(id: number, motivo: string): Observable<SolicitudEspacio> {
+    return this.http.put<SolicitudEspacio>(`${this.apiUrl}/${id}/rechazar`, { motivo });
+  }
+
+  /**
+   * Marca una solicitud como completada
+   */
+  completarSolicitud(id: number): Observable<SolicitudEspacio> {
+    return this.http.put<SolicitudEspacio>(`${this.apiUrl}/${id}/completar`, {});
+  }
+
+  /**
+   * Obtiene estadísticas generales de solicitudes
+   */
+  getEstadisticas(): Observable<{
+    pendientes: number;
+    aprobadas: number;
+    rechazadas: number;
+    completadas: number;
+    canceladas: number;
+  }> {
+    return this.http.get<any>(`${this.apiUrl}/estadisticas`);
+  }
+
+  /**
+   * Guarda temporalmente una solicitud para duplicar
+   */
+  setSolicitudParaDuplicar(solicitud: SolicitudEspacio): void {
+    this.solicitudParaDuplicar.next(solicitud);
+  }
+
+  /**
+   * Obtiene la solicitud guardada para duplicar
+   */
+  getSolicitudParaDuplicar(): Observable<SolicitudEspacio | null> {
+    return this.solicitudParaDuplicar.asObservable();
+  }
+
+  /**
+   * Limpia la solicitud guardada para duplicar
+   */
+  clearSolicitudParaDuplicar(): void {
+    this.solicitudParaDuplicar.next(null);
   }
 }

@@ -622,29 +622,9 @@ a {
   100% { transform: rotate(360deg); }
 }
 
-/* Menú móvil */
-.menu-toggle {
-  display: none;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background-color: #274C77;
-  color: #FFFFFF;
-  align-items: center;
-  justify-content: center;
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  z-index: 100;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-}
-
-.menu-toggle.active {
-  background-color: #F44336;
-}
-
 /* Responsive */
 @media (max-width: 1200px) {
+  
   .toolbar-left {
     flex-direction: column;
     gap: 10px;
@@ -694,6 +674,11 @@ a {
 }
 
 @media (max-width: 768px) {
+
+  .dashboard-container {
+    margin-left: 0;
+  }
+
   .top-bar {
     padding: 0 15px;
   }

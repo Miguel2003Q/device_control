@@ -1,5 +1,5 @@
 import { Component, OnInit, HostListener } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, FormsModule, ReactiveFormsModule, ValidatorFn, AbstractControl, ValidationErrors } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ToastrService } from 'ngx-toastr';
 import { TopBarComponent } from '../shared/top-bar/top-bar.component';
@@ -10,6 +10,23 @@ import { Espacio } from '../../core/models/espacio.model';
 import { SolicitudEspacio } from '../../core/models/solicitudEspacio.model';
 import { SolicitudEspacioService } from '../../core/services/solicitudEspacio.service';
 import { AuthService } from '../../core/services/auth.service';
+
+
+export const fechasValidasValidator: ValidatorFn = (group: AbstractControl): ValidationErrors | null => { //Valida que las fechas y horas de préstamo y devolución sean correctas
+  const fechaPrestamo = group.get('fechaPrestamo')?.value;
+  const horaPrestamo = group.get('horaPrestamo')?.value;
+  const fechaDevolucion = group.get('fechaDevolucion')?.value;
+  const horaDevolucion = group.get('horaDevolucion')?.value;
+
+  if (!fechaPrestamo || !horaPrestamo || !fechaDevolucion || !horaDevolucion) {
+    return null; // Aún no completado
+  }
+
+  const inicio = new Date(`${fechaPrestamo}T${horaPrestamo}`);
+  const fin = new Date(`${fechaDevolucion}T${horaDevolucion}`);
+
+  return fin > inicio ? null : { fechasInvalidas: true };
+};
 
 @Component({
   selector: 'app-solicitudes-ambientes',
@@ -58,7 +75,7 @@ export class SolicitarEspacioComponent implements OnInit {
       fechaDevolucion: ['', Validators.required],
       horaDevolucion: ['', Validators.required],
       motivo: ['', Validators.required]
-    });
+    }, { validators: fechasValidasValidator });
 
     // Check screen size for sidebar
     this.checkScreenSize();
@@ -164,7 +181,7 @@ export class SolicitarEspacioComponent implements OnInit {
 
     const nuevaSolicitud: SolicitudEspacio = {
       espacio: formData.ambiente,
-      fechaSolicitud: new Date().toISOString().slice(0, 16), // "YYYY-MM-DDTHH:mm"
+      fechaSolicitud: this.getFechaLocalISO(), // "YYYY-MM-DDTHH:mm"
       fechaPres: `${formData.fechaPrestamo}T${formData.horaPrestamo}`,
       fechaDevol: `${formData.fechaDevolucion}T${formData.horaDevolucion}`,
       motivo: formData.motivo,
@@ -172,7 +189,7 @@ export class SolicitarEspacioComponent implements OnInit {
       usuario: solicitante,
     };
 
-    this.solicitudService.guardarSolicitud(nuevaSolicitud).subscribe({
+    this.solicitudService.crearSolicitud(nuevaSolicitud).subscribe({
       next: (solicitudCreada) => {
         this.toastr.success(`Solicitud para "${formData.ambiente.nombre}" creada`, 'Éxito');
         this.isSubmitting = false;
@@ -215,4 +232,16 @@ export class SolicitarEspacioComponent implements OnInit {
       this.espacioSeleccionado = null;
     }
   }
+
+  getFechaLocalISO(): string {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0'); // Mes empieza en 0
+    const day = String(now.getDate()).padStart(2, '0');
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+  }
+
 }

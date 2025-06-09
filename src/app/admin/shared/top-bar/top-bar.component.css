@@ -116,3 +116,101 @@
     color: #888888;
   }
   
+  .menu-toggle {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .top-bar {
+        padding: 0 15px;
+
+        .left-section {
+            gap: 15px;
+
+            h1 {
+                font-size: 18px;
+            }
+
+            .search-container {
+                width: 200px;
+            }
+        }
+
+        .user-actions {
+            gap: 5px;
+
+            .icon-btn {
+                width: 36px;
+                height: 36px;
+                margin-right: 5px;
+            }
+
+            .user-profile {
+                .avatar {
+                    width: 36px;
+                    height: 36px;
+
+                    i {
+                        font-size: 18px;
+                    }
+                }
+
+                .user-info {
+                    h3 {
+                        font-size: 13px;
+                    }
+
+                    span {
+                        font-size: 11px;
+                    }
+                }
+            }
+        }
+    }
+
+    .menu-toggle {
+    display: flex;
+  }
+}
+
+@media (max-width: 576px) {
+    .top-bar {
+        padding: 0 10px;
+
+        .left-section {
+            gap: 10px;
+
+            h1 {
+                font-size: 16px;
+            }
+
+            .search-container {
+                display: none;
+                /* Ocultar búsqueda en pantallas muy pequeñas */
+            }
+        }
+
+        .user-actions {
+            .user-profile {
+                .user-info {
+                    display: none;
+                    /* Ocultar nombre y rol para ahorrar espacio */
+                }
+
+                .avatar {
+                    margin-right: 0;
+                }
+            }
+
+            .icon-btn {
+                width: 32px;
+                height: 32px;
+            }
+        }
+    }
+}

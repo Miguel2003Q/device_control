@@ -1,17 +1,26 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { AuthService } from '../../../core/services/auth.service';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-top-bar',
   standalone: true, // 👈 importante si no se usa dentro de un módulo
-  imports: [],       // agrega aquí otros componentes/modulos si los necesitas
+  imports: [CommonModule],       // agrega aquí otros componentes/modulos si los necesitas
   templateUrl: './top-bar.component.html',
   styleUrl: './top-bar.component.css'
 })
 export class TopBarComponent {
 
+  @Output() toggleSidebar = new EventEmitter<void>();
+  sidebarActive = false;
+
   constructor(private authService: AuthService) {
     this.usuario = this.authService.getCurrentUser();
+  }
+
+  toggleSidebarEmit() {
+    this.sidebarActive = !this.sidebarActive;
+    this.toggleSidebar.emit();
   }
 
   usuario: any = {

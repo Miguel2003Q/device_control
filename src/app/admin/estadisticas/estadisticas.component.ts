@@ -51,7 +51,7 @@ interface ChartLegendItem {
 export class EstadisticasComponent implements OnInit, AfterViewInit {
   @ViewChild('barChart') barChartRef!: ElementRef;
   @ViewChild('pieChart') pieChartRef!: ElementRef;
-  
+
   // Propiedades generales
   movimientos: Movimiento[] = [];
   movimientosFiltrados: Movimiento[] = [];
@@ -59,13 +59,13 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
   tiposActivo: TipoActivo[] = [];
   activosTags: string[] = [];
   nuevoActivoTag: string = '';
-  sidebarActive: boolean = true;
+  sidebarActive: boolean = false;
   filtersCollapsed: boolean = false;
   screenWidth: number;
   chartView: 'bar' | 'pie' | 'line' = 'bar';
   barChart: Chart | null = null;
   pieChart: Chart | null = null;
-  
+
   // Propiedades de filtrado
   filters = {
     fechaDesde: '',
@@ -74,15 +74,15 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
     tipoMovimiento: '',
     usuarioInvolucrado: ''
   };
-  
+
   appliedFilters: AppliedFilter[] = [];
-  
+
   // Propiedades de exportación
   exportOptions = {
     pdf: false,
     excel: false
   };
-  
+
   // Propiedades de estadísticas
   stats = {
     totalMovimientos: 0,
@@ -90,39 +90,39 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
     ambientesActivos: 0,
     mantenimientos: 0
   };
-  
+
   // Propiedades de ordenamiento
   sortColumn: string = 'fechaMovimiento';
   sortDirection: 'asc' | 'desc' = 'desc';
-  
+
   // Propiedades de paginación
   currentPage: number = 1;
   pageSize: number = 10;
   totalItems: number = 0;
   totalPages: number = 1;
-  
+
   // Leyenda del gráfico
   chartLegend: ChartLegendItem[] = [];
-  
+
   // Fecha actual para límite en datepickers
   maxDate: string;
-  
+
   // Usuario actual
   usuarioActual = {
     nombre: 'Juan Benicio',
     rol: 'Administrador'
   };
-  
+
   // Acceso a Math para usar en la plantilla
   Math = Math;
-  
+
   constructor(private datePipe: DatePipe) {
     // Inicializar el ancho de pantalla
     this.screenWidth = window.innerWidth;
-    
+
     // Ajustar sidebar según tamaño de pantalla
     this.checkScreenSize();
-    
+
     // Obtener fecha actual para límite de datepickers
     const today = new Date();
     this.maxDate = today.toISOString().split('T')[0];
@@ -135,7 +135,7 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
     this.cargarTiposActivo();
     this.actualizarEstadisticas();
   }
-  
+
   ngAfterViewInit(): void {
     setTimeout(() => {
       this.inicializarGraficos();
@@ -147,7 +147,7 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
   onResize(event: any) {
     this.screenWidth = window.innerWidth;
     this.checkScreenSize();
-    
+
     // Reiniciar gráficos al cambiar tamaño de pantalla
     this.actualizarGraficos();
   }
@@ -167,7 +167,7 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
   toggleSidebar(): void {
     this.sidebarActive = !this.sidebarActive;
   }
-  
+
   // Cambiar estado del panel de filtros
   toggleFilters(): void {
     this.filtersCollapsed = !this.filtersCollapsed;
@@ -182,7 +182,7 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
     fechaAyer.setDate(fechaAyer.getDate() - 1);
     const fechaAnteayer = new Date(fechaActual);
     fechaAnteayer.setDate(fechaAnteayer.getDate() - 2);
-    
+
     this.movimientos = [
       {
         id: 1,
@@ -237,21 +237,21 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
         estado: 'Ocupado'
       }
     ];
-    
+
     // Agregar más movimientos para demostrar paginación
     for (let i = 6; i <= 25; i++) {
       const randomDate = new Date();
       randomDate.setDate(randomDate.getDate() - Math.floor(Math.random() * 30));
-      
+
       const estados: ('Disponible' | 'Ocupado' | 'Mantenimiento')[] = ['Disponible', 'Ocupado', 'Mantenimiento'];
       const randomEstado = estados[Math.floor(Math.random() * estados.length)];
-      
+
       const tiposActivo = ['Silla', 'Mesa', 'Mouse Dell', 'Teclado Dell', 'Monitor Dell'];
       const randomTipo = tiposActivo[Math.floor(Math.random() * tiposActivo.length)];
-      
+
       const solicitantes = ['Juan Benicio', 'Jorge Mario', 'Carlos Lopez', 'Jaime Ortiz', 'Rodrigo Perez'];
       const randomSolicitante = solicitantes[Math.floor(Math.random() * solicitantes.length)];
-      
+
       this.movimientos.push({
         id: i,
         solicitante: randomSolicitante,
@@ -264,12 +264,12 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
         estado: randomEstado
       });
     }
-    
+
     // Inicializar los movimientos filtrados
     this.movimientosFiltrados = [...this.movimientos];
     this.totalItems = this.movimientosFiltrados.length;
     this.totalPages = Math.ceil(this.totalItems / this.pageSize);
-    
+
     // Aplicar paginación
     this.aplicarPaginacion();
   }
@@ -284,7 +284,7 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
       { id: 4, nombre: 'Ambiente 4' }
     ];
   }
-  
+
   // Cargar tipos de activo
   cargarTiposActivo(): void {
     this.tiposActivo = [
@@ -294,7 +294,7 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
       { value: 'teclado-dell', label: 'Teclado Dell', checked: false }
     ];
   }
-  
+
   // Añadir tag de activo
   addActivoTag(): void {
     if (this.nuevoActivoTag && !this.activosTags.includes(this.nuevoActivoTag)) {
@@ -302,26 +302,26 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
       this.nuevoActivoTag = '';
     }
   }
-  
+
   // Eliminar tag de activo
   removeActivoTag(tag: string): void {
     this.activosTags = this.activosTags.filter(t => t !== tag);
   }
-  
+
   // Alternar tipo de activo
   toggleTipoActivo(tipo: TipoActivo): void {
     tipo.checked = !tipo.checked;
   }
-  
+
   // Aplicar filtros
   aplicarFiltros(): void {
     // Limpiar filtros aplicados actuales
     this.appliedFilters = [];
-    
+
     // Filtrar por fecha desde
     if (this.filters.fechaDesde) {
       const fechaDesde = new Date(this.filters.fechaDesde);
-      this.movimientosFiltrados = this.movimientos.filter(m => 
+      this.movimientosFiltrados = this.movimientos.filter(m =>
         new Date(m.fechaMovimiento) >= fechaDesde
       );
       this.appliedFilters.push({
@@ -332,12 +332,12 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
     } else {
       this.movimientosFiltrados = [...this.movimientos];
     }
-    
+
     // Filtrar por fecha hasta
     if (this.filters.fechaHasta) {
       const fechaHasta = new Date(this.filters.fechaHasta);
       fechaHasta.setHours(23, 59, 59);
-      this.movimientosFiltrados = this.movimientosFiltrados.filter(m => 
+      this.movimientosFiltrados = this.movimientosFiltrados.filter(m =>
         new Date(m.fechaMovimiento) <= fechaHasta
       );
       this.appliedFilters.push({
@@ -346,14 +346,14 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
         value: this.datePipe.transform(fechaHasta, 'dd/MM/yyyy') || ''
       });
     }
-    
+
     // Filtrar por tipos de activo seleccionados (checkboxes)
     const tiposSeleccionados = this.tiposActivo
       .filter(t => t.checked)
       .map(t => t.label);
-    
+
     if (tiposSeleccionados.length > 0) {
-      this.movimientosFiltrados = this.movimientosFiltrados.filter(m => 
+      this.movimientosFiltrados = this.movimientosFiltrados.filter(m =>
         tiposSeleccionados.includes(m.tipoActivo)
       );
       this.appliedFilters.push({
@@ -362,12 +362,12 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
         value: tiposSeleccionados.join(', ')
       });
     }
-    
+
     // Filtrar por tags de activo
     if (this.activosTags.length > 0) {
-      this.movimientosFiltrados = this.movimientosFiltrados.filter(m => 
-        this.activosTags.some(tag => 
-          m.nombreActivo.toLowerCase().includes(tag.toLowerCase()) || 
+      this.movimientosFiltrados = this.movimientosFiltrados.filter(m =>
+        this.activosTags.some(tag =>
+          m.nombreActivo.toLowerCase().includes(tag.toLowerCase()) ||
           m.tipoActivo.toLowerCase().includes(tag.toLowerCase())
         )
       );
@@ -377,11 +377,11 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
         value: this.activosTags.join(', ')
       });
     }
-    
+
     // Filtrar por ambiente
     if (this.filters.ambiente) {
-      this.movimientosFiltrados = this.movimientosFiltrados.filter(m => 
-        m.ambienteAsignado === this.filters.ambiente || 
+      this.movimientosFiltrados = this.movimientosFiltrados.filter(m =>
+        m.ambienteAsignado === this.filters.ambiente ||
         m.ambienteTrasladado === this.filters.ambiente
       );
       this.appliedFilters.push({
@@ -390,10 +390,10 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
         value: this.filters.ambiente
       });
     }
-    
+
     // Filtrar por tipo de movimiento
     if (this.filters.tipoMovimiento) {
-      this.movimientosFiltrados = this.movimientosFiltrados.filter(m => 
+      this.movimientosFiltrados = this.movimientosFiltrados.filter(m =>
         m.estado === this.filters.tipoMovimiento
       );
       this.appliedFilters.push({
@@ -402,10 +402,10 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
         value: this.filters.tipoMovimiento
       });
     }
-    
+
     // Filtrar por usuario involucrado
     if (this.filters.usuarioInvolucrado) {
-      this.movimientosFiltrados = this.movimientosFiltrados.filter(m => 
+      this.movimientosFiltrados = this.movimientosFiltrados.filter(m =>
         m.solicitante.toLowerCase().includes(this.filters.usuarioInvolucrado.toLowerCase())
       );
       this.appliedFilters.push({
@@ -414,19 +414,19 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
         value: this.filters.usuarioInvolucrado
       });
     }
-    
+
     // Actualizar paginación
     this.currentPage = 1;
     this.totalItems = this.movimientosFiltrados.length;
     this.totalPages = Math.ceil(this.totalItems / this.pageSize);
-    
+
     // Aplicar paginación
     this.aplicarPaginacion();
-    
+
     // Actualizar gráficos
     this.actualizarGraficos();
   }
-  
+
   // Remover un filtro aplicado
   removeFilter(filter: AppliedFilter): void {
     switch (filter.key) {
@@ -452,11 +452,11 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
         this.filters.usuarioInvolucrado = '';
         break;
     }
-    
+
     // Volver a aplicar filtros
     this.aplicarFiltros();
   }
-  
+
   // Limpiar todos los filtros
   clearAllFilters(): void {
     this.filters = {
@@ -466,70 +466,70 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
       tipoMovimiento: '',
       usuarioInvolucrado: ''
     };
-    
+
     this.tiposActivo.forEach(t => t.checked = false);
     this.activosTags = [];
-    
+
     // Resetear los movimientos filtrados
     this.movimientosFiltrados = [...this.movimientos];
     this.appliedFilters = [];
-    
+
     // Actualizar paginación
     this.currentPage = 1;
     this.totalItems = this.movimientosFiltrados.length;
     this.totalPages = Math.ceil(this.totalItems / this.pageSize);
-    
+
     // Aplicar paginación
     this.aplicarPaginacion();
-    
+
     // Actualizar gráficos
     this.actualizarGraficos();
   }
-  
+
   // Verificar si se puede exportar
   canExport(): boolean {
     return this.exportOptions.pdf || this.exportOptions.excel;
   }
-  
+
   // Exportar reporte
   exportReport(): void {
     if (!this.canExport()) return;
-    
+
     if (this.exportOptions.pdf) {
       // Lógica para exportar a PDF
       console.log('Exportando a PDF...');
       alert('Exportando a PDF. Esta función se implementaría con una librería real.');
     }
-    
+
     if (this.exportOptions.excel) {
       // Lógica para exportar a Excel
       console.log('Exportando a Excel...');
       alert('Exportando a Excel. Esta función se implementaría con una librería real.');
     }
   }
-  
+
   // Inicializar gráficos
   inicializarGraficos(): void {
     this.crearGraficos();
   }
-  
+
   // Crear gráficos
   crearGraficos(): void {
     // Destruir gráficos existentes
     if (this.barChart) {
       this.barChart.destroy();
     }
-    
+
     if (this.pieChart) {
       this.pieChart.destroy();
     }
-    
+
     // Preparar datos para los gráficos
     const tiposActivo = [...new Set(this.movimientosFiltrados.map(m => m.tipoActivo))];
     const conteosPorTipo = tiposActivo.map(tipo => {
       return this.movimientosFiltrados.filter(m => m.tipoActivo === tipo).length;
     });
-    
+
     // Generar colores
     const colores = [
       '#6096BA', // Azul medio
@@ -538,11 +538,11 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
       '#8FB8DE', // Otro tono de azul
       '#E7ECEF', // Gris claro
     ];
-    
+
     // Crear gráfico de barras
     if (this.barChartRef && this.barChartRef.nativeElement) {
       const ctx = this.barChartRef.nativeElement.getContext('2d');
-      
+
       this.barChart = new Chart(ctx, {
         type: this.chartView === 'line' ? 'line' : 'bar',
         data: {
@@ -575,11 +575,11 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
         }
       });
     }
-    
+
     // Crear gráfico de pastel
     if (this.pieChartRef && this.pieChartRef.nativeElement) {
       const ctx = this.pieChartRef.nativeElement.getContext('2d');
-      
+
       this.pieChart = new Chart(ctx, {
         type: 'pie',
         data: {
@@ -602,7 +602,7 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
         }
       });
     }
-    
+
     // Actualizar leyenda
     this.chartLegend = tiposActivo.map((tipo, index) => {
       return {
@@ -612,20 +612,20 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
       };
     });
   }
-  
+
   // Actualizar gráficos
   actualizarGraficos(): void {
     setTimeout(() => {
       this.crearGraficos();
     }, 100);
   }
-  
+
   // Cambiar vista de gráfico
   setChartView(view: 'bar' | 'pie' | 'line'): void {
     this.chartView = view;
     this.actualizarGraficos();
   }
-  
+
   // Actualizar estadísticas generales
   actualizarEstadisticas(): void {
     this.stats = {
@@ -637,7 +637,7 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
       mantenimientos: this.movimientos.filter(m => m.estado === 'Mantenimiento').length
     };
   }
-  
+
   // Ordenar tabla
   sortTable(column: string): void {
     if (this.sortColumn === column) {
@@ -648,18 +648,18 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
       this.sortColumn = column;
       this.sortDirection = 'asc';
     }
-    
+
     // Ordenar movimientos
     this.movimientosFiltrados.sort((a: any, b: any) => {
       let aValue = a[column];
       let bValue = b[column];
-      
+
       // Manejo especial para fechas
       if (column === 'fechaMovimiento') {
         aValue = new Date(aValue);
         bValue = new Date(bValue);
       }
-      
+
       // Comparar valores
       if (aValue < bValue) {
         return this.sortDirection === 'asc' ? -1 : 1;
@@ -669,11 +669,11 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
       }
       return 0;
     });
-    
+
     // Aplicar paginación
     this.aplicarPaginacion();
   }
-  
+
   // Obtener icono para la columna ordenada
   getSortIcon(column: string): string {
     if (this.sortColumn !== column) {
@@ -681,22 +681,22 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
     }
     return this.sortDirection === 'asc' ? 'fa-sort-up' : 'fa-sort-down';
   }
-  
+
   // Cambiar página
   changePage(page: number): void {
     if (page < 1 || page > this.totalPages) {
       return;
     }
-    
+
     this.currentPage = page;
     this.aplicarPaginacion();
   }
-  
+
   // Obtener números de página para la paginación
   getPageNumbers(): number[] {
     const pages = [];
     const maxPagesToShow = 5;
-    
+
     if (this.totalPages <= maxPagesToShow) {
       // Si hay pocas páginas, mostrar todas
       for (let i = 1; i <= this.totalPages; i++) {
@@ -706,28 +706,28 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
       // Mostrar un subconjunto de páginas
       let startPage = Math.max(1, this.currentPage - 2);
       let endPage = Math.min(this.totalPages, startPage + maxPagesToShow - 1);
-      
+
       // Ajustar si estamos cerca del final
       if (endPage - startPage < maxPagesToShow - 1) {
         startPage = Math.max(1, endPage - maxPagesToShow + 1);
       }
-      
+
       for (let i = startPage; i <= endPage; i++) {
         pages.push(i);
       }
     }
-    
+
     return pages;
   }
-  
+
   // Aplicar paginación
   aplicarPaginacion(): void {
     const start = (this.currentPage - 1) * this.pageSize;
     const end = start + this.pageSize;
-    
+
     // Asegurar que movimientosFiltrados use los movimientos actuales filtrados
     const allFilteredMovimientos = [...this.movimientosFiltrados];
-    
+
     // Aplicar paginación
     this.movimientosFiltrados = allFilteredMovimientos.slice(start, end);
   }
@@ -736,5 +736,9 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
   cerrarSesion(): void {
     // Aquí iría la lógica de cerrar sesión
     console.log('Cerrando sesión...');
-  }
+  }
+
+  toggleSidebarEmit(): void {
+    this.sidebarActive = !this.sidebarActive;
+  }
 }

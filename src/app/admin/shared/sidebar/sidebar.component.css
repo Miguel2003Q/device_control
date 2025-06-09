@@ -9,7 +9,24 @@
     display: flex;
     flex-direction: column;
     z-index: 1000;
+    transition: transform 0.3s ease;
   }
+
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    top: 62px;
+    left: 0;
+    height: 100vh;
+    transform: translateX(-100%);
+    z-index: 1000;
+    background-color: #fff;
+  }
+
+  .sidebar.active {
+    transform: translateX(0);
+  }
+}
   
   
   .sidebar-header {

@@ -1,5 +1,5 @@
-<app-top-bar></app-top-bar>
-<app-sidebar></app-sidebar>
+<app-top-bar (toggleSidebar)="toggleSidebarEmit()"></app-top-bar>
+<app-sidebar [active]="sidebarActive"></app-sidebar>
 
 <!-- estadisticas-espacio.component.html -->
 <div class="estadisticas-container">

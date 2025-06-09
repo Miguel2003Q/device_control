@@ -354,7 +354,7 @@ button {
   height: 40px;
   border-radius: 50%;
   background-color: #274C77;
-  color: #FFFFFF;
+  color: #FFFFFF; 
   align-items: center;
   justify-content: center;
   position: fixed;

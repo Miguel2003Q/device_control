@@ -27,7 +27,7 @@ export class GestionAmbientesComponent implements OnInit {
   ambientesFiltrados: Espacio[] = [];
   searchTerm: string = '';
   filtroEstado: string = '';
-  sidebarActive: boolean = true;
+  sidebarActive: boolean = false;
   screenWidth: number;
 
   showModal: boolean = false;
@@ -336,5 +336,9 @@ export class GestionAmbientesComponent implements OnInit {
   cerrarSesion(): void {
     this.authService.logout();
     alert('Sesión cerrada con éxito.');
+  }
+
+  toggleSidebarEmit(): void {
+    this.sidebarActive = !this.sidebarActive;
   }
 }

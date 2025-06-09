@@ -50,4 +50,8 @@ export class AuthService {
     this.currentUser = null;
     localStorage.removeItem('currentUser');
   }
+
+  getToken(): string | null {
+    return localStorage.getItem('token');
+  }
 }

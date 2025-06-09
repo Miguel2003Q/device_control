@@ -42,6 +42,9 @@ interface ViewMode {
   changeDetection: ChangeDetectionStrategy.OnPush // Optimización de detección de cambios
 })
 export class EstadisticasEspacioComponent implements OnInit, AfterViewInit {
+
+  sidebarActive: boolean = false;
+
   @ViewChild('estadoChart', { static: false }) estadoChartRef?: ElementRef<HTMLCanvasElement>;
   @ViewChild('capacidadChart', { static: false }) capacidadChartRef?: ElementRef<HTMLCanvasElement>;
 
@@ -402,5 +405,9 @@ export class EstadisticasEspacioComponent implements OnInit, AfterViewInit {
       porcentajeEspaciosActivos: 90.0,
       porcentajeEspaciosEliminados: 10.0
     };
+  }
+
+   toggleSidebarEmit(): void {
+    this.sidebarActive = !this.sidebarActive;
   }
 }
