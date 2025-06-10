@@ -20,6 +20,9 @@
             "polyfills": [
               "zone.js"
             ],
+            "allowedCommonJsDependencies": [
+              "sockjs-client"
+            ],
             "tsConfig": "tsconfig.app.json",
             "assets": [
               {
@@ -44,17 +47,17 @@
           "configurations": {
             "production": {
               "budgets": [
-              {
-                "type": "initial",
-                "maximumWarning": "2MB",
-                "maximumError": "5MB"
-              },
-              {
-                "type": "anyComponentStyle",
-                "maximumWarning": "100kB",
-                "maximumError": "200kB"
-              }
-            ],
+                {
+                  "type": "initial",
+                  "maximumWarning": "2MB",
+                  "maximumError": "5MB"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "100kB",
+                  "maximumError": "200kB"
+                }
+              ],
               "outputHashing": "all"
             },
             "development": {

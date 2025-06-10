@@ -7,6 +7,7 @@ import { SidebarComponent } from "../shared/sidebar/sidebar.component";
 import { SolicitudEspacio } from '../../core/models/solicitudEspacio.model';
 import { SolicitudEspacioService } from '../../core/services/solicitudEspacio.service';
 import { Subject, takeUntil } from 'rxjs';
+import { ToastrService } from 'ngx-toastr';
 
 interface Estadisticas {
   pendientes: number;
@@ -53,6 +54,7 @@ export class HistorialSolicitudesComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   constructor(
+    private toast: ToastrService,
     private datePipe: DatePipe,
     private solicitudService: SolicitudEspacioService,
     private router: Router
@@ -202,6 +204,7 @@ export class HistorialSolicitudesComponent implements OnInit, OnDestroy {
         .subscribe({
           next: () => {
             // Actualizar el estado localmente
+            this.toast.success('Solicitud cancelada exitosamente', 'Éxito');
             solicitud.estado = 'Cancelada';
             this.actualizarEstadisticas();
             this.filtrarSolicitudes();
@@ -258,7 +261,7 @@ export class HistorialSolicitudesComponent implements OnInit, OnDestroy {
         },
         error: (error) => {
           console.error('Error al exportar el historial:', error);
-          // Aquí puedes agregar una notificación de error
+          this.toast.error('Error al exportar el historial', 'Error');
         }
       });
   }

@@ -66,9 +66,10 @@ export class SolicitudEspacioService {
   exportarHistorial(solicitudes?: SolicitudEspacio[]): Observable<Blob> {
     const body = solicitudes ? { solicitudes } : {};
     
-    return this.http.post(`${this.apiUrl}/exportar`, body, {
+    return this.http.post(`http://localhost:8080/api/movEspacios/exportar`, body, {
       responseType: 'blob',
       headers: new HttpHeaders({
+        'Content-Type': 'application/json',
         'Accept': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
       })
     });
