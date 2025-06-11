@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { LoadingService } from '../../core/services/loading.service';
-import { trigger, style, animate, transition, state } from '@angular/animations';
+import { trigger, style, animate, transition } from '@angular/animations';
 
 @Component({
   selector: 'app-login',
@@ -83,17 +83,33 @@ export class LoginComponent {
     // }
 
     // Call the login service
-    this.authService.login(this.loginRequest).subscribe(
+     this.authService.login(this.loginRequest).subscribe(
       (user: any) => {
         this.loading = false;
         this.loadingService.hide();
         this.successMessage = '¡Inicio de sesión exitoso!';
-        // Store the token (assuming user.token exists)
         localStorage.setItem('token', user.token);
-        // Redirect to home page after a short delay
-        setTimeout(() => {
-          this.router.navigate(['/home']);
-        }, 1000);
+
+        // Obtener y almacenar el rol
+        const rol = Number(user.rol); // Asegurar que es un número
+        localStorage.setItem('rol', rol.toString());
+        console.log('Rol guardado en localStorage:', rol);
+
+        // Redireccionar según el rol
+        switch (rol) {
+          case 4: // ADMIN
+            this.router.navigate(['/home']);
+            break;
+          case 2: // INSTRUCTOR
+            this.router.navigate(['/ins/home']);
+            break;
+          case 1: // VIGILANTE
+            this.router.navigate(['/vig/home']);
+            break;
+          default:
+            this.router.navigate(['/landing-page']);
+            break;
+        }
       },
       (err) => {
         this.loading = false;
@@ -104,20 +120,19 @@ export class LoginComponent {
     );
   }
 
-  // Método para alternar visibilidad de contraseña
   togglePassword(): void {
     this.showPassword = !this.showPassword;
   }
 
-  // Método para abrir modal de registro
   openRegisterModal(): void {
     this.showRegisterModal = true;
   }
 
-  // Método para cerrar modal de registro
   closeRegisterModal(event: Event): void {
     event.preventDefault();
     this.showRegisterModal = false;
   }
-
 }
+
+
+

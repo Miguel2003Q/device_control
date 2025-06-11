@@ -62,4 +62,10 @@ updateUserProfile(userId: number, profileData: UpdateProfileRequest): Observable
   getToken(): string | null {
     return localStorage.getItem('token');
   }
+
+  getUserRole(): string | null {
+    const user = this.getCurrentUser();
+    return user ? user.rol : null;
+  }
+
 }
