@@ -202,4 +202,93 @@ export class SolicitudesEspaciosComponent implements OnInit {
   toggleSidebar(): void {
     this.sidebarActive = !this.sidebarActive;
   }
+
 }
+  //No borrar:
+  // Actualizar el historial-solicitudes.component.ts para manejar el query param
+// import { ActivatedRoute } from '@angular/router';
+
+// constructor(
+//   // ... otros servicios
+//   private route: ActivatedRoute
+// ) {}
+
+// ngOnInit(): void {
+//   this.cargarHistorial();
+  
+//   // Verificar si hay un ID de solicitud en los query params
+//   this.route.queryParams.subscribe(params => {
+//     if (params['id']) {
+//       this.destacarSolicitud(+params['id']);
+//     }
+//   });
+// }
+
+// // Método para destacar una solicitud específica
+// destacarSolicitud(id: number): void {
+//   // Buscar la solicitud y hacer scroll hasta ella
+//   setTimeout(() => {
+//     const elemento = document.querySelector(`[data-solicitud-id="${id}"]`);
+//     if (elemento) {
+//       elemento.scrollIntoView({ behavior: 'smooth', block: 'center' });
+//       elemento.classList.add('destacada');
+      
+//       // Remover el destacado después de 3 segundos
+//       setTimeout(() => {
+//         elemento.classList.remove('destacada');
+//       }, 3000);
+//     }
+//   }, 500);
+// }
+
+// // En el HTML del historial, agregar el atributo data-solicitud-id
+// <div class="solicitud-card" [attr.data-solicitud-id]="solicitud.idmov">
+
+// // CSS para el destacado
+// .solicitud-card.destacada {
+//   animation: destacar 1s ease-in-out 3;
+//   box-shadow: 0 0 20px rgba(96, 150, 186, 0.6);
+// }
+
+// @keyframes destacar {
+//   0%, 100% {
+//     transform: scale(1);
+//     box-shadow: 0 0 20px rgba(96, 150, 186, 0.6);
+//   }
+//   50% {
+//     transform: scale(1.02);
+//     box-shadow: 0 0 30px rgba(96, 150, 186, 0.8);
+//   }
+// }
+
+// notification.interceptor.ts - Interceptor para manejar notificaciones de respuestas
+// import { Injectable } from '@angular/core';
+// import { HttpInterceptor, HttpRequest, HttpHandler, HttpEvent, HttpResponse } from '@angular/common/http';
+// import { Observable, tap } from 'rxjs';
+// import { NotificacionService } from '../services/notificacion.service';
+
+// @Injectable()
+// export class NotificationInterceptor implements HttpInterceptor {
+  
+//   constructor(private notificacionService: NotificacionService) {}
+
+//   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+//     return next.handle(req).pipe(
+//       tap(event => {
+//         if (event instanceof HttpResponse) {
+//           // Verificar si la respuesta incluye información de notificación
+//           const notification = event.headers.get('X-Notification');
+//           if (notification) {
+//             try {
+//               const notificationData = JSON.parse(notification);
+//               // Procesar la notificación
+//               this.notificacionService.actualizarContador();
+//             } catch (e) {
+//               console.error('Error al procesar notificación del header:', e);
+//             }
+//           }
+//         }
+//       })
+//     );
+//   }
+// }

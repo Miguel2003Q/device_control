@@ -11,12 +11,19 @@
   </div>
 
   <div class="user-actions">
-    <button class="icon-btn">
-      <i class="fas fa-comment"></i>
-    </button>
-    <button class="icon-btn">
-      <i class="fas fa-bell"></i>
-    </button>
+
+    <app-notification-settings
+  [dropdownId]="1"
+  [openedId]="openedDropdownId"
+  (toggle)="toggleDropdown($event)">
+</app-notification-settings>
+
+    <app-notificaciones
+  [dropdownId]="2"
+  [openedId]="openedDropdownId"
+  (toggle)="toggleDropdown($event)">
+</app-notificaciones>
+
     <div class="user-profile">
       <div class="avatar">
         <i class="fa-sharp fa-solid fa-circle-user"></i>

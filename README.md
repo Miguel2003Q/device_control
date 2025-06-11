@@ -29,6 +29,7 @@
 - La creación de atributos entidad se asocia solo con el id
 - Hacer validaciones de usuario logueado
 - Ver cascades, numero de activos
+- Investigar las suscripciones para entender las notifics, responsive, fechas correctas, boton ver, redirigir noti, solis de espacios para vigs esta la info
 
 ## Estrucutra
 - admin: Vistas del admin

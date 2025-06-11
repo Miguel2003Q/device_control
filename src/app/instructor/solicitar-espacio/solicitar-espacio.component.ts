@@ -198,7 +198,8 @@ export class SolicitarEspacioComponent implements OnInit {
       },
       error: (error: any) => {
         console.error('Error al enviar solicitud:', error);
-        this.toastr.error('Error al enviar la solicitud', 'Error');
+        const mensaje = typeof error.error === 'string' ? error.error : 'Error al enviar la solicitud';
+        this.toastr.error(mensaje, 'Error');
         this.isSubmitting = false;
       }
     });

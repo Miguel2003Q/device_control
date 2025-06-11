@@ -1,0 +1,103 @@
+<!-- notificaciones.component.html -->
+<div class="notificaciones-container" #notificacionesDropdown>
+  <!-- Botón de notificaciones -->
+  <button class="notification-btn" (click)="toggleDropdown($event)" [class.has-unread]="contadorNoLeidas > 0">
+    <i class="fas fa-bell"></i>
+    <span class="notification-badge" *ngIf="contadorNoLeidas > 0">
+      {{contadorNoLeidas > 99 ? '99+' : contadorNoLeidas}}
+    </span>
+  </button>
+
+  <!-- Dropdown de notificaciones -->
+  <div class="notification-dropdown" [class.show]="mostrarDropdown" (click)="$event.stopPropagation()">
+    <!-- Header del dropdown -->
+    <div class="dropdown-header">
+      <h3>Notificaciones</h3>
+      <div class="header-actions">
+        <button class="mark-all-btn" 
+                (click)="marcarTodasComoLeidas()" 
+                [disabled]="contadorNoLeidas === 0"
+                title="Marcar todas como leídas">
+          <i class="fas fa-check-double"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="notification-filters">
+      <button class="filter-btn" 
+              [class.active]="filtro === 'todas'"
+              (click)="cambiarFiltro('todas')">
+        Todas
+      </button>
+      <button class="filter-btn" 
+              [class.active]="filtro === 'no-leidas'"
+              (click)="cambiarFiltro('no-leidas')">
+        No leídas ({{contadorNoLeidas}})
+      </button>
+    </div>
+
+    <!-- Búsqueda -->
+    <div class="notification-search">
+      <i class="fas fa-search"></i>
+      <input type="text" 
+             placeholder="Buscar notificaciones..." 
+             [(ngModel)]="busqueda"
+             (ngModelChange)="aplicarFiltros()">
+    </div>
+
+    <!-- Lista de notificaciones -->
+    <div class="notification-list">
+      <!-- Loading -->
+      <div class="loading-container" *ngIf="cargando">
+        <div class="spinner"></div>
+        <p>Cargando notificaciones...</p>
+      </div>
+
+      <!-- Notificaciones -->
+      <div class="notifications-wrapper" *ngIf="!cargando">
+        <div class="notification-item" 
+             *ngFor="let notificacion of notificacionesFiltradas"
+             [class.unread]="!notificacion.leida"
+             [class.clickable]="notificacion.urlRedireccion"
+             (click)="marcarComoLeida(notificacion, $event)">
+          
+          <div class="notification-icon" [style.color]="notificacion.color">
+            <i class="fas" [ngClass]="notificacion.icono || 'fa-bell'"></i>
+          </div>
+          
+          <div class="notification-content">
+            <h4 class="notification-title">{{notificacion.titulo}}</h4>
+            <p class="notification-message">{{notificacion.mensaje}}</p>
+            <span class="notification-time">
+              <i class="fas fa-clock"></i>
+              {{obtenerTiempoRelativo(notificacion.fechaCreacion)}}
+            </span>
+          </div>
+          
+          <div class="notification-actions">
+            <button class="action-btn delete" 
+                    (click)="eliminarNotificacion(notificacion, $event)"
+                    title="Eliminar notificación">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Estado vacío -->
+        <div class="empty-state" *ngIf="notificacionesFiltradas.length === 0">
+          <i class="fas fa-bell-slash"></i>
+          <p>{{busqueda ? 'No se encontraron notificaciones' : 'No tienes notificaciones'}}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="dropdown-footer">
+      <button class="view-all-btn" (click)="verTodasLasNotificaciones()">
+        Ver todas las notificaciones
+        <i class="fas fa-arrow-right"></i>
+      </button>
+    </div>
+  </div>
+</div>
