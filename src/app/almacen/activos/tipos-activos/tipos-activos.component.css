@@ -1,0 +1,392 @@
+/* Importar fuentes (reutilizando las mismas del componente original) */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css');
+
+/* Estilos base */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  outline: none;
+  background: none;
+  font-family: inherit;
+}
+
+/* Contenedor de activos */
+.activos-container {
+  background-color: #FFFFFF;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+/* Barra de herramientas */
+.activos-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.toolbar-left {
+  display: flex;
+  gap: 15px;
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+  background-color: #E7ECEF;
+  border-radius: 25px;
+  padding: 8px 15px;
+  width: 300px;
+}
+
+.search-box i {
+  color: #888888;
+  margin-right: 8px;
+}
+
+.search-box input {
+  background: none;
+  border: none;
+  outline: none;
+  flex-grow: 1;
+  color: #333333;
+  font-size: 14px;
+}
+
+.toolbar-right {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.create-btn {
+  padding: 10px 20px;
+  background-color: #274C77;
+  color: #FFFFFF;
+  border-radius: 5px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+}
+
+.create-btn:hover {
+  background-color: #6096BA;
+  transform: translateY(-2px);
+}
+
+.create-btn:active {
+  transform: translateY(0);
+}
+
+/* Tabla de tipos de activos */
+.activos-table-header {
+  display: flex;
+  padding: 15px 20px;
+  background-color: #F5F8FA;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  font-weight: 500;
+  color: #274C77;
+}
+
+.nombre-col {
+  width: 40%;
+}
+
+.cantidad-col {
+  width: 30%;
+}
+
+.acciones-col {
+  width: 30%;
+  text-align: right;
+}
+
+.activos-list {
+  max-height: calc(100vh - 300px);
+  overflow-y: auto;
+}
+
+.activo-row {
+  display: flex;
+  padding: 15px 20px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  align-items: center;
+  transition: background-color 0.3s ease;
+}
+
+.activo-row:hover {
+  background-color: rgba(163, 206, 241, 0.1);
+}
+
+.action-btn {
+  padding: 8px 12px;
+  border-radius: 5px;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.action-btn.detalles {
+  background-color: transparent;
+  border: 1px solid #6096BA;
+  color: #6096BA;
+}
+
+.action-btn.detalles:hover {
+  background-color: #6096BA;
+  color: #FFFFFF;
+}
+
+.no-results {
+  text-align: center;
+  padding: 30px 0;
+  color: #888888;
+}
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-container {
+  background-color: #FFFFFF;
+  border-radius: 10px;
+  max-width: 600px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+  padding: 20px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-header h2 {
+  color: #274C77;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.close-modal-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background-color: #E7ECEF;
+  color: #6096BA;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.close-modal-btn:hover {
+  background-color: #F44336;
+  color: #FFFFFF;
+}
+
+.modal-body {
+  padding: 20px;
+}
+
+/* Formulario en modal */
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  color: #274C77;
+  font-weight: 500;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.input-container {
+  position: relative;
+}
+
+.input-container input {
+  width: 100%;
+  padding: 12px 15px;
+  border: 1px solid #E7ECEF;
+  border-radius: 5px;
+  font-size: 14px;
+  background-color: #FFFFFF;
+  transition: all 0.3s ease;
+}
+
+.input-container input:focus {
+  border-color: #6096BA;
+  box-shadow: 0 0 0 3px rgba(96, 150, 186, 0.2);
+  outline: none;
+}
+
+.input-container input[disabled] {
+  background-color: #F5F8FA;
+  color: #888888;
+  cursor: not-allowed;
+}
+
+.error-message {
+  color: #F44336;
+  font-size: 12px;
+  margin-top: 5px;
+}
+
+/* Botones de acción en formularios */
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+  margin-top: 30px;
+}
+
+.save-btn {
+  padding: 10px 20px;
+  border-radius: 5px;
+  background-color: #274C77;
+  color: #FFFFFF;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 150px;
+}
+
+.save-btn:hover {
+  background-color: #6096BA;
+}
+
+.save-btn:disabled {
+  background-color: #CCCCCC;
+  cursor: not-allowed;
+}
+
+.delete-btn {
+  padding: 10px 20px;
+  border-radius: 5px;
+  background-color: #F44336;
+  color: #FFFFFF;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 150px;
+}
+
+.delete-btn:hover {
+  background-color: #E53935;
+}
+
+/* Loader */
+.loader {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #FFFFFF;
+  border-radius: 50%;
+  border-top-color: transparent;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .activos-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 15px;
+  }
+
+  .toolbar-left {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .search-box {
+    width: 100%;
+  }
+
+  .toolbar-right {
+    display: flex;
+    justify-content: flex-end;
+  }
+}
+
+@media (max-width: 768px) {
+  .activos-table-header {
+    display: none;
+  }
+
+  .activo-row {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 15px;
+    position: relative;
+  }
+
+  .nombre-col, .cantidad-col, .acciones-col {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+
+  .nombre-col {
+    font-weight: 600;
+    font-size: 16px;
+  }
+
+  .acciones-col {
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
+    margin-top: 10px;
+  }
+
+  .nombre-col::before {
+    content: "Nombre: ";
+    font-weight: normal;
+    color: #888888;
+  }
+
+  .cantidad-col::before {
+    content: "Cantidad Activos: ";
+    font-weight: normal;
+    color: #888888;
+  }
+}
+
+@media (max-width: 576px) {
+  .form-actions {
+    flex-direction: column;
+    gap: 10px;
+  }
+}

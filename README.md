@@ -30,6 +30,7 @@
 - Hacer validaciones de usuario logueado
 - Ver cascades, numero de activos
 - Investigar las suscripciones para entender las notifics, responsive, fechas correctas, boton ver, redirigir noti, solis de espacios para vigs esta la info
+- Loaders, localstorage?
 
 ## Estrucutra
 - admin: Vistas del admin

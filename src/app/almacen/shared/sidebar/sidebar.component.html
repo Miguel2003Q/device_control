@@ -1,0 +1,29 @@
+<div class="sidebar" [ngClass]="{ 'active': active }">
+
+  <nav class="sidebar-menu">
+    Vista almacen<br>
+    <a routerLink="/almac/home" routerLinkActive="active" class="menu-item">
+      <i class="fas fa-home"></i>
+      <span>Inicio</span>
+    </a>    
+    <a routerLink="/almac/perfil" routerLinkActive="active" class="menu-item">
+      <i class="fas fa-user"></i>
+      <span>Perfil</span>
+    </a>
+    <a routerLink="/almac/gestion-activos" routerLinkActive="active" class="menu-item">
+      <i class="fas fa-box"></i>
+      <span>Gestión de Activos</span>
+    </a>
+    <a routerLink="/almac/gestion-ambientes" routerLinkActive="active" class="menu-item">
+      <i class="fas fa-door-open"></i>
+      <span>Gestión de Ambientes</span>
+    </a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <a href="#" class="logout-btn">
+      <i class="fas fa-sign-out-alt"></i>
+      <span>Cerrar Sesión</span>
+    </a>
+  </div>
+</div>

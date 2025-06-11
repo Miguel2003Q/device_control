@@ -82,6 +82,15 @@ export const routes: Routes = [ //Lazy Loading lo que significa que los componen
     {
         path: 'vig/solicitudes-espacios',
         loadComponent: () => import('./vigilante/solicitudes-espacios/solicitudes-espacios.component').then(m => m.SolicitudesEspaciosComponent)
+    },
+    //Almacen Routes
+    {
+        path: 'almac/perfil',
+        loadComponent: () => import('./almacen/perfil/perfil.component').then(m => m.PerfilComponent)
+    },
+    {
+        path: 'almac/gestion-activos',
+        loadComponent: () => import('./almacen/activos/gestion-activos/gestion-activos.component').then(m => m.GestionActivosComponent)
     }
 ];
 
