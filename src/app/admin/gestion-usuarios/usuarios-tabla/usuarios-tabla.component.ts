@@ -7,6 +7,7 @@ import { TopBarComponent } from "../../shared/top-bar/top-bar.component";
 import { RegisterComponent } from '../register/register.component';
 import { UsuarioService } from '../../../core/services/usuario.service';
 import { Usuario } from '../../../core/models/usuario.model';
+import { LoadingService } from '../../../core/services/loading.service';
 
 @Component({
   selector: 'app-usuarios',
@@ -42,6 +43,7 @@ export class UsuariosTablaComponent implements OnInit {
 
   constructor(
     private usuarioService: UsuarioService,
+    private loadingService: LoadingService
   ) {
     // Inicializar el ancho de pantalla
     this.screenWidth = window.innerWidth;
@@ -77,12 +79,17 @@ export class UsuariosTablaComponent implements OnInit {
 
   // Cargar lista de usuarios
   cargarUsuarios(): void {
+    this.loadingService.show();
     this.usuarioService.obtenerTodosLosUsuarios().subscribe({
       next: (data) => {
         this.usuarios = data;
         this.filteredUsers = [...this.usuarios]; // <- Esto sí espera a que lleguen los datos
+        this.loadingService.hide();
       },
-      error: (err) => console.error('Error al obtener usuarios', err)
+      error: (err) => {
+        console.error('Error al obtener usuarios', err)
+        this.loadingService.hide();
+      }
     });
   }
 
