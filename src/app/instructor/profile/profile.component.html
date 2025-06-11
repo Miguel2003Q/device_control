@@ -34,7 +34,7 @@
           <div class="detail-item">
             <i class="fas fa-envelope"></i>
             <span class="label">Correo:</span>
-            <span class="value">{{user.email}}</span>
+            <span class="value">{{user.correo}}</span>
           </div>
           <div class="detail-item">
             <i class="fas fa-phone"></i>
@@ -120,7 +120,7 @@
         </button>
       </div>
       <div class="modal-body">
-        <form [formGroup]="passwordForm" (ngSubmit)="changePassword()">
+        <!-- <form [formGroup]="passwordForm" (ngSubmit)="changePassword()">
           <div class="form-group">
             <label for="currentPassword">Contraseña Actual</label>
             <div class="input-container">
@@ -162,12 +162,8 @@
               <span *ngIf="!isSubmittingPassword">Cambiar Contraseña</span>
             </button>
           </div>
-        </form>
+        </form> -->
       </div>
     </div>
   </div>
-
-  <!-- <button class="menu-toggle" [ngClass]="{'active': sidebarActive}" (click)="toggleSidebarEmit()">
-    <i class="fas" [ngClass]="sidebarActive ? 'fa-times' : 'fa-bars'"></i>
-  </button> -->
 </div>

@@ -4,13 +4,15 @@ import { CommonModule } from '@angular/common';
 import { TopBarComponent } from '../shared/top-bar/top-bar.component';
 import { SidebarComponent } from '../shared/sidebar/sidebar.component';
 import { AuthService } from '../../core/services/auth.service';
+import { UsuarioService } from '../../core/services/usuario.service';
 
 interface User {
+  id?: number;
   nombre: string;
   correo: string;
   telefono: string;
-  rol: string;
-  photoUrl?: string;
+  rol: number;
+  
 }
 
 @Component({
@@ -28,8 +30,8 @@ export class PerfilComponent implements OnInit {
     nombre: '',
     correo: '',
     telefono: '',
-    rol: '',
-    photoUrl: ''
+    rol: 0,
+   
   };
 
   showEditModal: boolean = false;
@@ -43,10 +45,10 @@ export class PerfilComponent implements OnInit {
   notificationType: 'success' | 'error' | null = null;
   selectedFile: File | null = null;
 
-  constructor(private fb: FormBuilder, private authService: AuthService) {
+  constructor(private fb: FormBuilder, private authService: AuthService, private usuarioService: UsuarioService) {
     this.editForm = this.fb.group({
-      nombre: ['', Validators.required],
-      telefono: ['', Validators.required]
+      nombre: ['', [Validators.required, Validators.minLength(2)]],
+      telefono: ['', [Validators.required, Validators.pattern('^[0-9]{10,15}$')]]
     });
 
     this.passwordForm = this.fb.group({
@@ -60,25 +62,38 @@ export class PerfilComponent implements OnInit {
     this.loadUserData();
   }
 
-  loadUserData(): void {
-    const user = this.authService.getCurrentUser();
-    if (user) {
+ loadUserData(): void {
+  const userLocal = this.authService.getCurrentUser();
+  const userId = userLocal?.idusuario || 0;
+
+  if (userId === 0) {
+    console.error('ID de usuario inválido.');
+    return;
+  }
+
+  this.usuarioService.obtenerUsuarioPorId(userId).subscribe({
+    next: (userData) => {
       this.user = {
-        nombre: user.nombre ?? '',
-        correo: user.email ?? '',
-        telefono: user.telefono?.toString() ?? '',
-        rol: user.rol ?? '',
+        id: userData.idusuario,
+        nombre: userData.nombre ?? '',
+        correo: userData.email ?? '',
+        telefono: userData.telefono?.toString() ?? '',
+        rol: userData.rol ?? '',
       };
+
       this.editForm.patchValue({
-        nombre: this.user.nombre, // Corrección aplicada
+        nombre: this.user.nombre,
         telefono: this.user.telefono
       });
 
       console.log('User data loaded:', this.user);
-    } else {
-      console.error('No se pudo cargar el usuario actual. Asegúrate de que el usuario esté autenticado.');
+    },
+    error: (err) => {
+      console.error('No se pudo cargar el usuario:', err);
     }
-  }
+  });
+}
+
 
   passwordMatchValidator(form: FormGroup) {
     const newPassword = form.get('newPassword')?.value;
@@ -110,30 +125,42 @@ export class PerfilComponent implements OnInit {
   }
 
   saveProfile(): void {
-    if (this.editForm.valid && !this.isSubmitting) {
+    if (this.editForm.valid && !this.isSubmitting && this.user.id) {
       this.isSubmitting = true;
-      // this.authService.updateUserProfile({
-      //   ...this.user,
-      //   nombre: this.editForm.value.nombre,
-      //   telefono: this.editForm.value.telefono,
-      //   email: ''
-      // }).subscribe({
-      //   next: () => {
-      //     this.user = {
-      //       ...this.user,
-      //       nombre: this.editForm.value.nombre,
-      //       telefono: this.editForm.value.telefono
-      //     };
-      //     this.showNotification('Perfil actualizado exitosamente', 'success');
-      //     this.closeEditModal(new Event('click'));
-      //   },
-      //   error: () => {
-      //     this.showNotification('Error al actualizar el perfil', 'error');
-      //   },
-      //   complete: () => {
-      //     this.isSubmitting = false;
-      //   }
-      // });
+      
+      const updateData = {
+        nombre: this.editForm.value.nombre.trim(),
+        telefono: this.editForm.value.telefono.trim()
+      };
+
+      this.authService.updateUserProfile(this.user.id, updateData).subscribe({
+        next: (updatedUser) => {
+          // Actualizar los datos locales del usuario
+          this.user = {
+            ...this.user,
+            nombre: updatedUser.nombre,
+            telefono: updatedUser.telefono?.toString() ?? ''
+          };
+          
+          // Actualizar también el usuario en el servicio de autenticación si es necesario
+          // this.authService.updateCurrentUserData(updatedUser);
+          
+          this.showNotification('Perfil actualizado exitosamente', 'success');
+          this.closeEditModal(new Event('click'));
+        },
+        error: (error) => {
+          console.error('Error al actualizar el perfil:', error);
+          const errorMessage = error.error?.message || error.error || 'Error al actualizar el perfil';
+          this.showNotification(errorMessage, 'error');
+        },
+        complete: () => {
+          this.isSubmitting = false;
+        }
+      });
+    } else {
+      if (!this.user.id) {
+        this.showNotification('Error: ID de usuario no encontrado', 'error');
+      }
     }
   }
 
@@ -168,27 +195,7 @@ export class PerfilComponent implements OnInit {
     }
   }
 
-  changePassword(): void {
-    if (this.passwordForm.valid && !this.isSubmittingPassword) {
-      this.isSubmittingPassword = true;
-      // this.authService.changePassword(
-      //   this.passwordForm.value.currentPassword,
-      //   this.passwordForm.value.newPassword
-      // ).subscribe({
-      //   next: () => {
-      //     this.showNotification('Contraseña cambiada exitosamente', 'success');
-      //     this.closePasswordModal(new Event('click'));
-      //   },
-      //   error: () => {
-      //     this.showNotification('Error al cambiar la contraseña', 'error');
-      //   },
-      //   complete: () => {
-      //     this.isSubmittingPassword = false;
-      //   }
-      // });
-    }
-  }
-
+  
   showNotification(message: string, type: 'success' | 'error'): void {
     this.notificationMessage = message;
     this.notificationType = type;

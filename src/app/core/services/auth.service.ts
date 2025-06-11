@@ -4,7 +4,10 @@ import { Observable, tap , } from 'rxjs';
 import { LoginRequest } from '../models/login-request';
 import { User } from '../models/user';
 
-
+interface UpdateProfileRequest {
+  nombre: string;
+  telefono: string;
+}
 @Injectable({
   providedIn: 'root'
 })
@@ -36,6 +39,11 @@ export class AuthService {
     return this.http.post(`${this.apiUrl}/register`, registerRequest);
   }
 
+
+// Método para actualizar perfil
+updateUserProfile(userId: number, profileData: UpdateProfileRequest): Observable<any> {
+  return this.http.put(`${this.apiUrl}/perfil/${userId}`, profileData);
+}
 
   isLoggedIn(): boolean {
     return !!this.currentUser;
