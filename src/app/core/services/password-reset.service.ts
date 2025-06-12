@@ -24,19 +24,23 @@ export class PasswordResetService {
 
 
     verifyCode(email: string, code: string): Observable<any> {
-        // Mock API call - replace with actual API
-        return of({ success: true }).pipe(
-            catchError(() => {
-                throw new Error('Invalid or expired code.');
+        const body = { email, code };
+
+        return this.http.post(`${this.apiUrl}/verify-code`, body, { responseType: 'text' }).pipe(
+            catchError((error: HttpErrorResponse) => {
+                // Puedes hacer logging aquí si quieres
+                return throwError(() => error); // Propaga el error real al componente
             })
         );
     }
 
-    resetPassword(email: string, password: string): Observable<any> {
-        // Mock API call - replace with actual API
-        return of({ success: true }).pipe(
-            catchError(() => {
-                throw new Error('Failed to reset password.');
+    resetPassword(email: string, code: string, newPassword: string): Observable<any> {
+        const body = { email, code, newPassword };
+
+        return this.http.post(`${this.apiUrl}/reset-password`, body, { responseType: 'text' }).pipe(
+            catchError((error: HttpErrorResponse) => {
+                // Puedes hacer logging aquí si quieres
+                return throwError(() => error); // Propaga el error real al componente
             })
         );
     }

@@ -46,6 +46,8 @@ export class PasswordResetComponent implements OnInit, OnDestroy {
   loading = false;
   isCompleted = false;
 
+  code = '';
+
   emailForm: FormGroup;
   codeForm: FormGroup;
   passwordForm: FormGroup;
@@ -121,13 +123,13 @@ export class PasswordResetComponent implements OnInit, OnDestroy {
       .filter(Boolean).length * 20;
 
     if (this.passwordStrength <= 40) {
-      this.passwordStrengthClass = 'bg-red-500';
+      this.passwordStrengthClass = 'weak';
       this.passwordStrengthText = 'Weak';
     } else if (this.passwordStrength <= 60) {
-      this.passwordStrengthClass = 'bg-yellow-500';
+      this.passwordStrengthClass = 'medium';
       this.passwordStrengthText = 'Moderate';
     } else {
-      this.passwordStrengthClass = 'bg-green-500';
+      this.passwordStrengthClass = 'strong';
       this.passwordStrengthText = 'Strong';
     }
   }
@@ -141,6 +143,7 @@ export class PasswordResetComponent implements OnInit, OnDestroy {
         next: () => {
           this.currentStep = 2;
           this.startResendTimer();
+          this.codeError = '';
           this.loading = false;
         },
         error: (err) => {
@@ -213,15 +216,15 @@ export class PasswordResetComponent implements OnInit, OnDestroy {
   verifyCode() {
     if (this.codeForm.valid) {
       this.loading = true;
-      const code = Object.values(this.codeForm.value).join('');
-      this.passwordResetService.verifyCode(this.userEmail, code).subscribe({
+      this.code = Object.values(this.codeForm.value).join('');
+      this.passwordResetService.verifyCode(this.userEmail, this.code).subscribe({
         next: () => {
           this.currentStep = 3;
           this.codeError = '';
           this.loading = false;
         },
         error: (err) => {
-          this.codeError = err.message || 'Invalid or expired code.';
+          this.codeError = err.error || 'Invalid or expired code.';
           this.loading = false;
         }
       });
@@ -231,16 +234,16 @@ export class PasswordResetComponent implements OnInit, OnDestroy {
   resetPassword() {
     if (this.passwordForm.valid) {
       this.loading = true;
-      this.passwordResetService.resetPassword(this.userEmail, this.passwordForm.value.newPassword).subscribe({
+      this.passwordResetService.resetPassword(this.userEmail, this.code, this.passwordForm.value.newPassword).subscribe({
         next: () => {
           this.isCompleted = true;
           this.loading = false;
           setTimeout(() => {
             this.router.navigate(['/login']);
-          }, 2000);
+          }, 10000);
         },
         error: (err) => {
-          this.codeError = err.message || 'Failed to reset password.';
+          this.codeError = err.error || 'Failed to reset password.';
           this.loading = false;
         }
       });

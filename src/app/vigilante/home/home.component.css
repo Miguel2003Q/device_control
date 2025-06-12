@@ -585,34 +585,6 @@ body {
     }
 }
 
-@media (max-width: 900px) {
-    .sidebar {
-        transform: translateX(-100%);
-    }
-
-    .sidebar.active {
-        transform: translateX(0);
-    }
-
-    .main-content {
-        margin-left: 0;
-    }
-
-    .menu-btn {
-        display: block;
-    }
-
-    .menu-toggle {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .content-container {
-        padding: 20px;
-    }
-}
-
 @media (max-width: 768px) {
     .dashboard-container {
         margin-left: 0;

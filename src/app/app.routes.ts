@@ -66,7 +66,7 @@ export const routes: Routes = [
   // 🎓 Rutas de INSTRUCTOR (rol: '2')
   {
     path: 'ins/home',
-    loadComponent: () => import('./instructor/home/home.component').then(m => m.HomeInstructorComponent),
+    loadComponent: () => import('./instructor/home/home.component').then(m => m.InstructorHomeComponent),
     canActivate: [RoleGuard],
     data: { roles: [2] }
   },
