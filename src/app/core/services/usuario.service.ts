@@ -35,13 +35,19 @@ export class UsuarioService {
   }
 
   // Obtener un usuario por su ID
-obtenerUsuarioPorId(id: number): Observable<Usuario> {
-  const url = `${this.apiUrl}/getById/${id}`;
-  return this.http.get<Usuario>(url, { headers: this.getHeaders() }).pipe(
-    catchError(this.handleError)
-  );
-}
+  obtenerUsuarioPorId(id: number): Observable<Usuario> {
+    const url = `${this.apiUrl}/getById/${id}`;
+    return this.http.get<Usuario>(url, { headers: this.getHeaders() }).pipe(
+      catchError(this.handleError)
+    );
+  }
 
+  obtenerUsuarioPorEmail(email: string): Observable<Usuario> {
+    const url = `${this.apiUrl}/email/${email}`;
+    return this.http.get<Usuario>(url, { headers: this.getHeaders() }).pipe(
+      catchError(this.handleError)
+    );
+  }
 
   // Manejo de errores
   private handleError(error: HttpErrorResponse): Observable<never> {

@@ -23,6 +23,10 @@ export const routes: Routes = [
     data: { roles: [4] }
   },
   {
+    path: 'gestion-usuarios/usuarios-tabla',
+    loadComponent: () => import('./admin/gestion-usuarios/usuarios-tabla/usuarios-tabla.component').then(m => m.UsuariosTablaComponent),
+  },
+  {
     path: 'gestion-usuarios/roles-tabla',
     loadComponent: () => import('./admin/gestion-usuarios/roles-tabla/gestion-usuarios.component').then(m => m.RolesTablaComponent),
     canActivate: [RoleGuard],
@@ -94,7 +98,7 @@ export const routes: Routes = [
   // 🛡️ Rutas de VIGILANTE (rol: '3')
   {
     path: 'vig/home',
-    loadComponent: () => import('./vigilante/home/home.component').then(m => m.HomeVigilanteComponent),
+    loadComponent: () => import('./vigilante/home/home.component').then(m => m.HomeComponent),
     canActivate: [RoleGuard],
     data: { roles: [1] }
   },
@@ -109,5 +113,22 @@ export const routes: Routes = [
     loadComponent: () => import('./vigilante/solicitudes-espacios/solicitudes-espacios.component').then(m => m.SolicitudesEspaciosComponent),
     canActivate: [RoleGuard],
     data: { roles: [1] }
+  },
+  {
+    path: 'almac/home',
+    loadComponent: () => import('./almacen/home/home.component').then(m => m.HomeComponent),
+  },
+  {
+    path: 'almac/perfil',
+    loadComponent: () => import('./almacen/perfil/perfil.component').then(m => m.PerfilComponent),
+  },
+  {
+    path: 'almac/activos',
+    loadComponent: () => import('./almacen/activos/gestion-activos/gestion-activos.component').then(m => m.GestionActivosComponent),
+  },
+  // Rutas auxiliares
+  {
+    path: 'password-reset',
+    loadComponent: () => import('./auxiliar/password-reset/password-reset.component').then(m => m.PasswordResetComponent)
   }
 ];  

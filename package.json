@@ -24,6 +24,7 @@
     "@stomp/stompjs": "^7.1.1",
     "bootstrap": "^5.3.5",
     "chart.js": "^4.4.9",
+    "date-fns": "^4.1.0",
     "exceljs": "^4.4.0",
     "file-saver": "^2.0.5",
     "html2canvas": "^1.4.1",

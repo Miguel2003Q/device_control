@@ -11,7 +11,11 @@ export class SolicitudEspacioService {
   private apiUrl = 'http://localhost:8080/movespacios';
   private solicitudParaDuplicar = new BehaviorSubject<SolicitudEspacio | null>(null);
 
-  constructor(private http: HttpClient, private auth: AuthService) {}
+  constructor(private http: HttpClient, private auth: AuthService) { }
+
+  obtenerTodosLosMovimientos(): Observable<SolicitudEspacio[]> {
+    return this.http.get<SolicitudEspacio[]>(this.apiUrl);
+  }
 
   /**
    * Obtiene todas las solicitudes del usuario actual
@@ -65,7 +69,7 @@ export class SolicitudEspacioService {
    */
   exportarHistorial(solicitudes?: SolicitudEspacio[]): Observable<Blob> {
     const body = solicitudes ? { solicitudes } : {};
-    
+
     return this.http.post(`http://localhost:8080/api/movEspacios/exportar`, body, {
       responseType: 'blob',
       headers: new HttpHeaders({
@@ -85,7 +89,7 @@ export class SolicitudEspacioService {
     espacio?: string;
   }): Observable<SolicitudEspacio[]> {
     let params: any = {};
-    
+
     if (filtros.estado) params.estado = filtros.estado;
     if (filtros.fechaInicio) params.fechaInicio = filtros.fechaInicio;
     if (filtros.fechaFin) params.fechaFin = filtros.fechaFin;

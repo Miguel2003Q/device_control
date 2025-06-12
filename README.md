@@ -30,7 +30,8 @@
 - Hacer validaciones de usuario logueado
 - Ver cascades, numero de activos
 - Investigar las suscripciones para entender las notifics, responsive, fechas correctas, boton ver, redirigir noti, solis de espacios para vigs esta la info
-- Loaders, localstorage?
+- localstorage?
+- Verificar el step 2 en el ts y luego que funcione
 
 ## Estrucutra
 - admin: Vistas del admin

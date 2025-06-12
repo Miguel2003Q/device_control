@@ -1,4 +1,4 @@
-import { Component, OnInit, HostListener, Input } from '@angular/core';
+import { Component, OnInit, HostListener } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, Validators } from '@angular/forms';
 import { CommonModule, NgIf } from '@angular/common';
 import  {ToastrService} from 'ngx-toastr';
@@ -29,7 +29,7 @@ export class GestionActivosComponent implements OnInit {
   espacios: Espacio[] = [];
   tiposActivo: TipoActivo[] = [];
   searchTerm: string = '';
-  sidebarActive: boolean = false; //<-----
+  sidebarActive: boolean = true;
   screenWidth: number;
 
   // Propiedades para modales

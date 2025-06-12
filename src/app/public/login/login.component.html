@@ -63,7 +63,7 @@
             <span class="checkbox-text">Recordarme</span>
           </label>
         </div>
-        <a href="#" class="forgot">¿Olvidaste tu contraseña?</a>
+        <a (click)="navigatePasswordReset()" class="forgot">¿Olvidaste tu contraseña?</a>
       </div>
       
       <button type="submit" class="login-btn" [disabled]="loading">

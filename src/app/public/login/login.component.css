@@ -16,6 +16,10 @@
   --shadow-hover: 0 15px 40px rgba(44, 90, 160, 0.2);
 }
 
+* {
+  font-family: 'Poppins', sans-serif;
+}
+
 /* Container principal */
 .login-container {
   min-height: 100vh;
@@ -323,6 +327,7 @@ form {
 .forgot:hover {
   color: var(--secondary-color);
   text-decoration: underline;
+  cursor: pointer;
 }
 
 /* Botón de login */

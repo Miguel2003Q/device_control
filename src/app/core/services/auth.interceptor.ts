@@ -14,7 +14,7 @@ interface JwtPayload {
   exp: number; // fecha en segundos
 }
 
-const ignoredEndpoints = ['/usuarios/login']; // agrega los endpoints que quieras ignorar
+const ignoredEndpoints = ['/usuarios/login', '/password-reset']; // agrega los endpoints que quieras ignorar
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
@@ -27,7 +27,9 @@ export class AuthInterceptor implements HttpInterceptor {
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     const token = this.authService.getToken();
 
-    const shouldIgnore = ignoredEndpoints.some(endpoint => req.url.includes(endpoint));
+    const url = new URL(req.url);
+    const shouldIgnore = ignoredEndpoints.some(endpoint => url.pathname.startsWith(endpoint));
+
 
     if (token && !shouldIgnore) {
       const isExpired = this.isTokenExpired(token);

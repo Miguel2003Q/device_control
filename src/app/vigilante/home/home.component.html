@@ -1,302 +1,139 @@
 <app-top-bar (toggleSidebar)="toggleSidebar()"></app-top-bar>
 <app-sidebar [active]="sidebarActive"></app-sidebar>
 
-<div class="content-wrapper">
 
-  <div class="dashboard-container">
-    <!-- Sidebar -->
-    <aside class="sidebar" id="sidebar">
-      <div class="sidebar-header">
-        <h1>Panel Vigilante</h1>
-      </div>
-      <nav class="sidebar-menu">
-        <a href="#" class="menu-item active">
-          <i class="fas fa-home"></i>
-          <span>Inicio</span>
-        </a>
-        <a href="#" class="menu-item">
-          <i class="fas fa-clipboard-list"></i>
-          <span>Solicitudes</span>
-        </a>
-        <a href="#" class="menu-item">
-          <i class="fas fa-door-open"></i>
-          <span>Ambientes</span>
-        </a>
-        <a href="#" class="menu-item">
-          <i class="fas fa-history"></i>
-          <span>Historial</span>
-        </a>
-        <a href="#" class="menu-item">
-          <i class="fas fa-chart-bar"></i>
-          <span>Reportes</span>
-        </a>
-        <a href="#" class="menu-item">
-          <i class="fas fa-cog"></i>
-          <span>Configuración</span>
-        </a>
-      </nav>
-      <div class="sidebar-footer">
-        <button class="logout-btn">
-          <i class="fas fa-sign-out-alt"></i>
-          <span>Cerrar sesión</span>
-        </button>
-      </div>
-    </aside>
+<div class="dashboard-container">
 
     <!-- Contenido principal -->
     <main class="main-content">
-      <!-- Barra superior -->
-      <header class="top-bar">
-        <div class="welcome-message">
-          <h2>Bienvenido, Carlos</h2>
-          <p>Martes, 10 de Junio 2025</p>
+
+        <!-- Contenido -->
+        <div class="content-container">
+            <!-- Tarjetas de resumen -->
+            <div class="summary-cards">
+                <div class="summary-card" *ngFor="let card of summaryCards; let i = index" 
+                     [@cardAnimation]="'in'"
+                     [style.animation-delay]="i * 0.1 + 's'">
+                    <div class="card-icon" [style.background]="card.bgColor">
+                        <i [class]="card.icon" [style.color]="card.iconColor"></i>
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-value" [attr.data-value]="card.value">{{ card.value }}</h3>
+                        <p class="card-label">{{ card.label }}</p>
+                        <div class="card-trend" [ngClass]="card.trend.type">
+                            <i class="fas" [ngClass]="card.trend.icon"></i>
+                            <span>{{ card.trend.text }}</span>
+                        </div>
+                    </div>
+                    <div class="card-sparkline">
+                        <svg viewBox="0 0 100 40" preserveAspectRatio="none">
+                            <path [attr.d]="card.sparklineData" 
+                                  fill="none" 
+                                  [attr.stroke]="card.iconColor"
+                                  stroke-width="2"
+                                  opacity="0.6"/>
+                        </svg>
+                    </div>
+                </div>
+              </div>
+
+            <!-- Estado de Ambientes en Tiempo Real -->
+            <div class="ambientes-section" [@fadeIn]>
+                <div class="section-header">
+                    <h3>
+                        <i class="fas fa-door-open"></i>
+                        Estado de Ambientes en Tiempo Real
+                    </h3>
+                </div>
+                
+                <div class="ambientes-grid">
+                    <div class="ambiente-tile" 
+                         *ngFor="let ambiente of ambientes; let i = index"
+                         [@tileAnimation]="'in'"
+                         [style.animation-delay]="i * 0.05 + 's'"
+                         [class.ocupado]="!ambiente.estado"
+                         [class.disponible]="ambiente.estado">
+                        <div class="ambiente-header">
+                            <span class="ambiente-numero">{{ ambiente.nombre }}</span>
+                            <!-- <span class="ambiente-piso">Id {{ ambiente.idespacio }}</span> -->
+                        </div>
+                        <div class="ambiente-status">
+                            <i class="fas" [ngClass]="ambiente.estado ? 'fa-check-circle' : 'fa-user-clock'"></i>
+                            <span>{{ ambiente.estado ? 'Disponible' : 'Ocupado' }}</span>
+                        </div>
+                        <div class="ambiente-info" *ngIf="!ambiente.estado">
+                            <!-- <div class="info-item">
+                                <i class="far fa-clock"></i>
+                                <span>{{ ambiente.tiempoOcupado }}</span> 
+                            </div> -->
+                            <div class="info-item">
+                                <i class="fas fa-users"></i>
+                                <span>{{ ambiente.capacidad }} personas</span>
+                            </div>
+                        </div>
+                        <div class="ambiente-capacity" *ngIf="ambiente.estado">
+                            <i class="fas fa-users"></i>
+                            <span class="capacidad">Capacidad: {{ ambiente.capacidad }}</span>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                  <label class="ambiente-capacity" *ngIf="!ambientes">Actualmente no hay espacios registrados</label>
+                </div>
+            </div>
+
+            <!-- Actividad Reciente y Estadísticas -->
+            <div class="bottom-section">
+                <div class="activity-card" [@slideIn]>
+                    <h3>
+                        <i class="fas fa-history"></i>
+                        Actividad Reciente
+                    </h3>
+                    <div class="activity-timeline">
+                        <div class="timeline-item" 
+                             *ngFor="let actividad of actividadesRecientes; let i = index"
+                             [@listAnimation]
+                             [style.animation-delay]="i * 0.1 + 's'">
+                            <div class="timeline-marker" [class]="actividad.tipo">
+                                <i [ngClass]="['fas', actividad.icono]"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <h4>{{ actividad.titulo }}</h4>
+                                <p>{{ actividad.descripcion }}</p>
+                                <span class="timeline-time">
+                                    <i class="far fa-clock"></i>
+                                    {{ actividad.tiempo }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stats-card" [@slideIn]>
+                    <h3>
+                        <i class="fas fa-chart-pie"></i>
+                        Estadísticas del Día
+                    </h3>
+                    <div class="stats-list">
+                        <div class="stat-item" *ngFor="let stat of estadisticasDiarias">
+                            <div class="stat-icon" [style.background]="stat.color + '20'">
+                                <i [class]="stat.icono" [style.color]="stat.color"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-value">{{ stat.valor }}</span>
+                                <span class="stat-label">{{ stat.label }}</span>
+                            </div>
+                            <div class="stat-progress">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" 
+                                         [style.width.%]="stat.porcentaje"
+                                         [style.background]="stat.color"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="user-actions">
-          <button class="notification-btn">
-            <i class="fas fa-bell"></i>
-            <span class="notification-badge">5</span>
-          </button>
-          <div class="user-profile">
-            <img src="https://via.placeholder.com/40" alt="Avatar" class="avatar">
-            <div class="user-info">
-              <h3>Carlos Lopez</h3>
-              <span>Vigilante</span>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <!-- Contenido -->
-      <div class="content-container">
-        <!-- Estadísticas -->
-        <div class="stats-container">
-          <div class="stat-card">
-            <div class="stat-card-header">
-              <div>
-                <div class="stat-number">12</div>
-                <div class="stat-label">Solicitudes Pendientes</div>
-                <div class="stat-change positive">
-                  <i class="fas fa-arrow-up"></i>
-                  <span>20% más que ayer</span>
-                </div>
-              </div>
-              <div class="stat-icon warning">
-                <i class="fas fa-clock"></i>
-              </div>
-            </div>
-          </div>
-
-          <div class="stat-card">
-            <div class="stat-card-header">
-              <div>
-                <div class="stat-number">8</div>
-                <div class="stat-label">Ambientes Ocupados</div>
-                <div class="stat-change negative">
-                  <i class="fas fa-arrow-down"></i>
-                  <span>2 menos que ayer</span>
-                </div>
-              </div>
-              <div class="stat-icon primary">
-                <i class="fas fa-door-closed"></i>
-              </div>
-            </div>
-          </div>
-
-          <div class="stat-card">
-            <div class="stat-card-header">
-              <div>
-                <div class="stat-number">45</div>
-                <div class="stat-label">Aprobadas Hoy</div>
-                <div class="stat-change positive">
-                  <i class="fas fa-arrow-up"></i>
-                  <span>15% más eficiente</span>
-                </div>
-              </div>
-              <div class="stat-icon success">
-                <i class="fas fa-check-circle"></i>
-              </div>
-            </div>
-          </div>
-
-          <div class="stat-card">
-            <div class="stat-card-header">
-              <div>
-                <div class="stat-number">3</div>
-                <div class="stat-label">Solicitudes Urgentes</div>
-                <div class="stat-change negative">
-                  <i class="fas fa-exclamation-triangle"></i>
-                  <span>Requieren atención</span>
-                </div>
-              </div>
-              <div class="stat-icon info">
-                <i class="fas fa-exclamation"></i>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Solicitudes recientes -->
-        <div class="solicitudes-section">
-          <div class="section-header">
-            <div class="section-title">
-              <h3>Solicitudes Recientes</h3>
-              <span class="badge">12 nuevas</span>
-            </div>
-            <button class="view-all-btn">
-              Ver todas las solicitudes
-              <i class="fas fa-arrow-right"></i>
-            </button>
-          </div>
-
-          <div class="solicitudes-list">
-            <div class="solicitud-card">
-              <div class="solicitud-info">
-                <div class="solicitud-icon">
-                  <i class="fas fa-user"></i>
-                </div>
-                <div class="solicitud-details">
-                  <h4>Jorge Mario - Ambiente 5</h4>
-                  <div class="solicitud-meta">
-                    <span><i class="fas fa-clock"></i> Hace 5 minutos</span>
-                    <span><i class="fas fa-calendar"></i> Hoy, 14:00 - 16:00</span>
-                    <span><i class="fas fa-users"></i> 25 personas</span>
-                  </div>
-                </div>
-              </div>
-              <span class="solicitud-status status-urgent">Urgente</span>
-              <div class="solicitud-actions">
-                <button class="action-btn btn-approve">Aprobar</button>
-                <button class="action-btn btn-deny">Rechazar</button>
-              </div>
-            </div>
-
-            <div class="solicitud-card">
-              <div class="solicitud-info">
-                <div class="solicitud-icon">
-                  <i class="fas fa-user"></i>
-                </div>
-                <div class="solicitud-details">
-                  <h4>Ana García - Ambiente 2</h4>
-                  <div class="solicitud-meta">
-                    <span><i class="fas fa-clock"></i> Hace 15 minutos</span>
-                    <span><i class="fas fa-calendar"></i> Mañana, 10:00 - 12:00</span>
-                    <span><i class="fas fa-users"></i> 15 personas</span>
-                  </div>
-                </div>
-              </div>
-              <span class="solicitud-status status-pending">Pendiente</span>
-              <div class="solicitud-actions">
-                <button class="action-btn btn-approve">Aprobar</button>
-                <button class="action-btn btn-deny">Rechazar</button>
-              </div>
-            </div>
-
-            <div class="solicitud-card">
-              <div class="solicitud-info">
-                <div class="solicitud-icon">
-                  <i class="fas fa-user"></i>
-                </div>
-                <div class="solicitud-details">
-                  <h4>Luis Rodríguez - Ambiente 8</h4>
-                  <div class="solicitud-meta">
-                    <span><i class="fas fa-clock"></i> Hace 30 minutos</span>
-                    <span><i class="fas fa-calendar"></i> Hoy, 17:00 - 19:00</span>
-                    <span><i class="fas fa-users"></i> 30 personas</span>
-                  </div>
-                </div>
-              </div>
-              <span class="solicitud-status status-pending">Pendiente</span>
-              <div class="solicitud-actions">
-                <button class="action-btn btn-approve">Aprobar</button>
-                <button class="action-btn btn-deny">Rechazar</button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Actividad y espacios -->
-        <div class="activity-section">
-          <div class="activity-card">
-            <h3>Actividad Reciente</h3>
-            <div class="activity-list">
-              <div class="activity-item">
-                <div class="activity-icon check-in">
-                  <i class="fas fa-sign-in-alt"></i>
-                </div>
-                <div class="activity-content">
-                  <h4>Jorge Mario ingresó al Ambiente 3</h4>
-                  <span class="activity-time">Hace 10 minutos</span>
-                </div>
-              </div>
-              <div class="activity-item">
-                <div class="activity-icon check-out">
-                  <i class="fas fa-sign-out-alt"></i>
-                </div>
-                <div class="activity-content">
-                  <h4>María López salió del Ambiente 7</h4>
-                  <span class="activity-time">Hace 25 minutos</span>
-                </div>
-              </div>
-              <div class="activity-item">
-                <div class="activity-icon check-in">
-                  <i class="fas fa-sign-in-alt"></i>
-                </div>
-                <div class="activity-content">
-                  <h4>Carlos Ruiz ingresó al Ambiente 1</h4>
-                  <span class="activity-time">Hace 45 minutos</span>
-                </div>
-              </div>
-              <div class="activity-item">
-                <div class="activity-icon check-out">
-                  <i class="fas fa-sign-out-alt"></i>
-                </div>
-                <div class="activity-content">
-                  <h4>Ana Martínez salió del Ambiente 4</h4>
-                  <span class="activity-time">Hace 1 hora</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="activity-card">
-            <h3>Estado de Ambientes</h3>
-            <div class="espacios-grid">
-              <div class="espacio-mini-card">
-                <div class="espacio-number">1</div>
-                <div class="espacio-status occupied">Ocupado</div>
-              </div>
-              <div class="espacio-mini-card">
-                <div class="espacio-number">2</div>
-                <div class="espacio-status available">Disponible</div>
-              </div>
-              <div class="espacio-mini-card">
-                <div class="espacio-number">3</div>
-                <div class="espacio-status occupied">Ocupado</div>
-              </div>
-              <div class="espacio-mini-card">
-                <div class="espacio-number">4</div>
-                <div class="espacio-status available">Disponible</div>
-              </div>
-              <div class="espacio-mini-card">
-                <div class="espacio-number">5</div>
-                <div class="espacio-status available">Disponible</div>
-              </div>
-              <div class="espacio-mini-card">
-                <div class="espacio-number">6</div>
-                <div class="espacio-status occupied">Ocupado</div>
-              </div>
-              <div class="espacio-mini-card">
-                <div class="espacio-number">7</div>
-                <div class="espacio-status available">Disponible</div>
-              </div>
-              <div class="espacio-mini-card">
-                <div class="espacio-number">8</div>
-                <div class="espacio-status occupied">Ocupado</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
     </main>
-  </div>
 </div>

@@ -83,7 +83,7 @@ export class LoginComponent {
     // }
 
     // Call the login service
-     this.authService.login(this.loginRequest).subscribe(
+    this.authService.login(this.loginRequest).subscribe(
       (user: any) => {
         this.loading = false;
         this.loadingService.hide();
@@ -132,7 +132,8 @@ export class LoginComponent {
     event.preventDefault();
     this.showRegisterModal = false;
   }
+
+  navigatePasswordReset(): void {
+    this.router.navigate(['/password-reset']);
+  }
 }
-
-
-
