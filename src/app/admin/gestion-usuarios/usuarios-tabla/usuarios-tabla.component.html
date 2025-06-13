@@ -1,6 +1,5 @@
 <app-top-bar (toggleSidebar)="toggleSidebarEmit()"></app-top-bar>
 <app-sidebar [active]="sidebarActive"></app-sidebar>
-
 <div class="dashboard-container">
   
   <!-- Contenido principal -->
@@ -61,9 +60,11 @@
                 <td>{{ user.telefono || "Número no registrado"}}</td>
                 <td>{{ rolNombreMap[user.rol] || 'Desconocido' }}</td>
                 <td>
-                  <button class="edit-btn" (click)="editUser(user)">
-                    <i class="fas fa-edit"></i>
-                  </button>
+                  <div class="action-buttons">
+                    <button class="details-btn" (click)="openDetailsModal(user)" title="Ver detalles">
+                      <i class="fas fa-eye"></i>
+                    </button>
+                  </div>
                 </td>
               </tr>
             </tbody>
@@ -79,9 +80,82 @@
   </div>
 </div>
 
-<!-- Modal para crear/editar usuario (oculto por defecto) -->
+<!-- Modal para crear/editar usuario -->
 <div class="modal-overlay" *ngIf="showModal" (click)="closeModal($event)">
   <div class="modal-container" (click)="$event.stopPropagation()">
     <app-register></app-register>
+  </div>
+</div>
+
+<!-- Modal de detalles de usuario -->
+<div class="modal-overlay" *ngIf="showDetailsModal" (click)="closeDetailsModal($event)">
+  <div class="modal-container details-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Detalles del Usuario</h2>
+      <button class="close-btn" (click)="closeDetailsModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    
+    <div class="modal-body">
+      <div class="user-info-section">
+        <div class="user-avatar">
+          <i class="fas fa-user-circle"></i>
+        </div>
+        
+        <div class="user-details">
+          <div class="detail-item">
+            <label>Nombre:</label>
+            <span>{{ selectedUser.nombre }}</span>
+          </div>
+          
+          <div class="detail-item">
+            <label>Correo electrónico:</label>
+            <span>{{ selectedUser.email }}</span>
+          </div>
+          
+          <div class="detail-item">
+            <label>Teléfono:</label>
+            <span>{{ selectedUser.telefono || "No registrado" }}</span>
+          </div>
+          
+          <div class="detail-item">
+            <label>Rol actual:</label>
+            <span class="current-role">{{ rolNombreMap[selectedUser.rol] || 'Desconocido' }}</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="role-change-section">
+        <h3>Cambiar Rol</h3>
+        <div class="role-selector">
+          <label for="newRole">Nuevo rol:</label>
+          <select id="newRole" [(ngModel)]="newRole" class="role-select">
+            <option value="1">Vigilante</option>
+            <option value="2">Instructor</option>
+            <option value="3">Almacén</option>
+            <option value="4">Administrador</option>
+          </select>
+        </div>
+        
+        <button 
+          class="update-role-btn" 
+          (click)="updateUserRole()"
+          [disabled]="newRole === selectedUser.rol">
+          <i class="fas fa-sync-alt"></i>
+          Actualizar Rol
+        </button>
+      </div>
+    </div>
+    
+    <div class="modal-footer">
+      <button class="cancel-btn" (click)="closeDetailsModal()">
+        Cancelar
+      </button>
+      <button class="delete-btn" (click)="deleteUser()">
+        <i class="fas fa-trash"></i>
+        Eliminar Usuario
+      </button>
+    </div>
   </div>
 </div>

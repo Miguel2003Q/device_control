@@ -4,6 +4,11 @@ import { Observable, of, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { Usuario } from '../models/usuario.model';
 
+interface UsuarioRolUpdate {
+  id: number;
+  rol: number;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -45,6 +50,26 @@ export class UsuarioService {
   obtenerUsuarioPorEmail(email: string): Observable<Usuario> {
     const url = `${this.apiUrl}/email/${email}`;
     return this.http.get<Usuario>(url, { headers: this.getHeaders() }).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  actualizarRol(id: number, datos: { id: number; rol: number }): Observable<void> {
+    const url = `${this.apiUrl}/rolUpdate/${id}`;
+    return this.http.put<void>(
+      url,
+      datos, // el objeto completo
+      { headers: this.getHeaders() }
+    ).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+
+
+  eliminarUsuario(id: number | undefined): Observable<void> {
+    const url = `${this.apiUrl}/${id}`;
+    return this.http.delete<void>(url, { headers: this.getHeaders() }).pipe(
       catchError(this.handleError)
     );
   }

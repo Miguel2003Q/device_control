@@ -18,7 +18,7 @@ import { LoadingService } from '../../../core/services/loading.service';
 })
 export class UsuariosTablaComponent implements OnInit {
 
-  getEmptyUser(): Usuario { //Esto no debe devolver ningúna excepción
+  getEmptyUser(): Usuario {
     return {
       idusuario: 0,
       nombre: '',
@@ -28,6 +28,7 @@ export class UsuariosTablaComponent implements OnInit {
       telefono: '',
     };
   }
+
   // Propiedades del componente
   usuarios: Usuario[] = [];
   filteredUsers: Usuario[] = [];
@@ -36,34 +37,34 @@ export class UsuariosTablaComponent implements OnInit {
   sidebarActive: boolean = false;
   screenWidth: number;
 
-  // Propiedades para el modal
+  // Propiedades para el modal de crear/editar
   showModal: boolean = false;
   isEditing: boolean = false;
   currentUser: Usuario = this.getEmptyUser();
+
+  // Propiedades para el modal de detalles
+  showDetailsModal: boolean = false;
+  selectedUser: Usuario = this.getEmptyUser();
+  newRole: number = 0;
 
   constructor(
     private usuarioService: UsuarioService,
     private loadingService: LoadingService
   ) {
-    // Inicializar el ancho de pantalla
     this.screenWidth = window.innerWidth;
-    // Ajustar sidebar según tamaño de pantalla
     this.checkScreenSize();
   }
 
   ngOnInit(): void {
-    // Cargar datos
     this.cargarUsuarios();
   }
 
-  // Método para detectar cambios en el tamaño de la ventana
   @HostListener('window:resize', ['$event'])
   onResize(event: any) {
     this.screenWidth = window.innerWidth;
     this.checkScreenSize();
   }
 
-  // Comprobar tamaño de pantalla y ajustar sidebar
   checkScreenSize(): void {
     if (this.screenWidth < 900) {
       this.sidebarActive = false;
@@ -72,18 +73,16 @@ export class UsuariosTablaComponent implements OnInit {
     }
   }
 
-  // Cambiar estado del sidebar
   toggleSidebar(): void {
     this.sidebarActive = !this.sidebarActive;
   }
 
-  // Cargar lista de usuarios
   cargarUsuarios(): void {
     this.loadingService.show();
     this.usuarioService.obtenerTodosLosUsuarios().subscribe({
       next: (data) => {
         this.usuarios = data;
-        this.filteredUsers = [...this.usuarios]; // <- Esto sí espera a que lleguen los datos
+        this.filteredUsers = [...this.usuarios];
         this.loadingService.hide();
       },
       error: (err) => {
@@ -93,16 +92,12 @@ export class UsuariosTablaComponent implements OnInit {
     });
   }
 
-
-  // Filtrar usuarios según términos de búsqueda y filtros
   filterUsers(): void {
     this.filteredUsers = this.usuarios.filter(user => {
-      // Aplicar filtro de búsqueda
       const searchMatch = this.searchTerm === '' ||
         user.nombre.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
         user.email.toLowerCase().includes(this.searchTerm.toLowerCase());
 
-      // Aplicar filtro de rol
       const filterMatch = this.selectedFilter === '' ||
         String(user.rol) === this.selectedFilter;
 
@@ -110,22 +105,19 @@ export class UsuariosTablaComponent implements OnInit {
     });
   }
 
-  // Abrir modal para crear usuario
+  // Métodos para modal de crear/editar
   openCreateUserModal(): void {
     this.isEditing = false;
     this.currentUser = this.getEmptyUser();
     this.showModal = true;
   }
 
-  // Abrir modal para editar usuario
   editUser(user: Usuario): void {
     this.isEditing = true;
-    // Clonar el usuario para no modificar directamente el original
     this.currentUser = { ...user };
     this.showModal = true;
   }
 
-  // Cerrar modal
   closeModal(event: MouseEvent): void {
     const target = event.target as HTMLElement;
     if (target.classList.contains('modal-overlay') ||
@@ -135,15 +127,91 @@ export class UsuariosTablaComponent implements OnInit {
     }
   }
 
-  // Guardar cambios de usuario
+  // Métodos para modal de detalles
+  openDetailsModal(user: Usuario): void {
+    this.selectedUser = { ...user };
+    this.newRole = user.rol;
+    this.showDetailsModal = true;
+  }
+
+  closeDetailsModal(event?: MouseEvent): void {
+    if (event) {
+      const target = event.target as HTMLElement;
+      if (!target.classList.contains('modal-overlay')) {
+        return;
+      }
+    }
+    this.showDetailsModal = false;
+    this.selectedUser = this.getEmptyUser();
+    this.newRole = 0;
+  }
+
+  // Cambiar rol del usuario
+  updateUserRole(): void {
+    if (this.newRole === this.selectedUser.rol) {
+      alert('El rol seleccionado es el mismo que el actual');
+      return;
+    }
+
+    if (this.selectedUser?.idusuario != null) {
+      const datosActualizacion = {
+        id: this.selectedUser.idusuario,
+        rol: this.newRole
+      };
+
+      this.usuarioService.actualizarRol(this.selectedUser.idusuario, datosActualizacion).subscribe({
+        next: () => {
+          this.usuarios = this.usuarios.map(user =>
+            user.idusuario === this.selectedUser.idusuario
+              ? { ...user, rol: this.newRole }
+              : user
+          );
+          this.filterUsers();
+          this.closeDetailsModal();
+          alert('Rol actualizado correctamente');
+        },
+        error: (err) => {
+          console.error('Error al actualizar rol', err);
+          alert('Error al actualizar el rol');
+        }
+      });
+    } else {
+      console.error('ID de usuario inválido');
+    }
+  }
+
+
+  // Eliminar usuario
+  deleteUser(): void {
+    if (confirm(`¿Estás seguro de que deseas eliminar al usuario ${this.selectedUser.nombre}?`)) {
+      // Aquí puedes agregar la lógica para eliminar el usuario del backend
+      this.usuarioService.eliminarUsuario(this.selectedUser.idusuario).subscribe({
+        next: () => {
+          this.usuarios = this.usuarios.filter(user => user.idusuario !== this.selectedUser.idusuario);
+          this.filterUsers();
+          this.closeDetailsModal();
+          alert('Usuario eliminado correctamente');
+        },
+        error: (err) => {
+          console.error('Error al eliminar usuario', err);
+          alert('Error al eliminar el usuario');
+        }
+      });
+
+      // Simulación temporal (remover cuando implementes el servicio)
+      this.usuarios = this.usuarios.filter(user => user.idusuario !== this.selectedUser.idusuario);
+      this.filterUsers();
+      this.closeDetailsModal();
+      alert('Usuario eliminado correctamente');
+    }
+  }
+
   saveUser(): void {
     if (this.isEditing) {
-      // Actualizar usuario existente
       this.usuarios = this.usuarios.map(user =>
         user.idusuario === this.currentUser.idusuario ? this.currentUser : user
       );
     } else {
-      // Crear nuevo usuario
       const newId = Math.max(...this.usuarios.map(user => user.idusuario ?? 0), 0) + 1;
       this.usuarios.push({
         ...this.currentUser,
@@ -151,9 +219,7 @@ export class UsuariosTablaComponent implements OnInit {
       });
     }
 
-    // Actualizar lista filtrada
     this.filterUsers();
-    // Cerrar modal
     this.showModal = false;
   }
 
@@ -167,25 +233,4 @@ export class UsuariosTablaComponent implements OnInit {
   toggleSidebarEmit(): void {
     this.sidebarActive = !this.sidebarActive;
   }
-
-
-  // Obtener usuario vacío para el formulario
-  // getEmptyUser(): Usuario {
-  //   return {
-  //     idusuario: 0,
-  //     nombre: '',
-  //     email: '',
-  //     rol: 0
-  //   };
-  // }
-
-  // Navegar a vista de roles
-
-
-  //   onEstadoChange(event: Event) {
-  //   const input = event.target as HTMLInputElement | null;
-  //   if (input) {
-  //     this.currentUser.estado = input.checked ? 'Activo' : 'Inactivo';
-  //   }
-  // }
 }

@@ -549,3 +549,303 @@ a {
     display: flex;
   }
 }
+
+/* Estilos adicionales para el modal de detalles */
+
+/* Botones de acción en la tabla */
+.action-buttons {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.details-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 5px;
+  background-color: #A3CEF1;
+  color: #274C77;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border: none;
+}
+
+.details-btn:hover {
+  background-color: #274C77;
+  color: #FFFFFF;
+  transform: translateY(-2px);
+}
+
+/* Modal de detalles */
+.details-modal {
+  max-width: 600px;
+  width: 95%;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 25px;
+  border-bottom: 1px solid #E7ECEF;
+  background-color: #F8F9FA;
+}
+
+.modal-header h2 {
+  color: #274C77;
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.close-btn {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  background-color: #E7ECEF;
+  color: #888888;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border: none;
+}
+
+.close-btn:hover {
+  background-color: #F44336;
+  color: #FFFFFF;
+}
+
+.modal-body {
+  padding: 25px;
+}
+
+/* Sección de información del usuario */
+.user-info-section {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 30px;
+  padding: 20px;
+  background-color: #F8F9FA;
+  border-radius: 10px;
+  border-left: 4px solid #6096BA;
+}
+
+.user-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background-color: #A3CEF1;
+  color: #274C77;
+  font-size: 40px;
+  flex-shrink: 0;
+}
+
+.user-details {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.detail-item label {
+  font-weight: 500;
+  color: #6096BA;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.detail-item span {
+  color: #333333;
+  font-size: 16px;
+  font-weight: 400;
+}
+
+.current-role {
+  background-color: #6096BA;
+  color: #FFFFFF;
+  padding: 4px 12px;
+  border-radius: 15px;
+  font-size: 14px;
+  font-weight: 500;
+  display: inline-block;
+  width: fit-content;
+}
+
+/* Sección de cambio de rol */
+.role-change-section {
+  background-color: #FFFFFF;
+  border: 1px solid #E7ECEF;
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.role-change-section h3 {
+  color: #274C77;
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.role-change-section h3:before {
+  content: "🔄";
+  font-size: 16px;
+}
+
+.role-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 15px;
+}
+
+.role-selector label {
+  font-weight: 500;
+  color: #333333;
+  font-size: 14px;
+}
+
+.role-select {
+  padding: 10px 15px;
+  border: 1px solid #E7ECEF;
+  border-radius: 5px;
+  background-color: #FFFFFF;
+  color: #333333;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 100%;
+}
+
+.role-select:focus {
+  outline: none;
+  border-color: #6096BA;
+  box-shadow: 0 0 0 3px rgba(96, 150, 186, 0.1);
+}
+
+.update-role-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background-color: #6096BA;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 100%;
+  justify-content: center;
+}
+
+.update-role-btn:hover:not(:disabled) {
+  background-color: #274C77;
+  transform: translateY(-2px);
+}
+
+.update-role-btn:disabled {
+  background-color: #CCCCCC;
+  color: #888888;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Footer del modal */
+.modal-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 25px;
+  border-top: 1px solid #E7ECEF;
+  background-color: #F8F9FA;
+}
+
+.cancel-btn {
+  padding: 10px 20px;
+  background-color: #E7ECEF;
+  color: #333333;
+  border: none;
+  border-radius: 5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.cancel-btn:hover {
+  background-color: #CCCCCC;
+}
+
+.delete-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background-color: #F44336;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.delete-btn:hover {
+  background-color: #D32F2F;
+  transform: translateY(-2px);
+}
+
+/* Responsive para el modal de detalles */
+@media (max-width: 768px) {
+  .details-modal {
+    width: 98%;
+    max-width: none;
+    margin: 10px;
+  }
+  
+  .user-info-section {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  
+  .user-avatar {
+    width: 60px;
+    height: 60px;
+    font-size: 30px;
+  }
+  
+  .modal-footer {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .cancel-btn,
+  .delete-btn {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .action-buttons {
+    flex-direction: column;
+    gap: 5px;
+  }
+}
