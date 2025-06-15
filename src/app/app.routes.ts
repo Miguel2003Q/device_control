@@ -77,12 +77,6 @@ export const routes: Routes = [
     data: { roles: [2] }
   },
   {
-    path: 'ins/solicitudes',
-    loadComponent: () => import('./instructor/solicitud-ambiente/solicitud-ambiente.component').then(m => m.SolicitudAmbienteComponent),
-    canActivate: [RoleGuard],
-    data: { roles: [2] }
-  },
-  {
     path: 'ins/solicitar-ambiente',
     loadComponent: () => import('./instructor/solicitar-espacio/solicitar-espacio.component').then(m => m.SolicitarEspacioComponent),
     canActivate: [RoleGuard],

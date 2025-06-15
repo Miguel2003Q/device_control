@@ -1,16 +1,19 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 import { AuthService } from '../../../core/services/auth.service';
 import { CommonModule } from '@angular/common';
+import { NotificationSettingsComponent } from "../../../auxiliar/notificaciones/notification-settings.component";
+import { NotificacionesComponent } from "../../../auxiliar/notificaciones/notificaciones.component";
 
 @Component({
   selector: 'app-top-bar',
-  imports: [CommonModule],
+  imports: [CommonModule, NotificationSettingsComponent, NotificacionesComponent],
   templateUrl: './top-bar.component.html',
   styleUrl: './top-bar.component.css'
 })
 export class TopBarComponent {
   @Output() toggleSidebar = new EventEmitter<void>();
   sidebarActive = false;
+  openedDropdownId: number | null = null;
 
   usuario: any = null;
 
@@ -32,5 +35,9 @@ export class TopBarComponent {
 
   getNombreRol(): string {
     return this.usuario?.rol ? this.rolesMap[this.usuario.rol] ?? 'Desconocido' : 'Desconocido';
+  }
+
+  toggleDropdown(id: number | null) {
+    this.openedDropdownId = this.openedDropdownId === id ? null : id;
   }
 }

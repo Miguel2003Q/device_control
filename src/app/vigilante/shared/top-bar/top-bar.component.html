@@ -12,17 +12,11 @@
 
   <div class="user-actions">
 
-    <app-notification-settings
-  [dropdownId]="1"
-  [openedId]="openedDropdownId"
-  (toggle)="toggleDropdown($event)">
-</app-notification-settings>
+    <app-notification-settings [dropdownId]="1" [openedId]="openedDropdownId" (toggle)="toggleDropdown($event)">
+    </app-notification-settings>
 
-    <app-notificaciones
-  [dropdownId]="2"
-  [openedId]="openedDropdownId"
-  (toggle)="toggleDropdown($event)">
-</app-notificaciones>
+    <app-notificaciones [dropdownId]="2" [openedId]="openedDropdownId" (toggle)="toggleDropdown($event)">
+    </app-notificaciones>
 
     <div class="user-profile">
       <div class="avatar">

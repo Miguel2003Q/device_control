@@ -1,1 +1,324 @@
-<p>home works!</p>
+<app-top-bar (toggleSidebar)="toggleSidebarEmit()"></app-top-bar>
+<app-sidebar [active]="sidebarActive"></app-sidebar>
+
+<div class="dashboard-container">
+
+    <!-- Contenido principal -->
+    <main class="main-content">
+
+        <!-- Contenido -->
+        <div class="content-container">
+            <!-- Estadísticas principales -->
+            <div class="stats-overview" [@fadeIn]>
+                <div class="stat-card" *ngFor="let stat of estadisticasPrincipales; let i = index" 
+                     [@cardAnimation]
+                     [style.animation-delay]="i * 0.1 + 's'"
+                     [class]="stat.colorClass">
+                    <div class="stat-icon">
+                        <i [class]="stat.icon"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 class="stat-value" [attr.data-value]="stat.value">{{ stat.value }}</h3>
+                        <p class="stat-label">{{ stat.label }}</p>
+                        <div class="stat-change" [class]="stat.trend.type">
+                            <i class="fas" [class]="stat.trend.icon"></i>
+                            <span>{{ stat.trend.text }}</span>
+                        </div>
+                    </div>
+                    <div class="stat-background-icon">
+                        <i [class]="stat.icon"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Acciones rápidas -->
+            <div class="quick-actions-section" [@slideIn]>
+                <h3 class="section-title">
+                    <i class="fas fa-bolt"></i>
+                    Acciones Rápidas
+                </h3>
+                <div class="quick-actions-grid">
+                    <button class="action-button primary" routerLink="/nuevo-activo" [@scaleIn]>
+                        <div class="action-icon">
+                            <i class="fas fa-plus-circle"></i>
+                        </div>
+                        <div class="action-text">
+                            <h4>Registrar Activo</h4>
+                            <p>Añadir nuevo equipo al inventario</p>
+                        </div>
+                    </button>
+
+                    <button class="action-button secondary" routerLink="/escanear-qr" [@scaleIn]>
+                        <div class="action-icon">
+                            <i class="fas fa-qrcode"></i>
+                        </div>
+                        <div class="action-text">
+                            <h4>Escanear QR</h4>
+                            <p>Buscar activo por código</p>
+                        </div>
+                    </button>
+
+                    <button class="action-button warning" routerLink="/mantenimiento/programar" [@scaleIn]>
+                        <div class="action-icon">
+                            <i class="fas fa-calendar-check"></i>
+                        </div>
+                        <div class="action-text">
+                            <h4>Programar Mantenimiento</h4>
+                            <p>Agendar revisión de equipos</p>
+                        </div>
+                    </button>
+
+                    <button class="action-button success" (click)="exportarInventario()" [@scaleIn]>
+                        <div class="action-icon">
+                            <i class="fas fa-file-excel"></i>
+                        </div>
+                        <div class="action-text">
+                            <h4>Exportar Inventario</h4>
+                            <p>Descargar reporte completo</p>
+                        </div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Vista de activos y gráficos -->
+            <div class="main-grid">
+                <!-- Activos por estado -->
+                <div class="chart-section" [@slideIn]>
+                    <div class="section-header">
+                        <h3 class="section-title">
+                            <i class="fas fa-chart-pie"></i>
+                            Distribución de Activos por Estado
+                        </h3>
+                        <button class="view-all-btn" routerLink="/activos">
+                            Ver todos
+                            <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="estadoChart"></canvas>
+                    </div>
+                    <div class="chart-legend">
+                        <div class="legend-item" *ngFor="let estado of estadosActivos">
+                            <span class="legend-color" [style.background]="estado.color"></span>
+                            <span class="legend-label">{{ estado.nombre }}</span>
+                            <span class="legend-value">{{ estado.cantidad }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Activos por categoría -->
+                <div class="category-section" [@slideIn]>
+                    <h3 class="section-title">
+                        <i class="fas fa-layer-group"></i>
+                        Activos por Categoría
+                    </h3>
+                    <div class="category-list">
+                        <div class="category-item" 
+                             *ngFor="let categoria of categorias; let i = index"
+                             [@listAnimation]
+                             [style.animation-delay]="i * 0.05 + 's'">
+                            <div class="category-icon" [style.background]="categoria.color + '20'">
+                                <i [class]="categoria.icon" [style.color]="categoria.color"></i>
+                            </div>
+                            <div class="category-info">
+                                <h4>{{ categoria.nombre }}</h4>
+                                <p>{{ categoria.cantidad }} activos</p>
+                            </div>
+                            <div class="category-progress">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" 
+                                         [style.width.%]="categoria.porcentaje"
+                                         [style.background]="categoria.color"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Activos recientes y alertas -->
+            <div class="bottom-grid">
+                <!-- Últimos movimientos -->
+                <div class="recent-activity" [@slideIn]>
+                    <h3 class="section-title">
+                        <i class="fas fa-history"></i>
+                        Últimos Movimientos
+                    </h3>
+                    <div class="activity-timeline">
+                        <div class="timeline-item" 
+                             *ngFor="let movimiento of ultimosMovimientos; let i = index"
+                             [@listAnimation]
+                             [style.animation-delay]="i * 0.1 + 's'">
+                            <div class="timeline-marker" [class]="movimiento.tipo">
+                                <i class="fas" [class]="getMovimientoIcon(movimiento.tipo)"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <div class="timeline-header">
+                                    <h4>{{ movimiento.activo }}</h4>
+                                    <span class="timeline-time">{{ movimiento.tiempo }}</span>
+                                </div>
+                                <p class="timeline-description">{{ movimiento.descripcion }}</p>
+                                <div class="timeline-meta">
+                                    <span class="meta-item">
+                                        <i class="fas fa-barcode"></i>
+                                        {{ movimiento.serial }}
+                                    </span>
+                                    <span class="meta-item">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                        {{ movimiento.ubicacion }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Alertas y mantenimientos -->
+                <div class="alerts-section" [@slideIn]>
+                    <h3 class="section-title">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        Alertas y Mantenimientos
+                    </h3>
+                    
+                    <!-- Próximos mantenimientos -->
+                    <div class="maintenance-list">
+                        <h4 class="subsection-title">Próximos Mantenimientos</h4>
+                        <div class="maintenance-item" 
+                             *ngFor="let mantenimiento of proximosMantenimientos"
+                             [@listAnimation]>
+                            <div class="maintenance-date">
+                                <span class="day">{{ mantenimiento.dia }}</span>
+                                <span class="month">{{ mantenimiento.mes }}</span>
+                            </div>
+                            <div class="maintenance-info">
+                                <h5>{{ mantenimiento.activo }}</h5>
+                                <p>{{ mantenimiento.tipo }}</p>
+                            </div>
+                            <div class="maintenance-status" [class]="mantenimiento.urgencia">
+                                {{ mantenimiento.urgencia }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Alertas de stock -->
+                    <div class="stock-alerts">
+                        <h4 class="subsection-title">Alertas de Stock</h4>
+                        <div class="alert-item" *ngFor="let alerta of alertasStock">
+                            <div class="alert-icon warning">
+                                <i class="fas fa-exclamation"></i>
+                            </div>
+                            <div class="alert-content">
+                                <p>{{ alerta.mensaje }}</p>
+                                <span class="alert-category">{{ alerta.categoria }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabla de activos destacados -->
+            <div class="featured-assets" [@fadeIn]>
+                <div class="section-header">
+                    <h3 class="section-title">
+                        <i class="fas fa-star"></i>
+                        Activos Más Utilizados
+                    </h3>
+                    <div class="table-filters">
+                        <button class="filter-btn" 
+                                *ngFor="let filtro of filtrosTabla"
+                                [class.active]="filtroActivo === filtro.value"
+                                (click)="cambiarFiltro(filtro.value)">
+                            {{ filtro.label }}
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="assets-table-container">
+                    <table class="assets-table">
+                        <thead>
+                            <tr>
+                                <th>Serial</th>
+                                <th>Nombre</th>
+                                <th>Tipo</th>
+                                <th>Ubicación</th>
+                                <th>Estado</th>
+                                <th>Uso Mensual</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let activo of activosDestacados; let i = index"
+                                [@listAnimation]
+                                [style.animation-delay]="i * 0.05 + 's'">
+                                <td class="serial-cell">
+                                    <i class="fas fa-qrcode"></i>
+                                    {{ activo.serial }}
+                                </td>
+                                <td class="name-cell">
+                                    <div class="asset-name">
+                                        <img [src]="activo.url" [alt]="activo.nombre" class="asset-thumb">
+                                        <span>{{ activo.nombre }}</span>
+                                    </div>
+                                </td>
+                                <td>{{ activo.tipoActivo.nombre }}</td>
+                                <td>
+                                    <span class="location-badge">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                        {{ activo.espacio.nombre }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="status-badge" [class]="activo.estado.toLowerCase()">
+                                        {{ activo.estado }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="usage-meter">
+                                        <div class="usage-bar">
+                                            <div class="usage-fill" [style.width.%]="activo.usoMensual"></div>
+                                        </div>
+                                        <span class="usage-text">{{ activo.usoMensual }}%</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <button class="action-icon" title="Ver detalles" 
+                                            [routerLink]="['/activo', activo.idactivo]">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Métricas de rendimiento -->
+            <div class="performance-metrics" [@fadeIn]>
+                <h3 class="section-title">
+                    <i class="fas fa-tachometer-alt"></i>
+                    Métricas de Rendimiento
+                </h3>
+                <div class="metrics-grid">
+                    <div class="metric-card" *ngFor="let metrica of metricas">
+                        <div class="metric-header">
+                            <i [class]="metrica.icon"></i>
+                            <h4>{{ metrica.titulo }}</h4>
+                        </div>
+                        <div class="metric-value">{{ metrica.valor }}</div>
+                        <div class="metric-comparison">
+                            <span [class]="metrica.cambio > 0 ? 'positive' : 'negative'">
+                                {{ metrica.cambio > 0 ? '+' : '' }}{{ metrica.cambio }}%
+                            </span>
+                            vs mes anterior
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Botón de menú móvil -->
+    <button class="menu-toggle" (click)="toggleSidebar()" [class.active]="sidebarActive">
+        <i class="fas" [ngClass]="sidebarActive ? 'fa-times' : 'fa-bars'"></i>
+    </button>
+</div>

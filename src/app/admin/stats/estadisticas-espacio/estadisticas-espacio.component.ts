@@ -67,7 +67,7 @@ export class EstadisticasEspacioComponent implements OnInit, AfterViewInit {
     private http: HttpClient,
     private sanitizer: DomSanitizer,
     private cdr: ChangeDetectorRef // Para detección de cambios manual
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     // Configurar debounce para refresh
@@ -76,33 +76,31 @@ export class EstadisticasEspacioComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this.initializeCharts();
+    // this.initializeCharts();
   }
 
   loadEstadisticas(): void {
     this.loading = true;
-    this.cdr.markForCheck(); // Forzar detección de cambios
+    this.cdr.markForCheck();
 
     this.http.get<EstadisticasEspacioDTO>('http://localhost:8080/api/espacios/reportes/estadisticas')
       .pipe(
         catchError((error) => {
           console.error('Error al cargar estadísticas:', error);
-          // Fallback a datos simulados
           this.estadisticas = this.getMockData();
-          this.initializeCharts();
-          // Mostrar error al usuario (reemplazar con tu servicio de notificaciones)
+          this.initializeCharts(); // Initialize with mock data
           alert('Error al cargar estadísticas. Usando datos de prueba.');
           return of(null);
         }),
         finalize(() => {
           this.loading = false;
-          this.cdr.markForCheck(); // Actualizar UI después de cargar
+          this.cdr.markForCheck();
         })
       )
       .subscribe((data) => {
         if (data) {
           this.estadisticas = data;
-          this.initializeCharts();
+          this.initializeCharts(); // Initialize with real data
         }
       });
   }
@@ -112,11 +110,13 @@ export class EstadisticasEspacioComponent implements OnInit, AfterViewInit {
   }
 
   initializeCharts(): void {
-    if (this.estadisticas && this.viewMode.estado === 'chart') {
-      this.createEstadoChart();
-    }
-    if (this.estadisticas && this.viewMode.capacidad === 'chart') {
-      this.createCapacidadChart();
+    if (this.estadisticas) {
+      if (this.viewMode.estado === 'chart' && this.estadoChartRef) {
+        this.createEstadoChart();
+      }
+      if (this.viewMode.capacidad === 'chart' && this.capacidadChartRef) {
+        this.createCapacidadChart();
+      }
     }
   }
 
@@ -128,8 +128,12 @@ export class EstadisticasEspacioComponent implements OnInit, AfterViewInit {
       this.estadoChart.destroy();
     }
 
-    const labels = Object.keys(this.estadisticas.espaciosPorEstado);
-    const data = Object.values(this.estadisticas.espaciosPorEstado);
+    const labels = Object.keys(this.estadisticas.espaciosPorEstado || {});
+    const data = Object.values(this.estadisticas.espaciosPorEstado || []);
+    if (labels.length === 0 || data.length === 0) {
+      console.warn('No data available for estadoChart');
+      return;
+    }
 
     const config: ChartConfiguration = {
       type: 'doughnut',
@@ -145,22 +149,14 @@ export class EstadisticasEspacioComponent implements OnInit, AfterViewInit {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-          legend: {
-            position: 'bottom',
-            labels: {
-              padding: 20,
-              font: {
-                size: 12
-              }
-            }
-          },
+          legend: { position: 'bottom', labels: { padding: 20, font: { size: 12 } } },
           tooltip: {
             callbacks: {
               label: (context) => {
                 const label = context.label || '';
                 const value = context.parsed;
-                const total = context.dataset.data.reduce((a: any, b: any) => a + b, 0);
-                const percentage = ((value / total) * 100).toFixed(1);
+                const total = context.dataset.data.reduce((a: number, b: any) => a + (typeof b === 'number' ? b : 0), 0);
+                const percentage = total ? ((value / total) * 100).toFixed(1) : 0;
                 return `${label}: ${value} (${percentage}%)`;
               }
             }
@@ -224,22 +220,22 @@ export class EstadisticasEspacioComponent implements OnInit, AfterViewInit {
     this.cdr.markForCheck();
   }
 
-  getEstadosList(): Array<{key: string, value: number}> {
+  getEstadosList(): Array<{ key: string, value: number }> {
     if (!this.estadisticas || !this.estadisticas.espaciosPorEstado) return [];
     return Object.entries(this.estadisticas.espaciosPorEstado).map(([key, value]) => ({ key, value }));
   }
 
-  getRangosList(): Array<{key: string, value: number}> {
+  getRangosList(): Array<{ key: string, value: number }> {
     if (!this.estadisticas || !this.estadisticas.rangoCapacidades) return [];
     return Object.entries(this.estadisticas.rangoCapacidades).map(([key, value]) => ({ key, value }));
   }
 
-  getTopEspaciosList(): Array<{key: string, value: number}> {
+  getTopEspaciosList(): Array<{ key: string, value: number }> {
     if (!this.estadisticas || !this.estadisticas.topEspaciosPorCapacidad) return [];
     return Object.entries(this.estadisticas.topEspaciosPorCapacidad).map(([key, value]) => ({ key, value }));
   }
 
-  getUtilizacionList(): Array<{key: string, value: number}> {
+  getUtilizacionList(): Array<{ key: string, value: number }> {
     if (!this.estadisticas || !this.estadisticas.porcentajeUtilizacionPorEstado) return [];
     return Object.entries(this.estadisticas.porcentajeUtilizacionPorEstado).map(([key, value]) => ({ key, value }));
   }
@@ -407,7 +403,7 @@ export class EstadisticasEspacioComponent implements OnInit, AfterViewInit {
     };
   }
 
-   toggleSidebarEmit(): void {
+  toggleSidebarEmit(): void {
     this.sidebarActive = !this.sidebarActive;
   }
 }

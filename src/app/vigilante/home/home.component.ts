@@ -199,6 +199,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.solicitudes = solicitudes;
         this.actividadesRecientes = solicitudes
           .sort((a, b) => new Date(b.fechaSolicitud).getTime() - new Date(a.fechaSolicitud).getTime()) // Ordenar por fecha descendente
+          .slice(0, 3) // Tomar las 3 más recientes
           .map((solicitud) => ({
             tipo: solicitud.estado.toLowerCase(), // Importante para el ngClass
             icono: this.obtenerIconoPorEstado(solicitud.estado),

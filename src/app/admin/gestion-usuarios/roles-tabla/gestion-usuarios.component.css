@@ -36,7 +36,8 @@ a {
 
 .dashboard-content {
   margin-left: 250px;
-  width: calc(100% - 250px);
+  /* width: calc(100% - 250px); */
+  height: 100vh;
   display: flex;
   flex-direction: column;
   background-color: #E7ECEF;
@@ -47,11 +48,11 @@ a {
 /* Layout principal */
 .dashboard-container {
   display: flex;
-  height: calc(100vh - 60px);
+  /* height: calc(100vh - 60px); */
+  height: 100vh;
   overflow: auto;
   background-color: #F8F9FA;
   margin-left: 250px;
-  margin-top: 60px;
 }
 
 /* Sidebar */
@@ -234,6 +235,7 @@ a {
   border-radius: 10px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   overflow: hidden;
+  margin-top: 60px;
 }
 
 /* Pestañas de navegación */

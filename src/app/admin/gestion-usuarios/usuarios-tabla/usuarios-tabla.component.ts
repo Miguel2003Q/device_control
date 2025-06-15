@@ -8,6 +8,7 @@ import { RegisterComponent } from '../register/register.component';
 import { UsuarioService } from '../../../core/services/usuario.service';
 import { Usuario } from '../../../core/models/usuario.model';
 import { LoadingService } from '../../../core/services/loading.service';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-usuarios',
@@ -49,7 +50,8 @@ export class UsuariosTablaComponent implements OnInit {
 
   constructor(
     private usuarioService: UsuarioService,
-    private loadingService: LoadingService
+    private loadingService: LoadingService,
+    private toastr: ToastrService
   ) {
     this.screenWidth = window.innerWidth;
     this.checkScreenSize();
@@ -148,8 +150,10 @@ export class UsuariosTablaComponent implements OnInit {
 
   // Cambiar rol del usuario
   updateUserRole(): void {
+    this.loadingService.show();
     if (this.newRole === this.selectedUser.rol) {
       alert('El rol seleccionado es el mismo que el actual');
+      this.loadingService.hide();
       return;
     }
 
@@ -168,15 +172,18 @@ export class UsuariosTablaComponent implements OnInit {
           );
           this.filterUsers();
           this.closeDetailsModal();
-          alert('Rol actualizado correctamente');
+          this.toastr.success('Rol actualizado correctamente', 'Éxito');
+          this.loadingService.hide();
         },
         error: (err) => {
           console.error('Error al actualizar rol', err);
-          alert('Error al actualizar el rol');
+          this.toastr.error('Error al actualizar el rol del usuario', 'Error');
+          this.loadingService.hide();
         }
       });
     } else {
       console.error('ID de usuario inválido');
+      this.loadingService.hide();
     }
   }
 
@@ -184,25 +191,27 @@ export class UsuariosTablaComponent implements OnInit {
   // Eliminar usuario
   deleteUser(): void {
     if (confirm(`¿Estás seguro de que deseas eliminar al usuario ${this.selectedUser.nombre}?`)) {
+      this.loadingService.show();
       // Aquí puedes agregar la lógica para eliminar el usuario del backend
       this.usuarioService.eliminarUsuario(this.selectedUser.idusuario).subscribe({
         next: () => {
           this.usuarios = this.usuarios.filter(user => user.idusuario !== this.selectedUser.idusuario);
           this.filterUsers();
           this.closeDetailsModal();
-          alert('Usuario eliminado correctamente');
+          this.toastr.success('Usuario eliminado correctamente', 'Éxito');
+          this.loadingService.hide();
         },
         error: (err) => {
           console.error('Error al eliminar usuario', err);
-          alert('Error al eliminar el usuario');
+          this.toastr.error('Error al eliminar el usuario', 'Error');
         }
       });
 
-      // Simulación temporal (remover cuando implementes el servicio)
-      this.usuarios = this.usuarios.filter(user => user.idusuario !== this.selectedUser.idusuario);
-      this.filterUsers();
-      this.closeDetailsModal();
-      alert('Usuario eliminado correctamente');
+      // // Simulación temporal (remover cuando implementes el servicio)
+      // this.usuarios = this.usuarios.filter(user => user.idusuario !== this.selectedUser.idusuario);
+      // this.filterUsers();
+      // this.closeDetailsModal();
+      // alert('Usuario eliminado correctamente');
     }
   }
 

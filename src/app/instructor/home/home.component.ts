@@ -6,6 +6,9 @@ import { Chart, registerables } from 'chart.js';
 import { TopBarComponent } from "../shared/top-bar/top-bar.component";
 import { SidebarComponent } from "../shared/sidebar/sidebar.component";
 import { CommonModule } from '@angular/common';
+import { SolicitudEspacioService } from '../../core/services/solicitudEspacio.service';
+import { SolicitudEspacio } from '../../core/models/solicitudEspacio.model';
+import { LoadingService } from '../../core/services/loading.service';
 
 Chart.register(...registerables);
 
@@ -30,7 +33,7 @@ interface Solicitud {
   horario: string;
   duracion: string;
   capacidad: number;
-  estado: 'aprobado' | 'pendiente' | 'rechazado';
+  estado: 'Pendiente' | 'Aprobada' | 'Rechazada' | 'Cancelada' | 'Completada';
 }
 
 interface CalendarDay {
@@ -38,28 +41,6 @@ interface CalendarDay {
   isToday: boolean;
   hasEvent: boolean;
   events: Array<{ title: string; color: string }>;
-}
-
-interface ProximaClase {
-  hora: string;
-  fecha: string;
-  ambiente: string;
-  materia: string;
-  estudiantes: number;
-  color: string;
-}
-
-interface Notificacion {
-  type: 'success' | 'info' | 'warning';
-  icon: string;
-  message: string;
-  time: string;
-}
-
-interface ReportPeriod {
-  value: string;
-  label: string;
-  icon: string;
 }
 
 @Component({
@@ -109,158 +90,26 @@ export class InstructorHomeComponent implements OnInit, OnDestroy, AfterViewInit
   selectedPeriod = 'month';
   currentWeek = '';
   weekDays = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
-  
+
   private timeInterval?: Subscription;
   private usageChart?: Chart;
 
-  estadisticas: Estadistica[] = [
-    {
-      value: '12',
-      label: 'Clases esta semana',
-      icon: 'fas fa-calendar-check',
-      bgColor: 'rgba(96, 150, 186, 0.1)',
-      color: '#6096BA',
-      trend: {
-        type: 'positive',
-        icon: 'fa-arrow-up',
-        value: '+20%'
-      },
-      chartData: 'M0,25 L10,22 L20,20 L30,18 L40,15 L50,12 L60,10 L70,8 L80,10 L90,5 L100,8'
-    },
-    {
-      value: '356',
-      label: 'Estudiantes totales',
-      icon: 'fas fa-users',
-      bgColor: 'rgba(76, 175, 80, 0.1)',
-      color: '#4CAF50',
-      trend: {
-        type: 'positive',
-        icon: 'fa-arrow-up',
-        value: '+15%'
-      },
-      chartData: 'M0,20 L10,18 L20,22 L30,15 L40,18 L50,10 L60,15 L70,8 L80,12 L90,5 L100,10'
-    },
-    {
-      value: '95%',
-      label: 'Asistencia promedio',
-      icon: 'fas fa-user-check',
-      bgColor: 'rgba(255, 152, 0, 0.1)',
-      color: '#FF9800',
-      trend: {
-        type: 'positive',
-        icon: 'fa-arrow-up',
-        value: '+3%'
-      },
-      chartData: 'M0,15 L10,12 L20,10 L30,8 L40,10 L50,5 L60,8 L70,3 L80,5 L90,2 L100,5'
-    },
-    {
-      value: '4.8',
-      label: 'Valoración estudiantes',
-      icon: 'fas fa-star',
-      bgColor: 'rgba(163, 206, 241, 0.1)',
-      color: '#A3CEF1',
-      trend: {
-        type: 'positive',
-        icon: 'fa-arrow-up',
-        value: '+0.2'
-      },
-      chartData: 'M0,20 L10,18 L20,15 L30,12 L40,10 L50,8 L60,10 L70,5 L80,8 L90,3 L100,5'
-    }
-  ];
+  estadisticas: Estadistica[] = [];
 
-  solicitudesRecientes: Solicitud[] = [
-    {
-      id: 1,
-      ambiente: 'Laboratorio 201',
-      fecha: 'Hoy',
-      horario: '14:00 - 16:00',
-      duracion: '2 horas',
-      capacidad: 30,
-      estado: 'aprobado'
-    },
-    {
-      id: 2,
-      ambiente: 'Aula 305',
-      fecha: 'Mañana',
-      horario: '08:00 - 10:00',
-      duracion: '2 horas',
-      capacidad: 40,
-      estado: 'pendiente'
-    },
-    {
-      id: 3,
-      ambiente: 'Auditorio Principal',
-      fecha: 'Viernes',
-      horario: '10:00 - 12:00',
-      duracion: '2 horas',
-      capacidad: 100,
-      estado: 'aprobado'
-    }
-  ];
+  solicitudesRecientes: Solicitud[] = [];
 
   currentWeekDays: CalendarDay[] = [];
 
-  proximasClases: ProximaClase[] = [
-    {
-      hora: '08:00',
-      fecha: 'Hoy',
-      ambiente: 'Lab 201',
-      materia: 'Programación Web',
-      estudiantes: 28,
-      color: '#6096BA'
-    },
-    {
-      hora: '14:00',
-      fecha: 'Hoy',
-      ambiente: 'Aula 305',
-      materia: 'Base de Datos',
-      estudiantes: 35,
-      color: '#4CAF50'
-    },
-    {
-      hora: '10:00',
-      fecha: 'Mañana',
-      ambiente: 'Lab 102',
-      materia: 'Redes',
-      estudiantes: 25,
-      color: '#FF9800'
-    }
-  ];
-
-  notificaciones: Notificacion[] = [
-    {
-      type: 'success',
-      icon: 'fa-check-circle',
-      message: 'Tu solicitud para el Lab 201 fue aprobada',
-      time: 'Hace 2 horas'
-    },
-    {
-      type: 'info',
-      icon: 'fa-info-circle',
-      message: 'Recuerda: Clase especial mañana en el auditorio',
-      time: 'Hace 5 horas'
-    },
-    {
-      type: 'warning',
-      icon: 'fa-exclamation-circle',
-      message: 'El ambiente 304 estará en mantenimiento el viernes',
-      time: 'Ayer'
-    }
-  ];
-
-  reportPeriods: ReportPeriod[] = [
-    { value: 'week', label: 'Última Semana', icon: 'fa-calendar-week' },
-    { value: 'month', label: 'Último Mes', icon: 'fa-calendar-alt' },
-    { value: 'quarter', label: 'Último Trimestre', icon: 'fa-calendar' },
-    { value: 'year', label: 'Último Año', icon: 'fa-calendar-check' }
-  ];
-
-  constructor(private router: Router) {}
+  constructor(private router: Router, private solicitudService: SolicitudEspacioService, private loading: LoadingService) { }
 
   ngOnInit(): void {
+    this.loading.show();
+    this.cargarEstadisticasMes();
+    this.cargarSolicitudesRecientes();
     this.actualizarFecha();
     this.iniciarActualizacionTiempo();
     this.generarCalendario();
+    this.loading.hide();
   }
 
   ngAfterViewInit(): void {
@@ -276,13 +125,148 @@ export class InstructorHomeComponent implements OnInit, OnDestroy, AfterViewInit
     }
   }
 
+  cargarSolicitudesRecientes(): void {
+    this.solicitudService.getMisSolicitudes().subscribe((solicitudes: SolicitudEspacio[]) => {
+      const recientes = solicitudes
+        .sort((a, b) => new Date(b.fechaSolicitud).getTime() - new Date(a.fechaSolicitud).getTime())
+        .slice(0, 3)
+        .map(s => {
+          const fechaPres = new Date(s.fechaPres);
+          const fechaDevol = new Date(s.fechaDevol);
+          const duracionHoras = ((fechaDevol.getTime() - fechaPres.getTime()) / (1000 * 60 * 60)).toFixed(0);
+
+          return {
+            id: s.idmov ?? 0,
+            ambiente: s.espacio?.nombre || 'Desconocido',
+            fecha: this.formatearFecha(fechaPres),
+            horario: `${this.formatearHora(fechaPres)} - ${this.formatearHora(fechaDevol)}`,
+            duracion: `${duracionHoras} horas`,
+            capacidad: s.espacio?.capacidad || 0,
+            estado: s.estado as 'Pendiente' | 'Aprobada' | 'Rechazada' | 'Cancelada' | 'Completada'
+          };
+        });
+
+      this.solicitudesRecientes = recientes;
+    });
+  }
+
+
+  cargarEstadisticasMes(): void {
+    this.solicitudService.getMisSolicitudes().subscribe((solicitudes: SolicitudEspacio[]) => {
+      const ahora = new Date();
+      const mesActual = ahora.getMonth();
+      const anioActual = ahora.getFullYear();
+
+      // Filtrar solicitudes del mes actual
+      const solicitudesMes = solicitudes.filter(s => {
+        const fecha = new Date(s.fechaSolicitud);
+        return fecha.getMonth() === mesActual && fecha.getFullYear() === anioActual;
+      });
+
+      // 1. Total de solicitudes este mes
+      const total = solicitudesMes.length;
+
+      // 2. Total aprobadas
+      const aprobadas = solicitudesMes.filter(s => s.estado === 'Aprobada').length;
+      const porcentajeAprobadas = total > 0 ? Math.round((aprobadas / total) * 100) : 0;
+
+      // 3. Duración promedio (en horas)
+      const solicitudesConDevolucion = solicitudesMes.filter(s => s.fechaPres && s.fechaDevol);
+      const duraciones = solicitudesConDevolucion.map(s => {
+        const inicio = new Date(s.fechaPres).getTime();
+        const fin = new Date(s.fechaDevol).getTime();
+        return (fin - inicio) / (1000 * 60 * 60); // horas
+      });
+      const duracionPromedio = duraciones.length > 0
+        ? (duraciones.reduce((a, b) => a + b, 0) / duraciones.length).toFixed(1)
+        : '0';
+
+      // 4. Pendientes
+      const pendientes = solicitudesMes.filter(s => s.estado === 'Pendiente').length;
+
+      this.estadisticas = [
+        {
+          value: `${total}`,
+          label: 'Solicitudes este mes',
+          icon: 'fas fa-calendar-alt',
+          bgColor: 'rgba(96, 150, 186, 0.1)',
+          color: '#6096BA',
+          trend: {
+            type: 'positive',
+            icon: 'fa-circle',
+            value: ''
+          },
+          chartData: 'M0,25 L10,22 L20,20 L30,18 L40,15 L50,12 L60,10 L70,8 L80,10 L90,5 L100,8'
+        },
+        {
+          value: `${porcentajeAprobadas}%`,
+          label: 'Aprobadas',
+          icon: 'fas fa-check-circle',
+          bgColor: 'rgba(76, 175, 80, 0.1)',
+          color: '#4CAF50',
+          trend: {
+            type: 'positive',
+            icon: 'fa-arrow-up',
+            value: ''
+          },
+          chartData: 'M0,20 L10,18 L20,22 L30,15 L40,18 L50,10 L60,15 L70,8 L80,12 L90,5 L100,10'
+        },
+        {
+          value: `${duracionPromedio}h`,
+          label: 'Duración promedio',
+          icon: 'fas fa-clock',
+          bgColor: 'rgba(255, 152, 0, 0.1)',
+          color: '#FF9800',
+          trend: {
+            type: 'negative',
+            icon: 'fa-clock',
+            value: ''
+          },
+          chartData: 'M0,15 L10,12 L20,10 L30,8 L40,10 L50,5 L60,8 L70,3 L80,5 L90,2 L100,5'
+        },
+        {
+          value: `${pendientes}`,
+          label: 'Pendientes',
+          icon: 'fas fa-hourglass-half',
+          bgColor: 'rgba(244, 67, 54, 0.1)',
+          color: '#F44336',
+          trend: {
+            type: 'negative',
+            icon: 'fa-exclamation-triangle',
+            value: ''
+          },
+          chartData: 'M0,20 L10,18 L20,15 L30,12 L40,10 L50,8 L60,10 L70,5 L80,8 L90,3 L100,5'
+        }
+      ];
+    });
+  }
+
+  private formatearFecha(fecha: Date): string {
+  const hoy = new Date();
+  const mañana = new Date();
+  mañana.setDate(hoy.getDate() + 1);
+
+  if (fecha.toDateString() === hoy.toDateString()) {
+    return 'Hoy';
+  } else if (fecha.toDateString() === mañana.toDateString()) {
+    return 'Mañana';
+  } else {
+    return fecha.toLocaleDateString('es-CO', { weekday: 'long' }); // e.g. 'viernes'
+  }
+}
+
+private formatearHora(fecha: Date): string {
+  return fecha.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit', hour12: false });
+}
+
+
   actualizarFecha(): void {
     const now = new Date();
-    const opciones: Intl.DateTimeFormatOptions = { 
-      weekday: 'long', 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric' 
+    const opciones: Intl.DateTimeFormatOptions = {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
     };
     const fechaString = now.toLocaleDateString('es-ES', opciones);
     this.fechaActual = fechaString.charAt(0).toUpperCase() + fechaString.slice(1);
@@ -297,7 +281,7 @@ export class InstructorHomeComponent implements OnInit, OnDestroy, AfterViewInit
   generarCalendario(): void {
     const today = new Date();
     const currentWeek = this.getWeekDates(today);
-    
+
     this.currentWeek = this.formatMonth(today);
     this.currentWeekDays = currentWeek.map(date => ({
       number: date.getDate(),
@@ -313,12 +297,12 @@ export class InstructorHomeComponent implements OnInit, OnDestroy, AfterViewInit
     const day = startOfWeek.getDay();
     const diff = startOfWeek.getDate() - day;
     startOfWeek.setDate(diff);
-    
+
     for (let i = 0; i < 7; i++) {
       week.push(new Date(startOfWeek));
       startOfWeek.setDate(startOfWeek.getDate() + 1);
     }
-    
+
     return week;
   }
 
@@ -393,22 +377,15 @@ export class InstructorHomeComponent implements OnInit, OnDestroy, AfterViewInit
     this.sidebarActive = !this.sidebarActive;
   }
 
-  getStatusIcon(estado: 'aprobado' | 'pendiente' | 'rechazado'): string {
-    const icons: { [key in 'aprobado' | 'pendiente' | 'rechazado']: string } = {
-      'aprobado': 'fa-check',
-      'pendiente': 'fa-clock',
-      'rechazado': 'fa-times'
+  getStatusIcon(estado: 'Aprobada' | 'Pendiente' | 'Rechazada' | 'Cancelada' | 'Completada'): string {
+    const icons: { [key in 'Aprobada' | 'Pendiente' | 'Rechazada' | 'Cancelada' | 'Completada']: string } = {
+      'Aprobada': 'fa-check',
+      'Pendiente': 'fa-clock',
+      'Rechazada': 'fa-times',
+      'Cancelada': 'fa-ban',
+      'Completada': 'fa-check-double'
     };
-    return icons[estado];
-  }
-
-  getStatusText(estado: 'aprobado' | 'pendiente' | 'rechazado'): string {
-    const texts = {
-      'aprobado': 'Aprobado',
-      'pendiente': 'Pendiente',
-      'rechazado': 'Rechazado'
-    };
-    return texts[estado];
+    return icons[estado] || 'fa-question';
   }
 
   previousWeek(): void {
@@ -437,7 +414,7 @@ export class InstructorHomeComponent implements OnInit, OnDestroy, AfterViewInit
     console.log('Descargando reporte para período:', this.selectedPeriod);
     // Aquí iría la lógica para generar y descargar el PDF
     this.closeReportModal();
-    
+
     // Simulación de descarga exitosa
     setTimeout(() => {
       alert('Reporte descargado exitosamente');

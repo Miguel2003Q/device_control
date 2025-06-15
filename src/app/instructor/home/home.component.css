@@ -9,9 +9,10 @@
     --success: #4CAF50;
     --warning: #FF9800;
     --danger: #F44336;
+  --neutral: #6c757d;
     --info: #2196F3;
     --dark: #1a1a1a;
-    --gray-100: #f8f9fa;
+    --gray-100: #f8f9fa;    
     --gray-200: #e9ecef;
     --gray-300: #dee2e6;
     --gray-400: #ced4da;
@@ -398,17 +399,26 @@ body {
     background: var(--gray-400);
 }
 
-.timeline-marker.aprobado {
-    background: var(--success);
-}
-
 .timeline-marker.pendiente {
-    background: var(--warning);
+  background: var(--warning);
 }
 
-.timeline-marker.rechazado {
-    background: var(--danger);
+.timeline-marker.aprobada {
+  background: var(--success);
 }
+
+.timeline-marker.rechazada {
+  background: var(--danger);
+}
+
+.timeline-marker.cancelada {
+  background:  #6c757d; /* Puedes definir --neutral o usar un color como #999 */
+}
+
+.timeline-marker.completada {
+  background: (var(--info)); /* Usa un color como azul para indicar finalización */
+}
+
 
 .timeline-content {
     background: var(--gray-50);
@@ -454,20 +464,31 @@ body {
     font-weight: 500;
 }
 
-.status-badge.aprobado {
-    background: rgba(76, 175, 80, 0.1);
-    color: var(--success);
+.status-badge.aprobada {
+  background: rgba(76, 175, 80, 0.1); /* verde claro */
+  color: var(--success);
 }
 
 .status-badge.pendiente {
-    background: rgba(255, 152, 0, 0.1);
-    color: var(--warning);
+  background: rgba(255, 152, 0, 0.1); /* naranja claro */
+  color: var(--warning);
 }
 
-.status-badge.rechazado {
-    background: rgba(244, 67, 54, 0.1);
-    color: var(--danger);
+.status-badge.rechazada {
+  background: rgba(244, 67, 54, 0.1); /* rojo claro */
+  color: var(--danger);
 }
+
+.status-badge.cancelada {
+  background: rgba(158, 158, 158, 0.1); /* gris claro */
+  color: var(--neutral); /* define en :root si aún no está */
+}
+
+.status-badge.completada {
+  background: rgba(33, 150, 243, 0.1); /* azul claro */
+  color: var(--info); /* define en :root si aún no está */
+}
+
 
 .timeline-info {
     display: flex;
@@ -522,14 +543,6 @@ body {
     grid-template-columns: repeat(7, 1fr);
     gap: 8px;
     margin-bottom: 8px;
-}
-
-.day-label {
-    text-align: center;
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--gray-600);
-    padding: 8px 0;
 }
 
 .calendar-grid {
@@ -712,6 +725,7 @@ body {
     gap: 10px;
     margin-bottom: 12px;
     color: var(--gray-700);
+    text-align: left;
 }
 
 .tips-list i {
@@ -776,11 +790,11 @@ body {
 }
 
 /* Empty State */
-.empty-state {
+/* .empty-state {
     text-align: center;
     padding: 40px;
     color: var(--gray-500);
-}
+} */
 
 .empty-state i {
     font-size: 48px;

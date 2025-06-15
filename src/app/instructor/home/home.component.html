@@ -37,7 +37,7 @@
                         <i class="fas fa-arrow-right arrow-icon"></i>
                     </button>
 
-                    <button class="action-card accent" (click)="generarReporte()" [@scaleIn]>
+                    <button class="action-card accent" routerLink="/ins/historial-solicitudes" [@scaleIn]>
                         <div class="action-icon">
                             <i class="fas fa-download"></i>
                         </div>
@@ -57,9 +57,8 @@
                     Tu Resumen del Mes
                 </h3>
                 <div class="stats-cards">
-                    <div class="stat-card" *ngFor="let stat of estadisticas; let i = index" 
-                         [@cardAnimation]
-                         [style.animation-delay]="i * 0.1 + 's'">
+                    <div class="stat-card" *ngFor="let stat of estadisticas; let i = index" [@cardAnimation]
+                        [style.animation-delay]="i * 0.1 + 's'">
                         <div class="stat-header">
                             <div class="stat-icon" [style.background]="stat.bgColor">
                                 <i [class]="stat.icon" [style.color]="stat.color"></i>
@@ -76,10 +75,8 @@
                         <div class="stat-footer">
                             <div class="mini-chart">
                                 <svg viewBox="0 0 100 30" preserveAspectRatio="none">
-                                    <path [attr.d]="stat.chartData" 
-                                          fill="none" 
-                                          [attr.stroke]="stat.color"
-                                          stroke-width="2"/>
+                                    <path [attr.d]="stat.chartData" fill="none" [attr.stroke]="stat.color"
+                                        stroke-width="2" />
                                 </svg>
                             </div>
                         </div>
@@ -96,20 +93,19 @@
                             <i class="fas fa-clock"></i>
                             Solicitudes Recientes
                         </h3>
-                        <button class="see-all-btn" routerLink="/mis-solicitudes">
+                        <button class="see-all-btn" routerLink="/ins/historial-solicitudes">
                             Ver todas
                             <i class="fas fa-arrow-right"></i>
                         </button>
                     </div>
-                    
+
                     <div class="solicitudes-timeline">
-                        <div class="timeline-item" 
-                             *ngFor="let solicitud of solicitudesRecientes; let i = index"
-                             [@listAnimation]
-                             [style.animation-delay]="i * 0.1 + 's'">
-                            <div class="timeline-marker" [class]="solicitud.estado">
-                                <i class="fas" [class]="getStatusIcon(solicitud.estado)"></i>
+                        <div class="timeline-item" *ngFor="let solicitud of solicitudesRecientes; let i = index"
+                            [@listAnimation] [style.animation-delay]="i * 0.1 + 's'">
+                            <div class="timeline-marker" [ngClass]="solicitud.estado.toLowerCase()">
+                                <i class="fas" [ngClass]="getStatusIcon(solicitud.estado)"></i>
                             </div>
+
                             <div class="timeline-content">
                                 <div class="timeline-header">
                                     <h4>{{ solicitud.ambiente }}</h4>
@@ -120,7 +116,7 @@
                                 </p>
                                 <div class="timeline-footer">
                                     <span class="status-badge" [class]="solicitud.estado">
-                                        {{ getStatusText(solicitud.estado) }}
+                                        {{ solicitud.estado }}
                                     </span>
                                     <span class="timeline-info">
                                         <i class="fas fa-users"></i>
@@ -140,81 +136,7 @@
                     </div>
                 </div>
 
-                <!-- Calendario de reservas -->
-                <div class="calendar-section" [@slideIn]>
-                    <h3 class="section-title">
-                        <i class="fas fa-calendar-alt"></i>
-                        Tus Próximas Clases
-                    </h3>
-                    
-                    <div class="mini-calendar">
-                        <div class="calendar-header">
-                            <button class="calendar-nav" (click)="previousWeek()">
-                                <i class="fas fa-chevron-left"></i>
-                            </button>
-                            <span class="calendar-month">{{ currentWeek }}</span>
-                            <button class="calendar-nav" (click)="nextWeek()">
-                                <i class="fas fa-chevron-right"></i>
-                            </button>
-                        </div>
-                        
-                        <div class="calendar-days">
-                            <div class="day-label" *ngFor="let day of weekDays">{{ day }}</div>
-                        </div>
-                        
-                        <div class="calendar-grid">
-                            <div class="calendar-day" 
-                                 *ngFor="let day of currentWeekDays"
-                                 [class.today]="day.isToday"
-                                 [class.has-event]="day.hasEvent">
-                                <span class="day-number">{{ day.number }}</span>
-                                <div class="day-events" *ngIf="day.events.length > 0">
-                                    <div class="event-dot" 
-                                         *ngFor="let event of day.events"
-                                         [style.background]="event.color"
-                                         [title]="event.title"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="upcoming-classes">
-                        <h4>Próximas 48 horas</h4>
-                        <div class="class-list">
-                            <div class="class-item" 
-                                 *ngFor="let clase of proximasClases"
-                                 [@listAnimation]>
-                                <div class="class-time">
-                                    <span class="time">{{ clase.hora }}</span>
-                                    <span class="date">{{ clase.fecha }}</span>
-                                </div>
-                                <div class="class-info">
-                                    <h5>{{ clase.ambiente }}</h5>
-                                    <p>{{ clase.materia }}</p>
-                                </div>
-                                <div class="class-badge" [style.background]="clase.color">
-                                    <i class="fas fa-users"></i>
-                                    {{ clase.estudiantes }}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Gráfico de uso semanal -->
-            <div class="usage-chart-section" [@fadeIn]>
-                <h3 class="section-title">
-                    <i class="fas fa-chart-bar"></i>
-                    Uso de Ambientes - Última Semana
-                </h3>
-                <div class="chart-container">
-                    <canvas id="usageChart"></canvas>
-                </div>
-            </div>
-
-            <!-- Tips y notificaciones -->
-            <div class="info-section">
+                <!-- Consejos -->
                 <div class="tips-card" [@slideIn]>
                     <div class="tips-header">
                         <i class="fas fa-lightbulb"></i>
@@ -223,66 +145,32 @@
                     <ul class="tips-list">
                         <li>
                             <i class="fas fa-check"></i>
-                            Solicita ambientes con al menos 24 horas de anticipación
+                            Solicita ambientes con al menos <strong>24 horas</strong> de anticipación
                         </li>
                         <li>
                             <i class="fas fa-check"></i>
-                            Verifica la capacidad del ambiente antes de solicitar
+                            Verifica la <strong>capacidad del ambiente</strong> antes de solicitar
                         </li>
                         <li>
                             <i class="fas fa-check"></i>
-                            Cancela con tiempo si no usarás el ambiente
+                            Cancela con tiempo si <strong>no usarás</strong> el ambiente
+                        </li>
+                        <li>
+                            <i class="fas fa-check"></i>
+                            Asegúrate de que el ambiente tenga el <strong>equipo necesario</strong>
+                        </li>
+                        <li>
+                            <i class="fas fa-check"></i>
+                            Revisa si el ambiente está <strong>disponible en el sistema</strong> antes de solicitarlo
+                        </li>
+                        <li>
+                            <i class="fas fa-check"></i>
+                            Evita solapar solicitudes para el <strong>mismo horario</strong>
                         </li>
                     </ul>
                 </div>
 
-                <div class="notifications-card" [@slideIn]>
-                    <div class="notifications-header">
-                        <i class="fas fa-bell"></i>
-                        <h4>Notificaciones</h4>
-                    </div>
-                    <div class="notification-item" *ngFor="let notif of notificaciones">
-                        <div class="notif-icon" [class]="notif.type">
-                            <i class="fas" [class]="notif.icon"></i>
-                        </div>
-                        <div class="notif-content">
-                            <p>{{ notif.message }}</p>
-                            <span class="notif-time">{{ notif.time }}</span>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
     </main>
-
-    <!-- Modal de generación de reporte -->
-    <div class="modal-overlay" *ngIf="showReportModal" (click)="closeReportModal()" [@fadeIn]>
-        <div class="modal-content" (click)="$event.stopPropagation()" [@slideIn]>
-            <div class="modal-header">
-                <h3>Generar Reporte</h3>
-                <button class="modal-close" (click)="closeReportModal()">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="modal-body">
-                <p>Selecciona el período del reporte:</p>
-                <div class="period-options">
-                    <button class="period-btn" 
-                            *ngFor="let period of reportPeriods"
-                            [class.active]="selectedPeriod === period.value"
-                            (click)="selectPeriod(period.value)">
-                        <i class="fas" [class]="period.icon"></i>
-                        {{ period.label }}
-                    </button>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn-secondary" (click)="closeReportModal()">Cancelar</button>
-                <button class="btn-primary" (click)="downloadReport()">
-                    <i class="fas fa-download"></i>
-                    Descargar PDF
-                </button>
-            </div>
-        </div>
-    </div>
 </div>

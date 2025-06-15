@@ -14,9 +14,10 @@ body {
   background-color: #E7ECEF;
   color: #333333;
   font-size: 14px;
+  min-height: 100vh;
 }
 
-button {
+button {  
   cursor: pointer;
   border: none;
   outline: none;
@@ -32,87 +33,12 @@ a {
 /* Layout principal */
 .dashboard-container {
   display: flex;
-  height: calc(100vh - 60px);
+  /* height: calc(100vh - 60px); */
+  height: 100vh;
   overflow: auto;
   background-color: #F8F9FA;
   margin-left: 250px;
-  margin-top: 60px;
-}
-
-/* Sidebar */
-.sidebar {
-  width: 250px;
-  background-color: #FFFFFF;
-  border-right: 1px solid rgba(0, 0, 0, 0.1);
-  display: flex;
-  flex-direction: column;
-  transition: all 0.3s ease;
-  z-index: 10;
-}
-
-.sidebar-header {
-  padding: 20px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-}
-
-.sidebar-header h1 {
-  color: #274C77;
-  font-size: 20px;
-  font-weight: 600;
-}
-
-.sidebar-menu {
-  flex-grow: 1;
-  padding: 20px 0;
-  overflow-y: auto;
-}
-
-.menu-item {
-  display: flex;
-  align-items: center;
-  padding: 12px 20px;
-  color: #333333;
-  transition: all 0.3s ease;
-  margin-bottom: 5px;
-}
-
-.menu-item i {
-  font-size: 18px;
-  margin-right: 12px;
-  width: 20px;
-  text-align: center;
-}
-
-.menu-item:hover {
-  background-color: rgba(96, 150, 186, 0.1);
-  color: #6096BA;
-}
-
-.menu-item.active {
-  background-color: rgba(96, 150, 186, 0.15);
-  color: #274C77;
-  font-weight: 500;
-  border-left: 3px solid #274C77;
-}
-
-.sidebar-footer {
-  padding: 20px;
-  border-top: 1px solid rgba(0, 0, 0, 0.1);
-}
-
-.logout-btn {
-  display: flex;
-  align-items: center;
-  color: #888888;
-  transition: all 0.3s ease;
-}
-
-.logout-btn i {
-  margin-right: 10px;
-}
-
-.logout-btn:hover {
-  color: #F44336;
+  /* margin-top: 60px; */
 }
 
 /* Contenido principal */
@@ -121,89 +47,7 @@ a {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-}
-
-/* Barra superior */
-.top-bar {
-  height: 70px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 20px;
-  background-color: #FFFFFF;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-}
-
-.search-container {
-  display: flex;
-  align-items: center;
-  background-color: #E7ECEF;
-  border-radius: 25px;
-  padding: 8px 15px;
-  width: 300px;
-}
-
-.search-container i {
-  color: #888888;
-  margin-right: 8px;
-}
-
-.search-container input {
-  background: none;
-  border: none;
-  outline: none;
-  flex-grow: 1;
-  color: #333333;
-  font-size: 14px;
-}
-
-.user-actions {
-  display: flex;
-  align-items: center;
-}
-
-.icon-btn {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-right: 10px;
-  transition: all 0.3s ease;
-  background-color: #E7ECEF;
-  color: #6096BA;
-}
-
-.icon-btn:hover {
-  background-color: #A3CEF1;
-  color: #274C77;
-}
-
-.user-profile {
-  display: flex;
-  align-items: center;
-  padding-left: 10px;
-}
-
-.avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  object-fit: cover;
-  margin-right: 10px;
-  border: 2px solid #A3CEF1;
-}
-
-.user-info h3 {
-  font-size: 14px;
-  font-weight: 500;
-  color: #333333;
-}
-
-.user-info span {
-  font-size: 12px;
-  color: #888888;
+  min-height: 100%;
 }
 
 /* Contenido wrapper */
@@ -211,14 +55,19 @@ a {
   flex-grow: 1;
   overflow: auto;
   padding: 20px;
+  min-height: 100%;
 }
 
 /* Sección de usuarios */
 .users-container {
+  margin-top: 60px;
   background-color: #FFFFFF;
   border-radius: 10px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   overflow: hidden;
+  min-height: 100%; /* O ajusta según necesites */
+  display: flex;
+  flex-direction: column;
 }
 
 /* Pestañas de navegación */
@@ -331,8 +180,9 @@ a {
 
 /* Tabla de usuarios */
 .users-table-container {
-  padding: 15px;
+  padding: 15px 15px 0; /* Elimina el padding inferior para evitar espacio */
   overflow-x: auto;
+  flex-grow: 1;
 }
 
 .users-table {
@@ -398,10 +248,10 @@ a {
 
 .no-results {
   text-align: center;
-  padding: 30px 0;
+  padding: 20px 0 0; /* Ajusta el padding superior e inferior */
   color: #888888;
+  flex-grow: 0; /* Evita que crezca innecesariamente */
 }
-
 /* Modal */
 .modal-overlay {
   position: fixed;
