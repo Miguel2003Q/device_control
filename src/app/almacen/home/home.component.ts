@@ -11,6 +11,7 @@ import { Espacio } from '../../core/models/espacio.model';
 import { CommonModule } from '@angular/common';
 import { TopBarComponent } from "../shared/top-bar/top-bar.component";
 import { SidebarComponent } from "../shared/sidebar/sidebar.component";
+import { ActivoService } from '../../core/services/activo.service';
 
 Chart.register(...registerables);
 
@@ -38,39 +39,6 @@ interface Categoria {
   porcentaje: number;
   icon: string;
   color: string;
-}
-
-interface Movimiento {
-  tipo: 'entrada' | 'salida' | 'mantenimiento' | 'nuevo';
-  activo: string;
-  serial: string;
-  descripcion: string;
-  ubicacion: string;
-  tiempo: string;
-}
-
-interface Mantenimiento {
-  dia: string;
-  mes: string;
-  activo: string;
-  tipo: string;
-  urgencia: 'normal' | 'urgente';
-}
-
-interface AlertaStock {
-  mensaje: string;
-  categoria: string;
-}
-
-interface ActivoDestacado extends Activo {
-  usoMensual: number;
-}
-
-interface Metrica {
-  titulo: string;
-  valor: string;
-  icon: string;
-  cambio: number;
 }
 
 @Component({
@@ -111,68 +79,19 @@ interface Metrica {
     ])
   ]
 })
-export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
+export class HomeComponent implements OnInit, OnDestroy {
   sidebarActive = false;
   fechaActual = '';
   notificacionesPendientes = 3;
   filtroActivo = 'todos';
-  
+  activos: Activo[] = [];
+
   private timeInterval?: Subscription;
   private estadoChart?: Chart;
 
-  estadisticasPrincipales: EstadisticaPrincipal[] = [
-    {
-      value: 247,
-      label: 'Total de Activos',
-      icon: 'fas fa-boxes',
-      colorClass: 'primary',
-      trend: {
-        type: 'positive',
-        icon: 'fa-arrow-up',
-        text: '+12 este mes'
-      }
-    },
-    {
-      value: 189,
-      label: 'Activos Disponibles',
-      icon: 'fas fa-check-circle',
-      colorClass: 'success',
-      trend: {
-        type: 'positive',
-        icon: 'fa-arrow-up',
-        text: '76.5% del total'
-      }
-    },
-    {
-      value: 45,
-      label: 'En Uso',
-      icon: 'fas fa-user-check',
-      colorClass: 'warning',
-      trend: {
-        type: 'negative',
-        icon: 'fa-arrow-down',
-        text: '-5 vs ayer'
-      }
-    },
-    {
-      value: 13,
-      label: 'En Mantenimiento',
-      icon: 'fas fa-tools',
-      colorClass: 'danger',
-      trend: {
-        type: 'positive',
-        icon: 'fa-arrow-up',
-        text: '+2 programados'
-      }
-    }
-  ];
+  estadisticasPrincipales: EstadisticaPrincipal[] = [];
 
-  estadosActivos: EstadoActivo[] = [
-    { nombre: 'Activo', cantidad: 189, color: '#4CAF50' },
-    { nombre: 'En Uso', cantidad: 45, color: '#FF9800' },
-    { nombre: 'Mantenimiento', cantidad: 13, color: '#F44336' },
-    { nombre: 'Inactivo', cantidad: 0, color: '#9E9E9E' }
-  ];
+  estadosActivos: EstadoActivo[] = [];
 
   categorias: Categoria[] = [
     {
@@ -212,170 +131,13 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   ];
 
-  ultimosMovimientos: Movimiento[] = [
-    {
-      tipo: 'entrada',
-      activo: 'Laptop Dell Latitude 5520',
-      serial: 'DLL-2024-0145',
-      descripcion: 'Devuelto por instructor después de clase',
-      ubicacion: 'Almacén Principal',
-      tiempo: 'Hace 15 minutos'
-    },
-    {
-      tipo: 'salida',
-      activo: 'Proyector Epson X41+',
-      serial: 'EPS-2023-0089',
-      descripcion: 'Prestado para clase en Aula 305',
-      ubicacion: 'Aula 305',
-      tiempo: 'Hace 1 hora'
-    },
-    {
-      tipo: 'mantenimiento',
-      activo: 'Impresora HP LaserJet',
-      serial: 'HPL-2022-0034',
-      descripcion: 'Enviado a mantenimiento preventivo',
-      ubicacion: 'Taller de Servicio',
-      tiempo: 'Hace 2 horas'
-    },
-    {
-      tipo: 'nuevo',
-      activo: 'Monitor Samsung 24"',
-      serial: 'SMS-2024-0201',
-      descripcion: 'Nuevo activo registrado en el sistema',
-      ubicacion: 'Almacén Principal',
-      tiempo: 'Hace 3 horas'
-    }
-  ];
-
-  proximosMantenimientos: Mantenimiento[] = [
-    {
-      dia: '15',
-      mes: 'DIC',
-      activo: 'Aire Acondicionado - Lab 201',
-      tipo: 'Mantenimiento Preventivo',
-      urgencia: 'normal'
-    },
-    {
-      dia: '18',
-      mes: 'DIC',
-      activo: 'UPS Central',
-      tipo: 'Revisión Baterías',
-      urgencia: 'urgente'
-    },
-    {
-      dia: '22',
-      mes: 'DIC',
-      activo: 'Proyectores Aulas 301-305',
-      tipo: 'Limpieza de Lentes',
-      urgencia: 'normal'
-    }
-  ];
-
-  alertasStock: AlertaStock[] = [
-    {
-      mensaje: 'Stock bajo de toner para impresoras HP',
-      categoria: 'Consumibles'
-    },
-    {
-      mensaje: 'Solo 2 proyectores disponibles',
-      categoria: 'Audiovisuales'
-    },
-    {
-      mensaje: 'Cables HDMI por debajo del mínimo',
-      categoria: 'Accesorios'
-    }
-  ];
-
-  activosDestacados: ActivoDestacado[] = [
-    {
-      idactivo: 1,
-      nombre: 'Laptop Dell Latitude 5520',
-      url: 'assets/images/laptop.jpg',
-      serial: 'DLL-2024-0145',
-      estado: 'Activo',
-      observaciones: 'Equipo en excelente estado',
-      espacio: { idespacio: 1, nombre: 'Lab 201', descripcion: ''},
-      tipoActivo: { idtipoact: 1, nombre: 'Equipos de Cómputo' },
-      usoMensual: 85
-    },
-    {
-      idactivo: 2,
-      nombre: 'Proyector Epson X41+',
-      url: 'assets/images/proyector.jpg',
-      serial: 'EPS-2023-0089',
-      estado: 'Activo',
-      observaciones: 'Lámpara con 1200 horas de uso',
-      espacio: { idespacio: 2, nombre: 'Aula 305', descripcion: ''},
-      tipoActivo: { idtipoact: 2, nombre: 'Equipos Audiovisuales' },
-      usoMensual: 92
-    },
-    {
-      idactivo: 3,
-      nombre: 'Mesa de Trabajo Industrial',
-      url: 'assets/images/mesa.jpg',
-      serial: 'MTI-2022-0067',
-      estado: 'Activo',
-      observaciones: 'Mesa reforzada para talleres',
-      espacio: { idespacio: 3, nombre: 'Taller Mecánica', descripcion: ''},
-      tipoActivo: { idtipoact: 3, nombre: 'Mobiliario' },
-      usoMensual: 78
-    },
-    {
-      idactivo: 4,
-      nombre: 'Kit Herramientas Eléctricas',
-      url: 'assets/images/herramientas.jpg',
-      serial: 'KHE-2023-0102',
-      estado: 'En Mantenimiento',
-      observaciones: 'Revisión programada',
-      espacio: { idespacio: 4, nombre: 'Almacén', descripcion: ''},
-      tipoActivo: { idtipoact: 4, nombre: 'Herramientas' },
-      usoMensual: 65
-    }
-  ];
-
-  filtrosTabla = [
-    { value: 'todos', label: 'Todos' },
-    { value: 'semana', label: 'Esta Semana' },
-    { value: 'mes', label: 'Este Mes' }
-  ];
-
-  metricas: Metrica[] = [
-    {
-      titulo: 'Rotación de Inventario',
-      valor: '3.2x',
-      icon: 'fas fa-sync-alt',
-      cambio: 15
-    },
-    {
-      titulo: 'Tiempo Promedio de Préstamo',
-      valor: '4.5h',
-      icon: 'fas fa-clock',
-      cambio: -8
-    },
-    {
-      titulo: 'Tasa de Disponibilidad',
-      valor: '87%',
-      icon: 'fas fa-chart-line',
-      cambio: 5
-    },
-    {
-      titulo: 'Solicitudes Atendidas',
-      valor: '156',
-      icon: 'fas fa-clipboard-check',
-      cambio: 22
-    }
-  ];
-
-  constructor(private router: Router) {}
+  constructor(private router: Router, private activoService: ActivoService) { }
 
   ngOnInit(): void {
+    this.getEstadisticasPrincipales();
+    // this.inicializarEstadosActivos();
     this.actualizarFecha();
     this.iniciarActualizacionTiempo();
-    this.animarNumeros();
-  }
-
-  ngAfterViewInit(): void {
-    this.crearGraficoEstados();
   }
 
   ngOnDestroy(): void {
@@ -387,13 +149,146 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
+  inicializarTiposDeActivos(): void {
+    const resumen: { [key: string]: number } = {};
+    const total = this.activos.length;
+
+    // Contar los activos por tipo
+    this.activos.forEach(activo => {
+      const tipoNombre = activo.tipoActivo.nombre;
+      if (!resumen[tipoNombre]) {
+        resumen[tipoNombre] = 0;
+      }
+      resumen[tipoNombre]++;
+    });
+
+    // Asignar colores e íconos (puedes ajustarlos como quieras o generar dinámicamente)
+    const colores: string[] = ['#6096BA', '#4CAF50', '#FF9800', '#9C27B0', '#2196F3', '#F44336'];
+    const iconos: string[] = ['fas fa-desktop', 'fas fa-chair', 'fas fa-tv', 'fas fa-wrench', 'fas fa-book', 'fas fa-cogs'];
+
+    let colorIndex = 0;
+
+    // Construir el array `categorias`
+    this.categorias = Object.keys(resumen).map((tipoNombre, i) => {
+      const cantidad = resumen[tipoNombre];
+      return {
+        nombre: tipoNombre,
+        cantidad,
+        porcentaje: +(cantidad / total * 100).toFixed(1),
+        icon: iconos[i % iconos.length],
+        color: colores[colorIndex++ % colores.length]
+      };
+    });
+  }
+
+
+  inicializarEstadosActivos(): void {
+    const estados = ['Disponible', 'Ocupado', 'Mantenimiento'];
+    const colores: { [key: string]: string } = {
+      'Disponible': '#4CAF50',
+      'Ocupado': '#FF9800',
+      'Mantenimiento': '#F44336'
+    };
+
+    const resumen: { [key: string]: number } = {
+      'Disponible': 0,
+      'Ocupado': 0,
+      'Mantenimiento': 0
+    };
+
+    // Cuenta los activos por estado
+    this.activos.forEach(activo => {
+      const estadoNombre = this.estadoMap[activo.estado]; // convierte 'D' a 'Disponible', etc.
+      if (estadoNombre && resumen.hasOwnProperty(estadoNombre)) {
+        resumen[estadoNombre]++;
+      }
+    });
+
+    // Construye el array de estadosActivos actualizado
+    this.estadosActivos = estados.map(estado => ({
+      nombre: estado,
+      cantidad: resumen[estado],
+      color: colores[estado]
+    }));
+  }
+
+
+
+  getEstadisticasPrincipales(): void {
+    this.activoService.obtenerTodosLosActivos().subscribe((activos) => {
+      this.activos = activos;
+      this.inicializarEstadosActivos(); // Actualiza los estados activos
+      this.crearGraficoEstados();
+      this.inicializarTiposDeActivos(); // Inicializa las categorías de activos
+      const total = activos.length;
+      const disponibles = activos.filter(a => this.estadoMap[a.estado] === 'Disponible').length;
+      const enUso = activos.filter(a => this.estadoMap[a.estado] === 'Ocupado').length;
+      const enMantenimiento = activos.filter(a => this.estadoMap[a.estado] === 'Mantenimiento').length;
+
+      this.estadisticasPrincipales = [
+        {
+          value: total,
+          label: 'Total de Activos',
+          icon: 'fas fa-boxes',
+          colorClass: 'primary',
+          trend: {
+            type: 'positive',
+            icon: 'fa-arrow-up',
+            text: `+${Math.floor(Math.random() * 20)} este mes` // ejemplo de tendencia
+          }
+        },
+        {
+          value: disponibles,
+          label: 'Activos Disponibles',
+          icon: 'fas fa-check-circle',
+          colorClass: 'success',
+          trend: {
+            type: 'positive',
+            icon: 'fa-arrow-up',
+            text: `${((disponibles / total) * 100).toFixed(1)}% del total`
+          }
+        },
+        {
+          value: enUso,
+          label: 'Ocupados',
+          icon: 'fas fa-user-check',
+          colorClass: 'warning',
+          trend: {
+            type: enUso < 50 ? 'negative' : 'positive', // lógica ejemplo
+            icon: enUso < 50 ? 'fa-arrow-down' : 'fa-arrow-up',
+            text: enUso < 50 ? '-5 vs ayer' : '+3 vs ayer'
+          }
+        },
+        {
+          value: enMantenimiento,
+          label: 'En Mantenimiento',
+          icon: 'fas fa-tools',
+          colorClass: 'danger',
+          trend: {
+            type: 'positive',
+            icon: 'fa-arrow-up',
+            text: `+${Math.floor(Math.random() * 5)} programados`
+          }
+        }
+      ];
+      // Usa setTimeout para esperar al render
+      setTimeout(() => this.animarNumeros(), 50);
+    });
+  }
+
+  estadoMap: { [key: string]: string } = {
+    'D': 'Disponible',
+    'O': 'Ocupado',
+    'M': 'Mantenimiento'
+  };
+
   actualizarFecha(): void {
     const now = new Date();
-    const opciones: Intl.DateTimeFormatOptions = { 
-      weekday: 'long', 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric' 
+    const opciones: Intl.DateTimeFormatOptions = {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
     };
     const fechaString = now.toLocaleDateString('es-ES', opciones);
     this.fechaActual = fechaString.charAt(0).toUpperCase() + fechaString.slice(1);
@@ -408,12 +303,13 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
   animarNumeros(): void {
     setTimeout(() => {
       const elementos = document.querySelectorAll('.stat-value');
-      elementos.forEach((elemento: any) => {
-        const valorFinal = parseInt(elemento.getAttribute('data-value') || '0');
-        this.animarValor(elemento, 0, valorFinal, 1500);
+      elementos.forEach((el: any) => {
+        const valorFinal = parseInt(el.getAttribute('data-value') || '0', 10);
+        this.animarValor(el, 0, valorFinal, 1500);
       });
     }, 300);
   }
+
 
   animarValor(elemento: HTMLElement, inicio: number, fin: number, duracion: number): void {
     let tiempoInicio: number | null = null;
@@ -422,7 +318,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
       const progreso = Math.min((tiempo - tiempoInicio) / duracion, 1);
       const valor = Math.floor(progreso * (fin - inicio) + inicio);
       elemento.textContent = valor.toString();
-      
+
       if (progreso < 1) {
         window.requestAnimationFrame(paso);
       }
@@ -475,7 +371,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     console.log('Exportando inventario...');
     // Aquí iría la lógica para exportar el inventario a Excel
     // Por ejemplo, usando una librería como SheetJS
-    
+
     // Simulación de exportación exitosa
     setTimeout(() => {
       alert('Inventario exportado exitosamente');
@@ -507,7 +403,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
   buscarActivoPorSerial(event: Event): void {
     const input = event.target as HTMLInputElement;
     const serial = input.value;
-    
+
     if (serial.length > 3) {
       // Aquí iría la lógica de búsqueda
       console.log('Buscando activo con serial:', serial);

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, BehaviorSubject } from 'rxjs';
+import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
+import { Observable, BehaviorSubject, of, tap, catchError, throwError } from 'rxjs';
 import { SolicitudEspacio } from '../models/solicitudEspacio.model';
 import { AuthService } from './auth.service';
 
@@ -8,13 +8,21 @@ import { AuthService } from './auth.service';
   providedIn: 'root'
 })
 export class SolicitudEspacioService {
+  public solicitudesCache: SolicitudEspacio[] | null = null; //Para almacenar en caché los activos (no hacer consultas innecesarias)
   private apiUrl = 'http://localhost:8080/movespacios';
   private solicitudParaDuplicar = new BehaviorSubject<SolicitudEspacio | null>(null);
 
   constructor(private http: HttpClient, private auth: AuthService) { }
 
   obtenerTodosLosMovimientos(): Observable<SolicitudEspacio[]> {
-    return this.http.get<SolicitudEspacio[]>(this.apiUrl);
+    if (this.solicitudesCache) {
+      return of(this.solicitudesCache);
+    } else {
+      return this.http.get<SolicitudEspacio[]>(this.apiUrl).pipe(
+        tap((data: SolicitudEspacio[]) => this.solicitudesCache = data),
+        catchError(this.handleError)
+      );
+    }
   }
 
   /**
@@ -171,5 +179,16 @@ export class SolicitudEspacioService {
    */
   clearSolicitudParaDuplicar(): void {
     this.solicitudParaDuplicar.next(null);
+  }
+
+  private handleError(error: HttpErrorResponse): Observable<never> {
+    let errorMessage = 'Ocurrió un error desconocido';
+    if (error.error instanceof ErrorEvent) {
+      errorMessage = `Error: ${error.error.message}`;
+    } else {
+      errorMessage = `Error ${error.status}: ${error.message}`;
+    }
+    console.error(errorMessage);
+    return throwError(() => new Error(errorMessage));
   }
 }

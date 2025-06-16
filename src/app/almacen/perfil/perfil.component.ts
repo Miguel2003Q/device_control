@@ -5,6 +5,7 @@ import { TopBarComponent } from '../shared/top-bar/top-bar.component';
 import { SidebarComponent } from '../shared/sidebar/sidebar.component';
 import { AuthService } from '../../core/services/auth.service';
 import { UsuarioService } from '../../core/services/usuario.service';
+import { LoadingService } from '../../core/services/loading.service';
 
 interface User {
   id?: number;
@@ -45,7 +46,7 @@ export class PerfilComponent implements OnInit {
   notificationType: 'success' | 'error' | null = null;
   selectedFile: File | null = null;
 
-  constructor(private fb: FormBuilder, private authService: AuthService, private usuarioService: UsuarioService) {
+  constructor(private fb: FormBuilder, private authService: AuthService, private usuarioService: UsuarioService, private loadingService: LoadingService) {
     this.editForm = this.fb.group({
       nombre: ['', [Validators.required, Validators.minLength(2)]],
       telefono: ['', [Validators.required, Validators.pattern('^[0-9]{10,15}$')]]
@@ -63,11 +64,13 @@ export class PerfilComponent implements OnInit {
   }
 
  loadUserData(): void {
+  this.loadingService.show();
   const userLocal = this.authService.getCurrentUser();
   const userId = userLocal?.idusuario || 0;
 
   if (userId === 0) {
     console.error('ID de usuario inválido.');
+    this.loadingService.hide();
     return;
   }
 
@@ -86,9 +89,11 @@ export class PerfilComponent implements OnInit {
         telefono: this.user.telefono
       });
 
+      this.loadingService.hide();
       console.log('User data loaded:', this.user);
     },
     error: (err) => {
+      this.loadingService.hide();
       console.error('No se pudo cargar el usuario:', err);
     }
   });

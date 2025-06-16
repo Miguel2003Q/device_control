@@ -1,149 +1,174 @@
 <app-top-bar (toggleSidebar)="toggleSidebarEmit()"></app-top-bar>
 <app-sidebar [active]="sidebarActive"></app-sidebar>
 
-<!-- ahora genera el home de un administrador solo con artefactos que permitan ver datos, hazlo bonito y profesional con animaciones suaves, un administrador puede gestionar activos, usuarios y espacios, así que has botones que redirijan a estas vistas y todo lo que consideres adecuado. -->
-
 <div class="dashboard-container">
-  
-  <!-- Contenido principal -->
-  <div class="main-content">
 
-    <!-- Contenido de ambientes -->
-    <div class="content-wrapper">
-      <div class="ambientes-container">
-        <div class="section-header">
-          <h2>Ambientes</h2>
-        </div>
-        
-        <div class="ambientes-list">
-          <!-- Ambiente 1 -->
-          <div class="ambiente-card">
-            <div class="ambiente-number">1</div>
-            <div class="ambiente-info">
-              <div class="info-row">
-                <div class="info-label">Estado:</div>
-                <div class="info-value ocupado">Ocupado</div>
-              </div>
-              <div class="info-row">
-                <div class="info-label">En uso por:</div>
-                <div class="info-value">Jorge Mario</div>
+  <!-- Contenido principal -->
+  <main class="main-content">
+
+    <!-- Contenido -->
+    <div class="content-container">
+      <!-- Panel de resumen ejecutivo -->
+      <div class="executive-summary" [@fadeIn]>
+        <h2 class="section-title">
+          <i class="fas fa-chart-line"></i>
+          Resumen Ejecutivo
+        </h2>
+        <div class="summary-grid">
+          <div class="summary-card" *ngFor="let card of summaryCards; let i = index" [@cardAnimation]
+            [style.animation-delay]="i * 0.1 + 's'" [class]="card.type">
+            <div class="card-header">
+              <div class="card-icon">
+                <i [class]="card.icon"></i>
               </div>
             </div>
-            <div class="ambiente-time">
-              <i class="far fa-clock"></i>
-              <span>1h 30min</span>
-            </div>
-            <div class="ambiente-actions">
-              <button class="action-btn details">Ver detalles</button>
-            </div>
-          </div>
-          
-          <!-- Ambiente 2 -->
-          <div class="ambiente-card">
-            <div class="ambiente-number">2</div>
-            <div class="ambiente-info">
-              <div class="info-row">
-                <div class="info-label">Estado:</div>
-                <div class="info-value disponible">Disponible</div>
+            <div class="card-body">
+              <h3 class="card-value">{{ card.value }}</h3>
+              <p class="card-title">{{ card.title }}</p>
+              <div class="card-stats">
               </div>
             </div>
-            <div class="ambiente-actions dual">
-              <button class="action-btn request">Solicitar Ambiente</button>
-              <button class="action-btn details">Ver detalles</button>
-            </div>
-          </div>
-          
-          <!-- Ambiente 3 -->
-          <div class="ambiente-card">
-            <div class="ambiente-number">3</div>
-            <div class="ambiente-info">
-              <div class="info-row">
-                <div class="info-label">Estado:</div>
-                <div class="info-value ocupado">Ocupado</div>
-              </div>
-              <div class="info-row">
-                <div class="info-label">En uso por:</div>
-                <div class="info-value">Jorge Mario</div>
-              </div>
-            </div>
-            <div class="ambiente-time">
-              <i class="far fa-clock"></i>
-              <span>1h 30min</span>
-            </div>
-            <div class="ambiente-actions">
-              <button class="action-btn details">Ver detalles</button>
+            <div class="card-chart">
+              <canvas [id]="'miniChart' + i"></canvas>
             </div>
           </div>
         </div>
       </div>
-      
-      <!-- Usuarios activos -->
-      <div class="usuarios-activos">
-        <div class="section-header">
-          <h2>Usuarios Activos</h2>
-          <button class="add-btn">
-            <i class="fas fa-plus"></i>
-          </button>
+
+      <!-- Acceso rápido a gestión -->
+      <div class="management-section" [@slideIn]>
+        <h2 class="section-title">
+          <i class="fas fa-tasks"></i>
+          Centro de Gestión
+        </h2>
+        <div class="management-grid">
+          <div class="management-card users" routerLink="/gestion-usuarios/usuarios-tabla" [@scaleIn]>
+            <div class="card-background">
+              <i class="fas fa-users"></i>
+            </div>
+            <div class="card-content">
+              <h3>Gestión de Usuarios</h3>
+              <div class="card-stats">
+                <div class="stat">
+                  <span class="value">{{ totalUsuarios }}</span>
+                  <span class="label">Usuarios Totales</span>
+                </div>
+                <div class="stat">
+                  <span class="value">{{ usuariosActivos }}</span>
+                  <span class="label">Activos Hoy</span>
+                </div>
+              </div>
+              <div class="card-actions">
+                <!-- <button class="action-btn">
+                  <i class="fas fa-user-plus"></i>
+                  Nuevo Usuario
+                </button> -->
+                <button class="action-btn">
+                  <i class="fas fa-list"></i>
+                  Ver Todos
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="management-card spaces" routerLink="/gestion-ambientes" [@scaleIn]>
+            <div class="card-background">
+              <i class="fas fa-building"></i>
+            </div>
+            <div class="card-content">
+              <h3>Gestión de Espacios</h3>
+              <div class="card-stats">
+                <div class="stat">
+                  <span class="value">{{ totalEspacios }}</span>
+                  <span class="label">Espacios Totales</span>
+                </div>
+                <div class="stat">
+                  <span class="value">{{ espaciosOcupados }}%</span>
+                  <span class="label">Ocupación</span>
+                </div>
+              </div>
+              <div class="card-actions">
+                <button class="action-btn">
+                  <i class="fas fa-plus-square"></i>
+                  Nuevo Espacio
+                </button>
+                <!-- <button class="action-btn">
+                  <i class="fas fa-map"></i>
+                  Ver Mapa
+                </button> -->
+              </div>
+            </div>
+          </div>
+
+          <div class="management-card assets" routerLink="/gestion-activos" [@scaleIn]>
+            <div class="card-background">
+              <i class="fas fa-boxes"></i>
+            </div>
+            <div class="card-content">
+              <h3>Gestión de Activos</h3>
+              <div class="card-stats">
+                <div class="stat">
+                  <span class="value">{{ totalActivos }}</span>
+                  <span class="label">Activos Totales</span>
+                </div>
+                <div class="stat">
+                  <span class="value">{{ porcentajeActivosDisponibles }}%</span>
+                  <span class="label">Disponibles</span>
+                </div>
+              </div>
+              <div class="card-actions">
+                <!-- <button class="action-btn">
+                  <i class="fas fa-barcode"></i>
+                  Registrar Activo
+                </button> -->
+                <button class="action-btn">
+                  <i class="fas fa-warehouse"></i>
+                  Inventario
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
-        
-        <div class="usuarios-list">
-          <!-- Usuario 1 -->
-          <div class="usuario-card">
-            <div class="usuario-info">
-              <img src="assets/images/avatar.png" alt="Usuario" class="avatar">
-              <div class="usuario-details">
-                <h3>Jorge Mario</h3>
-                <span>Instructor</span>
-              </div>
-            </div>
-            <button class="view-btn">
-              <i class="fas fa-eye"></i>
+      </div>
+
+      <!-- Dashboard de métricas -->
+      <div class="metrics-dashboard">
+        <!-- Gráfico de actividad del sistema -->
+        <div class="chart-card large" [@slideIn]>
+          <div class="chart-header">
+            <h3>Algunos tips</h3>
+          </div>
+          <div class="chart-body">
+            <ul class="admin-tips">
+              <li>🔍 Revisa periódicamente los activos en mantenimiento para evitar retrasos en su disponibilidad.</li>
+              <li>📊 Utiliza los gráficos y estadísticas para detectar patrones de uso y necesidades de reposición.</li>
+              <li>📁 Mantén actualizada la información de cada activo, especialmente su ubicación y estado.</li>
+                <li>🛠 Programa mantenimientos preventivos para prolongar la vida útil de los equipos.</li>
+              <li>📝 Registra observaciones relevantes en los activos para tener trazabilidad histórica.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Distribución de usuarios por rol -->
+        <div class="chart-card medium" [@slideIn]>
+          <div class="chart-header">
+            <h3>Usuarios por Rol</h3>
+            <button class="chart-info">
+              <i class="fas fa-info-circle"></i>
             </button>
           </div>
-          
-          <!-- Usuario 2 -->
-          <div class="usuario-card">
-            <div class="usuario-info">
-              <img src="assets/images/avatar.png" alt="Usuario" class="avatar">
-              <div class="usuario-details">
-                <h3>Carlos Lopez</h3>
-                <span>Vigilante</span>
-              </div>
-            </div>
-            <button class="view-btn">
-              <i class="fas fa-eye"></i>
-            </button>
+          <div class="chart-body">
+            <canvas id="usersChart"></canvas>
           </div>
-          
-          <!-- Usuario 3 -->
-          <div class="usuario-card">
-            <div class="usuario-info">
-              <img src="assets/images/avatar.png" alt="Usuario" class="avatar">
-              <div class="usuario-details">
-                <h3>Rodrigo Perez</h3>
-                <span>Administrador</span>
-              </div>
+          <div class="chart-legend">
+            <div class="legend-item" *ngFor="let rol of usuariosPorRol">
+              <span class="legend-color" [style.background]="rol.color"></span>
+              <span class="legend-name">{{ rol.nombre }}</span>
+              <span class="legend-value">{{ rol.cantidad }}</span>
             </div>
-            <button class="view-btn">
-              <i class="fas fa-eye"></i>
-            </button>
-          </div>
-          
-          <!-- Usuario 4 -->
-          <div class="usuario-card">
-            <div class="usuario-info">
-              <img src="assets/images/avatar.png" alt="Usuario" class="avatar">
-              <div class="usuario-details">
-                <h3>Jaime Ortiz</h3>
-                <span>Vigilante</span>
-              </div>
-            </div>
-            <button class="view-btn">
-              <i class="fas fa-eye"></i>
-            </button>
           </div>
         </div>
       </div>
     </div>
-  </div>
+  </main>
 </div>
