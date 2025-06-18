@@ -490,42 +490,6 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
-  // Métodos de navegación
-  navegarUsuarios(): void {
-    this.router.navigate(['/usuarios']);
-  }
-
-  navegarEspacios(): void {
-    this.router.navigate(['/espacios']);
-  }
-
-  navegarActivos(): void {
-    this.router.navigate(['/activos']);
-  }
-
-  navegarNuevoUsuario(): void {
-    this.router.navigate(['/usuarios/nuevo']);
-  }
-
-  navegarNuevoEspacio(): void {
-    this.router.navigate(['/espacios/nuevo']);
-  }
-
-  navegarNuevoActivo(): void {
-    this.router.navigate(['/activos/nuevo']);
-  }
-
-  // Método para actualizar datos del dashboard
-  actualizarDashboard(): void {
-    console.log('Actualizando dashboard...');
-
-    // Aquí irían las llamadas a los servicios para obtener datos actualizados
-    // Por ejemplo:
-    // this.adminService.getEstadisticas().subscribe(data => {
-    //   this.actualizarEstadisticas(data);
-    // });
-  }
-
   // Limpiar recursos al destruir el componente
   limpiarRecursos(): void {
     if (this.timeInterval) {

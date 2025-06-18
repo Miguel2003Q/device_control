@@ -45,11 +45,15 @@ export const routes: Routes = [
     data: { roles: [4] }
   },
   {
-    path: 'estadisticas',
-    loadComponent: () => import('./admin/estadisticas/estadisticas.component').then(m => m.EstadisticasComponent),
+    path: 'estadisticas-activos',
+    loadComponent: () =>
+      import('./admin/estadisticas-activos/estadisticas-activos.component')
+        .then(m => m.EstadisticasActivosComponent),
     canActivate: [RoleGuard],
     data: { roles: [4] }
   },
+  
+
   {
     path: 'perfil',
     loadComponent: () => import('./admin/perfil/perfil.component').then(m => m.PerfilComponent),
