@@ -15,9 +15,9 @@
 @media (max-width: 768px) {
   .sidebar {
     position: fixed;
-    top: 62px;
+    /* top: 62px; */
     left: 0;
-    height: 100vh;
+    height: calc(100vh - 60px);
     transform: translateX(-100%);
     z-index: 1000;
     background-color: #fff;

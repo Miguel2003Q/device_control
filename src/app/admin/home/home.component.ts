@@ -72,7 +72,7 @@ interface RolUsuario {
     ])
   ]
 })
-export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
+export class HomeComponent implements OnInit, OnDestroy {
 
   usuarios: Usuario[] = [];
   solicitudes: SolicitudEspacio[] = [];
@@ -111,13 +111,6 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     this.cargarDatosDashboard();
     this.actualizarHora();
     this.iniciarActualizacionTiempo();
-  }
-
-  ngAfterViewInit(): void {
-    setTimeout(() => {
-      this.crearGraficos();
-      this.crearMiniGraficos();
-    }, 100);
   }
 
   ngOnDestroy(): void {
@@ -253,6 +246,8 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
 
         this.inicializarSummaryCards();
         this.inicializarUsuariosPorRol();
+        this.crearGraficos();
+      this.crearMiniGraficos();
       },
       error: (err) => {
         console.error('Error al cargar datos del dashboard', err);
@@ -391,54 +386,6 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
         this.miniCharts.push(chart);
       }
     });
-  }
-
-  getLabelsForPeriod(period: string): string[] {
-    switch (period) {
-      case 'day':
-        return ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00', '24:00'];
-      case 'week':
-        return ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
-      case 'month':
-        return ['Semana 1', 'Semana 2', 'Semana 3', 'Semana 4'];
-      case 'year':
-        return ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul'];
-      default:
-        return [];
-    }
-  }
-
-  getDataForPeriod(
-    tipo: 'solicitudes' | 'usuarios' | 'prestamos',
-    period: 'day' | 'week' | 'month' | 'year'
-  ): number[] {
-    // Simulación de datos según el período
-    const dataSets: {
-      solicitudes: { day: number[]; week: number[]; month: number[]; year: number[]; };
-      usuarios: { day: number[]; week: number[]; month: number[]; year: number[]; };
-      prestamos: { day: number[]; week: number[]; month: number[]; year: number[]; };
-    } = {
-      solicitudes: {
-        day: [15, 22, 28, 35, 42, 38, 30],
-        week: [65, 78, 66, 84, 76, 88, 92],
-        month: [280, 320, 310, 350],
-        year: [950, 1020, 1100, 980, 1150, 1200, 1180]
-      },
-      usuarios: {
-        day: [20, 35, 45, 55, 65, 58, 40],
-        week: [45, 52, 48, 58, 63, 71, 75],
-        month: [200, 220, 215, 240],
-        year: [680, 720, 780, 750, 810, 850, 870]
-      },
-      prestamos: {
-        day: [8, 12, 15, 20, 18, 16, 10],
-        week: [28, 34, 32, 41, 38, 45, 52],
-        month: [120, 135, 128, 145],
-        year: [420, 450, 480, 460, 510, 530, 520]
-      }
-    };
-
-    return dataSets[tipo][period] || [];
   }
 
   getColorForCardType(type: 'primary' | 'success' | 'warning' | 'info'): string {

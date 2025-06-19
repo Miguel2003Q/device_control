@@ -210,6 +210,6 @@ export class PerfilComponent implements OnInit {
   }
 
   toggleSidebarEmit(): void {
-    this.toggleSidebar.emit();
+    this.sidebarActive = !this.sidebarActive;
   }
 }

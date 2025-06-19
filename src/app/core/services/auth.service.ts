@@ -57,6 +57,7 @@ updateUserProfile(userId: number, profileData: UpdateProfileRequest): Observable
     // Limpiar el usuario almacenado
     this.currentUser = null;
     localStorage.removeItem('currentUser');
+    localStorage.removeItem('token');
   }
 
   getToken(): string | null {

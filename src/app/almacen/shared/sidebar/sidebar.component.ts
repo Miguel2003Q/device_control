@@ -1,6 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { RouterModule } from '@angular/router';
+import { AuthService } from '../../../core/services/auth.service';
+
 
 @Component({
   selector: 'app-sidebar',
@@ -11,11 +13,12 @@ import { RouterModule } from '@angular/router';
 })
 
 export class SidebarComponent {
+
+  constructor(private authService: AuthService) {}
   
   @Input() active: boolean = false;
-  @Output() cerrarSesion = new EventEmitter<void>();
 
   onCerrarSesion() {
-    this.cerrarSesion.emit();
+    this.authService.logout();
   }
 }

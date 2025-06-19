@@ -49,6 +49,7 @@ body {
     display: flex;
     min-height: 100vh;
     margin-top: 52px;
+    margin-left: 255px;
 }
 
 .menu-item {
@@ -737,7 +738,7 @@ body {
     }
 }
 
-@media (max-width: 900px) {
+/* @media (max-width: 900px) {
     .sidebar {
         transform: translateX(-100%);
     }
@@ -766,6 +767,13 @@ body {
     
     .search-box {
         display: none;
+    }
+} */
+
+@media (max-width: 768px) {
+
+    .dashboard-container {
+        margin-left: 0px;
     }
 }
 
@@ -806,7 +814,7 @@ body {
 /* Main Content */
 .main-content {
     flex: 1;
-    margin-left: 255px;
+    /* margin-left: 255px; */
     background: var(--gray-100);
 }
 
