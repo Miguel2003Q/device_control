@@ -3,12 +3,15 @@ import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http
 import { Observable, of, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { Activo } from '../models/activo.model'; // Asegúrate de tener este modelo creado
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ActivoService {
-  private apiUrl = 'http://localhost:8080/activos'; // Ajusta según tu API Spring Boot
+  
+  private apiUrl = `${environment.apiUrl}/activos`;
+
   public activosCache: Activo[] | null = null; //Para almacenar en caché los activos (no hacer consultas innecesarias)
 
 

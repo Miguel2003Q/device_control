@@ -8,6 +8,7 @@ import * as FileSaver from 'file-saver';
 import { CommonModule } from '@angular/common';
 import { TopBarComponent } from "../../shared/top-bar/top-bar.component";
 import { SidebarComponent } from "../../shared/sidebar/sidebar.component";
+import { environment } from '../../../../environments/environment';
 
 // Registrar Chart.js
 Chart.register(...registerables);
@@ -83,7 +84,7 @@ export class EstadisticasEspacioComponent implements OnInit, AfterViewInit {
     this.loading = true;
     this.cdr.markForCheck();
 
-    this.http.get<EstadisticasEspacioDTO>('http://localhost:8080/api/espacios/reportes/estadisticas')
+    this.http.get<EstadisticasEspacioDTO>(`${environment.apiUrl}/api/espacios/reportes/estadisticas`)
       .pipe(
         catchError((error) => {
           console.error('Error al cargar estadísticas:', error);
@@ -284,7 +285,7 @@ export class EstadisticasEspacioComponent implements OnInit, AfterViewInit {
     this.loading = true;
     this.cdr.markForCheck();
 
-    this.http.get('http://localhost:8080/api/espacios/reportes/estadisticas/pdf', { responseType: 'blob' })
+    this.http.get(`${environment.apiUrl}/api/espacios/reportes/estadisticas/pdf`, { responseType: 'blob' })
       .pipe(
         catchError((error) => {
           console.error('Error al generar PDF:', error);
@@ -309,7 +310,7 @@ export class EstadisticasEspacioComponent implements OnInit, AfterViewInit {
     this.loading = true;
     this.cdr.markForCheck();
 
-    this.http.get('http://localhost:8080/api/espacios/reportes/estadisticas/pdf', { responseType: 'blob' })
+    this.http.get(`${environment.apiUrl}/api/espacios/reportes/estadisticas/pdf`, { responseType: 'blob' })
       .pipe(
         catchError((error) => {
           console.error('Error al descargar PDF:', error);
@@ -332,7 +333,7 @@ export class EstadisticasEspacioComponent implements OnInit, AfterViewInit {
     this.loading = true;
     this.cdr.markForCheck();
 
-    this.http.get('http://localhost:8080/api/espacios/reportes/estadisticas/excel', { responseType: 'blob' })
+    this.http.get(`${environment.apiUrl}/api/espacios/reportes/estadisticas/excel`, { responseType: 'blob' })
       .pipe(
         catchError((error) => {
           console.error('Error al descargar Excel:', error);

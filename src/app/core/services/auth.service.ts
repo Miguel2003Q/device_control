@@ -3,6 +3,7 @@ import { HttpClient,HttpHeaders } from '@angular/common/http';
 import { Observable, tap , } from 'rxjs';
 import { LoginRequest } from '../models/login-request';
 import { User } from '../models/user';
+import { environment } from '../../../environments/environment';
 
 interface UpdateProfileRequest {
   nombre: string;
@@ -12,7 +13,8 @@ interface UpdateProfileRequest {
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = 'http://localhost:8080/usuarios';
+
+  private apiUrl = `${environment.apiUrl}/usuarios`;
   private currentUser: User | null = null;
   private userkey = 'currentUser';
   private tokenley = 'authToken';

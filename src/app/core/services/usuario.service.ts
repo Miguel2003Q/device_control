@@ -3,6 +3,7 @@ import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http
 import { Observable, of, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { Usuario } from '../models/usuario.model';
+import { environment } from '../../../environments/environment';
 
 interface UsuarioRolUpdate {
   id: number;
@@ -13,7 +14,9 @@ interface UsuarioRolUpdate {
   providedIn: 'root'
 })
 export class UsuarioService {
-  private apiUrl = 'http://localhost:8080/usuarios'; // Ajusta la URL si tu endpoint cambia
+
+  private apiUrl = `${environment.apiUrl}/usuarios`;
+
   private cacheUsuarios: Usuario[] | null = null;
 
   constructor(private http: HttpClient) { }

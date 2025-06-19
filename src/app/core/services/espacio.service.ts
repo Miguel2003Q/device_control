@@ -3,12 +3,15 @@ import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http
 import { Observable, of, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { Espacio } from '../models/espacio.model'; // Asegúrate de que la ruta sea correcta
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class EspacioService {
-  private apiUrl = 'http://localhost:8080/espacios'; // Ajusta la URL según tu API
+
+  private apiUrl = `${environment.apiUrl}/espacios`;
+
   private activosCache: Espacio[] | null = null; // Caché para espacios activos
 
   constructor(private http: HttpClient) {}

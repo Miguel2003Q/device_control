@@ -3,13 +3,16 @@ import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http
 import { Observable, BehaviorSubject, of, tap, catchError, throwError } from 'rxjs';
 import { SolicitudEspacio } from '../models/solicitudEspacio.model';
 import { AuthService } from './auth.service';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class SolicitudEspacioService {
   public solicitudesCache: SolicitudEspacio[] | null = null; //Para almacenar en caché los activos (no hacer consultas innecesarias)
-  private apiUrl = 'http://localhost:8080/movespacios';
+
+  private apiUrl = `${environment.apiUrl}/movespacios`;
+
   private solicitudParaDuplicar = new BehaviorSubject<SolicitudEspacio | null>(null);
 
   constructor(private http: HttpClient, private auth: AuthService) { }
@@ -78,7 +81,7 @@ export class SolicitudEspacioService {
   exportarHistorial(solicitudes?: SolicitudEspacio[]): Observable<Blob> {
     const body = solicitudes ? { solicitudes } : {};
 
-    return this.http.post(`http://localhost:8080/api/movEspacios/exportar`, body, {
+    return this.http.post(`${environment.apiUrl}/api/movEspacios/exportar`, body, {
       responseType: 'blob',
       headers: new HttpHeaders({
         'Content-Type': 'application/json',

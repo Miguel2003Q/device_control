@@ -6,13 +6,16 @@ import { map, tap } from 'rxjs/operators';
 import { Notificacion, NotificacionResponse } from '../models/notificacion.model';
 import { Client, Message, Stomp } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
+import { environment } from '../../../environments/environment';
 
 
 @Injectable({
   providedIn: 'root'
 })
 export class NotificacionService {
-  private apiUrl = `http://localhost:8080/notificaciones`;
+
+  private apiUrl = `${environment.apiUrl}/notificaciones`;
+
   private contadorNoLeidas = new BehaviorSubject<number>(0);
   private nuevaNotificacion = new Subject<Notificacion>();
   private stompClient: Client | null = null;
@@ -34,7 +37,7 @@ export class NotificacionService {
   private initializeWebSocket(): void {
     try {
       const jwt = localStorage.getItem('token');  // Obtener el token JWT del almacenamiento local
-      const socket = new SockJS(`http://localhost:8080/ws-notificaciones?token=${jwt}`);  //Conexión con el endpoint stomp del backend
+      const socket = new SockJS(`${environment.apiUrl}/ws-notificaciones?token=${jwt}`);  //Conexión con el endpoint stomp del backend
       this.stompClient = Stomp.over(socket);
 
       this.stompClient.onConnect = (frame) => {
