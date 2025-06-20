@@ -1,0 +1,268 @@
+<app-top-bar (toggleSidebar)="toggleSidebarEmit()"></app-top-bar>
+<app-sidebar [active]="sidebarActive"></app-sidebar>
+
+<div class="dashboard-container">
+  <!-- Contenido principal -->
+  <div class="main-content">
+    <!-- Contenido de espacios -->
+    <div class="content-wrapper">
+      <div class="activos-container">
+        
+        <!-- Header de la sección -->
+        <div class="section-header">
+          <h2>Gestión de Espacios</h2>
+        </div>
+
+        <!-- Toolbar de espacios -->
+        <div class="activos-toolbar">
+          <div class="toolbar-left">
+            <div class="search-box">
+              <i class="fas fa-search"></i>
+              <input type="text" placeholder="Buscar espacios..." [(ngModel)]="searchTerm" (keyup)="filtrarEspacios()">
+            </div>
+          </div>
+
+          <div class="toolbar-right">
+            <button class="create-btn" (click)="abrirModalCrearEspacio()">
+              <i class="fas fa-plus"></i>
+              <span>Crear Espacio</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Tabla de espacios -->
+        <div class="activos-table-header">
+          <div class="codigo-col">Código</div>
+          <div class="nombre-col">Nombre</div>
+          <div class="tipo-col">Capacidad</div>
+          <div class="estado-col">Estado</div>
+          <div class="ambiente-col">Descripción</div>
+          <div class="acciones-col">Acciones</div>
+        </div>
+
+        <div class="activos-list">
+          <div class="activo-row" *ngFor="let espacio of espaciosFiltrados">
+            <div class="codigo-col">{{espacio.idespacio}}</div>
+            <div class="nombre-col">{{espacio.nombre}}</div>
+            <div class="tipo-col">{{espacio.capacidad}} personas</div>
+            <div class="estado-col">
+              <span class="estado-badge" [ngClass]="estadoMap[espacio.estado]">
+                {{ estadoMap[espacio.estado] || espacio.estado }}
+              </span>
+            </div>
+            <div class="ambiente-col">{{espacio.descripcion | slice:0:50}}{{espacio.descripcion.length > 50 ? '...' : ''}}</div>
+            <div class="acciones-col">
+              <button class="action-btn detalles" (click)="verDetalles(espacio)">
+                Ver detalles
+              </button>
+            </div>
+          </div>
+
+          <!-- Mensaje si no hay resultados -->
+          <div *ngIf="espaciosFiltrados.length === 0" class="no-results">
+            <p>No se encontraron espacios que coincidan con la búsqueda</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal para crear espacio -->
+<div class="modal-overlay" *ngIf="showModalCrear" (click)="cerrarModalCrear($event)">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Crear Nuevo Espacio</h2>
+      <button class="close-modal-btn" (click)="cerrarModalCrear($event)">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <form [formGroup]="espacioForm" (ngSubmit)="guardarEspacio()">
+        
+        <!-- Nombre -->
+        <div class="form-group">
+          <label for="nombre">Nombre del Espacio</label>
+          <div class="input-container">
+            <input type="text" id="nombre" formControlName="nombre" placeholder="Ej: Sala de conferencias A">
+          </div>
+          <div class="error-message" *ngIf="isInvalid('nombre')">
+            <span>El nombre es requerido</span>
+          </div>
+        </div>
+
+        <!-- Capacidad -->
+        <div class="form-group">
+          <label for="capacidad">Capacidad (personas)</label>
+          <div class="input-container">
+            <input type="number" id="capacidad" formControlName="capacidad" placeholder="Ej: 20" min="1">
+          </div>
+          <div class="error-message" *ngIf="isInvalid('capacidad')">
+            <span>La capacidad es requerida y debe ser mayor a 0</span>
+          </div>
+        </div>
+
+        <!-- Estado -->
+        <div class="form-group">
+          <label for="estado">Estado</label>
+          <div class="input-container select-container">
+            <select id="estado" formControlName="estado">
+              <option value="Disponible">Disponible</option>
+              <option value="Ocupado">Ocupado</option>
+              <option value="Mantenimiento">En Mantenimiento</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Ubicación -->
+        <div class="form-group">
+          <label for="ubicacion">Ubicación</label>
+          <div class="input-container">
+            <input type="text" id="ubicacion" formControlName="ubicacion" placeholder="Ej: Edificio A, Piso 2">
+          </div>
+        </div>
+
+        <!-- Descripción -->
+        <div class="form-group">
+          <label for="descripcion">Descripción</label>
+          <div class="input-container">
+            <textarea id="descripcion" formControlName="descripcion" 
+              placeholder="Descripción detallada del espacio..." 
+              class="fixed-textarea"></textarea>
+          </div>
+          <div class="error-message" *ngIf="isInvalid('descripcion')">
+            <span>La descripción es requerida</span>
+          </div>
+        </div>
+
+        <!-- Botón de envío -->
+        <div class="form-actions">
+          <button type="button" class="action-btn detalles" (click)="cerrarModalCrear($event)">
+            Cancelar
+          </button>
+          <button type="submit" class="save-btn" [disabled]="espacioForm.invalid || isSubmitting">
+            <span *ngIf="!isSubmitting">Crear Espacio</span>
+            <div class="loader" *ngIf="isSubmitting"></div>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal para ver/editar detalles -->
+<div class="modal-overlay" *ngIf="showModalDetalles" (click)="cerrarModalDetalles($event)">
+  <div class="modal-container" style="max-width: 800px;" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Detalles del Espacio</h2>
+      <button class="close-modal-btn" (click)="cerrarModalDetalles($event)">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <!-- Pestañas para información y activos -->
+      <div class="tabs-container" style="margin-bottom: 20px;">
+        <div class="tab" [ngClass]="{'active': modalTab === 'info'}" (click)="modalTab = 'info'">
+          <i class="fas fa-info-circle"></i>
+          <span>Información</span>
+        </div>
+        <div class="tab" [ngClass]="{'active': modalTab === 'activos'}" (click)="modalTab = 'activos'">
+          <i class="fas fa-box"></i>
+          <span>Activos Asignados ({{activosDelEspacio.length}})</span>
+        </div>
+      </div>
+
+      <!-- Tab de Información -->
+      <div *ngIf="modalTab === 'info'">
+        <form [formGroup]="detallesForm" (ngSubmit)="actualizarEspacio()">
+          <div class="form-group">
+            <label>Código</label>
+            <div class="input-container">
+              <input type="text" [value]="detallesForm.get('idespacio')?.value" disabled style="background-color: #f5f5f5;">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="detalle-nombre">Nombre del Espacio</label>
+            <div class="input-container">
+              <input type="text" id="detalle-nombre" formControlName="nombre">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="detalle-capacidad">Capacidad (personas)</label>
+            <div class="input-container">
+              <input type="number" id="detalle-capacidad" formControlName="capacidad" min="1">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="detalle-estado">Estado</label>
+            <div class="input-container select-container">
+              <select id="detalle-estado" formControlName="estado">
+                <option value="Disponible">Disponible</option>
+                <option value="Ocupado">Ocupado</option>
+                <option value="Mantenimiento">En Mantenimiento</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="detalle-ubicacion">Ubicación</label>
+            <div class="input-container">
+              <input type="text" id="detalle-ubicacion" formControlName="ubicacion">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="detalle-descripcion">Descripción</label>
+            <textarea id="detalle-descripcion" formControlName="descripcion" 
+              class="fixed-textarea" style="height: 120px;"></textarea>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="delete-btn" (click)="eliminarEspacio()">
+              <span *ngIf="!isSubmitting">Eliminar Espacio</span>
+              <div class="loader" *ngIf="isSubmitting"></div>
+            </button>
+            <button type="submit" class="save-btn" [disabled]="detallesForm.invalid || isSubmitting">
+              <span *ngIf="!isSubmitting">Actualizar Espacio</span>
+              <div class="loader" *ngIf="isSubmitting"></div>
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Tab de Activos Asignados -->
+      <div *ngIf="modalTab === 'activos'">
+        <div class="activos-table-header">
+          <div class="codigo-col">Código</div>
+          <div class="nombre-col">Nombre</div>
+          <div class="tipo-col">Tipo</div>
+          <div class="estado-col">Estado</div>
+          <div class="ambiente-col">Serial</div>
+        </div>
+
+        <div class="activos-list" style="max-height: 400px;">
+          <div class="activo-row" *ngFor="let activo of activosDelEspacio">
+            <div class="codigo-col">{{activo.idactivo}}</div>
+            <div class="nombre-col">{{activo.nombre}}</div>
+            <div class="tipo-col">{{activo.tipoActivo.nombre || 'N/A'}}</div>
+            <div class="estado-col">
+              <span class="estado-badge" [ngClass]="estadoActivoMap[activo.estado]">
+                {{ estadoActivoMap[activo.estado] || activo.estado }}
+              </span>
+            </div>
+            <div class="ambiente-col">{{activo.serial}}</div>
+          </div>
+
+          <div *ngIf="activosDelEspacio.length === 0" class="no-results">
+            <p>No hay activos asignados a este espacio</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

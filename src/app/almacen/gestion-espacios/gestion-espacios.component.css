@@ -1,0 +1,83 @@
+/* Importar estilos base del componente de activos */
+@import '../activos/gestion-activos/gestion-activos.component.css';
+
+/* Estilos adicionales específicos para el componente de espacios */
+
+/* Badge de capacidad */
+.capacidad-badge {
+  display: inline-block;
+  padding: 5px 10px;
+  border-radius: 15px;
+  font-size: 12px;
+  font-weight: 500;
+  background-color: rgba(96, 150, 186, 0.1);
+  color: #6096BA;
+}
+
+/* Ajustes para el modal de detalles con pestañas */
+.modal-tabs {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+/* Lista de activos en el modal */
+.activos-modal-list {
+  max-height: 400px;
+  overflow-y: auto;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: 5px;
+  background-color: #FAFAFA;
+}
+
+/* Información de ubicación */
+.ubicacion-info {
+  display: flex;
+  align-items: center;
+  color: #888888;
+  font-size: 13px;
+  margin-top: 5px;
+}
+
+.ubicacion-info i {
+  margin-right: 5px;
+  color: #6096BA;
+}
+
+/* Contador de activos */
+.activos-count {
+  background-color: #274C77;
+  color: #FFFFFF;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  margin-left: 5px;
+  font-weight: 500;
+}
+
+/* Estado específicos para espacios */
+.estado-badge.En-Mantenimiento {
+  background-color: rgba(255, 152, 0, 0.1);
+  color: #FF9800;
+}
+
+/* Responsive para el modal de detalles con pestañas */
+@media (max-width: 768px) {
+  .modal-container {
+    max-width: 95% !important;
+  }
+  
+  .tabs-container {
+    flex-direction: column;
+  }
+  
+  .tab {
+    width: 100%;
+    border-bottom: none;
+    border-left: 3px solid transparent;
+  }
+  
+  .tab.active {
+    border-left-color: #274C77;
+    border-bottom-color: transparent;
+  }
+}

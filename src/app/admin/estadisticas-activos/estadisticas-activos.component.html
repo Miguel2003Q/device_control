@@ -1,101 +1,263 @@
 <app-top-bar (toggleSidebar)="toggleSidebarEmit()"></app-top-bar>
 <app-sidebar [active]="sidebarActive"></app-sidebar>
 
-<!-- estadisticas-activos.component.html -->
-<div class="estadisticas-container">
-  <!-- Header con acciones -->
-  <div class="page-header">
-    <div class="header-content">
-      <h1>Estadísticas de Activos</h1>
-      <p class="subtitle">Análisis completo del estado y utilización de activos</p>
-    </div>
-    <div class="header-actions">
-      <button class="btn-action" (click)="refreshData()" [disabled]="loading">
-        <i class="fas fa-sync-alt" [class.fa-spin]="loading"></i>
-        Actualizar
-      </button>
-      <button class="btn-primary" (click)="viewPDF()">
-        <i class="fas fa-file-pdf"></i>
-        Ver PDF
-      </button>
-      <button class="btn-success" (click)="downloadPDF()">
-        <i class="fas fa-download"></i>
-        Descargar PDF
-      </button>
-      <button class="btn-excel" (click)="downloadExcel()">
-        <i class="fas fa-file-excel"></i>
-        Descargar Excel
-      </button>
+<div class="dashboard-container">
+  <div class="main-content">
+    <div class="content-wrapper">
+      
+      <!-- Header de estadísticas -->
+      <div class="stats-header">
+        <div class="header-content">
+          <h1>Estadísticas de Activos</h1>
+          <p>Panel de control y análisis de activos</p>
+        </div>
+        <div class="header-actions">
+          <!-- <div class="date-filter">
+            <i class="fas fa-calendar-alt"></i>
+            <select [(ngModel)]="selectedPeriod" (change)="onPeriodChange()">
+              <option value="today">Hoy</option>
+              <option value="week">Esta semana</option>
+              <option value="month">Este mes</option>
+              <option value="quarter">Este trimestre</option>
+              <option value="year">Este año</option>
+              <option value="all">Todo el tiempo</option>
+            </select>
+          </div> -->
+          <button class="export-btn" (click)="exportarReporte()">
+            <i class="fas fa-download"></i>
+            <span>Exportar Reporte</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Cards de métricas principales -->
+      <div class="stats-cards">
+        <div class="stat-card">
+          <div class="card-icon blue">
+            <i class="fas fa-box"></i>
+          </div>
+          <div class="card-content">
+            <h3>Total Activos</h3>
+            <p class="stat-number">{{estadisticas.totalActivos}}</p>
+            <span class="stat-change positive">
+              <i class="fas fa-arrow-up"></i> {{estadisticas.porcentajeCambio}}%
+            </span>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="card-icon green">
+            <i class="fas fa-check-circle"></i>
+          </div>
+          <div class="card-content">
+            <h3>Disponibles</h3>
+            <p class="stat-number">{{estadisticas.activosDisponibles}}</p>
+            <span class="stat-percentage">{{calcularPorcentaje('disponibles')}}%</span>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="card-icon red">
+            <i class="fas fa-user-check"></i>
+          </div>
+          <div class="card-content">
+            <h3>Ocupados</h3>
+            <p class="stat-number">{{estadisticas.activosOcupados}}</p>
+            <span class="stat-percentage">{{calcularPorcentaje('ocupados')}}%</span>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="card-icon orange">
+            <i class="fas fa-tools"></i>
+          </div>
+          <div class="card-content">
+            <h3>En Mantenimiento</h3>
+            <p class="stat-number">{{estadisticas.activosMantenimiento}}</p>
+            <span class="stat-percentage">{{calcularPorcentaje('mantenimiento')}}%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Gráficos -->
+      <div class="charts-container">
+        <!-- Gráfico de distribución por estado -->
+        <div class="chart-card">
+          <div class="chart-header">
+            <h2>Distribución por Estado</h2>
+            <div class="chart-options">
+              <button class="chart-option" [class.active]="chartType === 'pie'" (click)="changeChartType('pie')">
+                <i class="fas fa-chart-pie"></i>
+              </button>
+              <button class="chart-option" [class.active]="chartType === 'doughnut'" (click)="changeChartType('doughnut')">
+                <i class="fas fa-circle-notch"></i>
+              </button>
+            </div>
+          </div>
+          <div class="chart-body">
+            <canvas id="estadoChart" #estadoChart></canvas>
+          </div>
+          <div class="chart-legend">
+            <div class="legend-item">
+              <span class="legend-color" style="background-color: #4CAF50;"></span>
+              <span>Disponibles</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-color" style="background-color: #F44336;"></span>
+              <span>Ocupados</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-color" style="background-color: #FF9800;"></span>
+              <span>Mantenimiento</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Gráfico de activos por tipo -->
+        <div class="chart-card">
+          <div class="chart-header">
+            <h2>Activos por Tipo</h2>
+            <div class="chart-options">
+              <button class="chart-option" [class.active]="barChartType === 'bar'" (click)="changeBarChartType('bar')">
+                <i class="fas fa-chart-bar"></i>
+              </button>
+              <button class="chart-option" [class.active]="barChartType === 'horizontalBar'" (click)="changeBarChartType('horizontalBar')">
+                <i class="fas fa-align-left"></i>
+              </button>
+            </div>
+          </div>
+          <div class="chart-body">
+            <canvas id="tipoChart" #tipoChart></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabla de activos por espacio -->
+      <div class="data-table-card">
+        <div class="table-header">
+          <h2>Distribución por Espacio</h2>
+          <div class="table-actions">
+            <div class="table-search">
+              <i class="fas fa-search"></i>
+              <input type="text" placeholder="Buscar espacio..." [(ngModel)]="searchEspacio" (keyup)="filtrarEspacios()">
+            </div>
+          </div>
+        </div>
+        
+        <div class="responsive-table">
+          <table>
+            <thead>
+              <tr>
+                <th>Espacio</th>
+                <th>Total Activos</th>
+                <th>Disponibles</th>
+                <th>Ocupados</th>
+                <th>Mantenimiento</th>
+                <th>% Ocupación</th>
+                <th>Acción</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let espacio of espaciosEstadisticas">
+                <td class="space-name">
+                  <i class="fas fa-door-open"></i>
+                  {{espacio.nombre}}
+                </td>
+                <td>
+                  <span class="data-badge total">{{espacio.totalActivos}}</span>
+                </td>
+                <td>
+                  <span class="data-badge success">{{espacio.disponibles}}</span>
+                </td>
+                <td>
+                  <span class="data-badge danger">{{espacio.ocupados}}</span>
+                </td>
+                <td>
+                  <span class="data-badge warning">{{espacio.mantenimiento}}</span>
+                </td>
+                <td>
+                  <div class="progress-container">
+                    <div class="progress-bar" [style.width.%]="espacio.porcentajeOcupacion">
+                      <span class="progress-text">{{espacio.porcentajeOcupacion}}%</span>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <button class="view-details-btn" (click)="verDetallesEspacio(espacio)">
+                    <i class="fas fa-eye"></i>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          
+          <div *ngIf="espaciosEstadisticas.length === 0" class="no-data">
+            <i class="fas fa-chart-line"></i>
+            <p>No hay datos disponibles para mostrar</p>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
+</div>
 
-  <!-- Loading Spinner -->
-  <div class="loading-container" *ngIf="loading">
-    <div class="spinner"></div>
-    <p>Cargando estadísticas...</p>
-  </div>
+<!-- Modal de detalles de espacio -->
+<div class="modal-overlay" *ngIf="showModalDetalles" (click)="cerrarModal($event)">
+  <div class="modal-container stats-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Estadísticas de {{espacioSeleccionado?.nombre}}</h2>
+      <button class="close-modal-btn" (click)="cerrarModal($event)">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
 
-  <!-- Contenido principal -->
-  <div class="estadisticas-content" *ngIf="!loading && estadisticas">
-    
-    <!-- Tarjetas de resumen -->
-    <div class="stats-grid">
-      <div class="stat-card primary">
-        <div class="stat-icon">
-          <i class="fas fa-boxes"></i>
+    <div class="modal-body">
+      <!-- Mini cards de estadísticas del espacio -->
+      <div class="space-stats-cards">
+        <div class="mini-stat-card">
+          <i class="fas fa-box"></i>
+          <div>
+            <p>Total Activos</p>
+            <h3>{{espacioSeleccionado?.totalActivos}}</h3>
+          </div>
         </div>
-        <div class="stat-content">
-          <h3>{{ estadisticas.totalEspacios }}</h3>
-          <p>Total Activos</p>
+        <div class="mini-stat-card">
+          <i class="fas fa-chart-line"></i>
+          <div>
+            <p>Tasa de Uso</p>
+            <h3>{{espacioSeleccionado?.tasaUso}}%</h3>
+          </div>
+        </div>
+        <div class="mini-stat-card">
+          <i class="fas fa-clock"></i>
+          <div>
+            <p>Tiempo Promedio</p>
+            <h3>{{espacioSeleccionado?.tiempoPromedio}}h</h3>
+          </div>
         </div>
       </div>
 
-      <div class="stat-card success">
-        <div class="stat-icon">
-          <i class="fas fa-check-circle"></i>
-        </div>
-        <div class="stat-content">
-          <h3>{{ estadisticas.totalEspaciosActivos }}</h3>
-          <p>Activos Disponibles</p>
-          <span class="percentage">{{ estadisticas.porcentajeEspaciosActivos | number:'1.1-1' }}%</span>
-        </div>
+      <!-- Gráfico del espacio -->
+      <div class="modal-chart">
+        <canvas id="espacioModalChart"></canvas>
       </div>
 
-      <div class="stat-card danger">
-        <div class="stat-icon">
-          <i class="fas fa-times-circle"></i>
-        </div>
-        <div class="stat-content">
-          <h3>{{ estadisticas.totalEspaciosEliminados }}</h3>
-          <p>Activos Dañados/Baja</p>
-          <span class="percentage">{{ estadisticas.porcentajeactivosEliminados | number:'1.1-1' }}%</span>
-        </div>
-      </div>
-
-      <div class="stat-card info">
-        <div class="stat-icon">
-          <i class="fas fa-users"></i>
-        </div>
-        <div class="stat-content">
-          <h3>{{ estadisticas.capacidadTotal }}</h3>
-          <p>Capacidad Total</p>
-          <span class="average">Promedio: {{ estadisticas.capacidadPromedio | number:'1.1-1' }}</span>
+      <!-- Lista de activos del espacio -->
+      <div class="modal-activos-list">
+        <h3>Activos en este espacio</h3>
+        <div class="simple-table">
+          <div class="table-row header">
+            <span>Activo</span>
+            <span>Tipo</span>
+            <span>Estado</span>
+          </div>
+          <div class="table-row" *ngFor="let activo of activosEspacioModal">
+            <span>{{activo.nombre}}</span>
+            <span>{{activo.tipoActivo}}</span>
+            <span class="estado-badge" [ngClass]="activo.estado">{{activo.estado}}</span>
+          </div>
         </div>
       </div>
     </div>
-
-    <!-- Aquí todo lo demás sigue igual (gráficos, top 10, análisis de utilización, JSON, modal de PDF) -->
-
-  </div>
-
-  <!-- Estado vacío -->
-  <div class="empty-state" *ngIf="!loading && !estadisticas">
-    <i class="fas fa-chart-bar"></i>
-    <h3>No hay datos disponibles</h3>
-    <p>No se pudieron cargar las estadísticas. Por favor, intenta nuevamente.</p>
-    <button class="btn-primary" (click)="loadEstadisticas()">
-      <i class="fas fa-refresh"></i>
-      Reintentar
-    </button>
   </div>
 </div>

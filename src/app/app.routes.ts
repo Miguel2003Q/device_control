@@ -124,6 +124,10 @@ export const routes: Routes = [
     path: 'almac/activos',
     loadComponent: () => import('./almacen/activos/gestion-activos/gestion-activos.component').then(m => m.GestionActivosComponent),
   },
+  {
+    path: 'almac/espacios',
+    loadComponent: () => import('./almacen/gestion-espacios/gestion-espacios.component').then(m => m.GestionEspaciosComponent)
+  },
   // Rutas auxiliares
   {
     path: 'password-reset',
