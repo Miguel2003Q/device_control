@@ -52,8 +52,6 @@ export const routes: Routes = [
     canActivate: [RoleGuard],
     data: { roles: [4] }
   },
-  
-
   {
     path: 'perfil',
     loadComponent: () => import('./admin/perfil/perfil.component').then(m => m.PerfilComponent),
@@ -65,6 +63,10 @@ export const routes: Routes = [
     loadComponent: () => import('./admin/stats/estadisticas-espacio/estadisticas-espacio.component').then(m => m.EstadisticasEspacioComponent),
     canActivate: [RoleGuard],
     data: { roles: [4] }
+  },
+  {
+    path: 'ia',
+    loadComponent: () => import('./admin/search-results/search-results.component').then(m => m.SearchResultsComponent)
   },
 
   // 🎓 Rutas de INSTRUCTOR (rol: '2')
