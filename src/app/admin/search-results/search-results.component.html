@@ -1,56 +1,143 @@
-<!-- search-results.component.html -->
-<div class="container mx-auto p-4 sm:p-6 md:p-8 max-w-4xl">
-  <div class="bg-white shadow-lg rounded-lg p-6 sm:p-8">
-    <!-- Search Input -->
-    <form (ngSubmit)="performSearch()" class="mb-6">
-      <div class="flex flex-col sm:flex-row gap-4">
-        <input [(ngModel)]="searchPrompt" name="searchPrompt" type="text" placeholder="Enter your search query..." class="flex-1 px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 ease-in-out" [class.border-red-500]="errorMessage">
-        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 ease-in-out disabled:bg-gray-400" [disabled]="!searchPrompt || isLoading">
-          <span *ngIf="!isLoading">Search</span>
-          <svg *ngIf="isLoading" class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-          </svg>
+<app-top-bar (toggleSidebar)="toggleSidebarEmit()"></app-top-bar>
+<app-sidebar [active]="sidebarActive"></app-sidebar>
+
+<!-- Loading Overlay -->
+<div class="loading-overlay" *ngIf="isLoading">
+  <div class="loading-spinner"></div>
+</div>
+
+<div class="search-container">
+  <h2>Búsqueda en Lenguaje Natural</h2>
+
+  <!-- Search Box con diseño mejorado -->
+  <div class="search-box">
+    <div class="search-input-wrapper">
+      <textarea 
+        [(ngModel)]="searchPrompt"
+        placeholder="Describe en tus propias palabras lo que deseas buscar. Por ejemplo: 'Muéstrame todos los activos disponibles' o 'Lista los usuarios que se registraron este mes'"
+        rows="3"
+        class="search-input"
+        [class.has-content]="searchPrompt.trim()"
+        (focus)="onSearchFocus()"
+        (blur)="onSearchBlur()">
+      </textarea>
+      
+      <button 
+        (click)="search()" 
+        [disabled]="isLoading || !searchPrompt.trim()" 
+        class="search-button"
+        [class.loading]="isLoading">
+        {{ isLoading ? 'Procesando búsqueda...' : 'Buscar' }}
+      </button>
+    </div>
+    
+    <!-- Quick actions -->
+    <div class="quick-actions" *ngIf="!searchPrompt && !results.length">
+      <span class="quick-action-label">Búsquedas rápidas:</span>
+      <button class="quick-action-btn" (click)="setExample('usuarios activos')">
+        <i class="fas fa-users"></i> Usuarios activos
+      </button>
+      <button class="quick-action-btn" (click)="setExample('espacios disponibles')">
+        <i class="fas fa-building"></i> Espacios disponibles
+      </button>
+      <button class="quick-action-btn" (click)="setExample('activos en mantenimiento')">
+        <i class="fas fa-tools"></i> En mantenimiento
+      </button>
+    </div>
+  </div>
+
+  <!-- Error message con animación -->
+  <div *ngIf="error" class="error-message" [@slideIn]>
+    {{ error }}
+  </div>
+
+  <!-- SQL Query con syntax highlighting simulado -->
+  <div *ngIf="sqlQuery && !error" class="sql-query" [@fadeIn]>
+    <h4>Consulta SQL generada</h4>
+    <code>{{ sqlQuery }}</code>
+    <button class="copy-btn" (click)="copyToClipboard(sqlQuery)" title="Copiar consulta">
+      <i class="fas fa-copy"></i>
+    </button>
+  </div>
+
+  <!-- Results table con animaciones -->
+  <div *ngIf="results && results.length > 0 && !error" class="results" [@fadeIn]>
+    <div class="results-header">
+      <h3>Resultados ({{ results.length }} registros)</h3>
+      <div class="results-actions">
+        <button class="export-btn" (click)="exportResults('csv')">
+          <i class="fas fa-file-csv"></i> Exportar CSV
         </button>
       </div>
-    </form>
-
-    <!-- Error Message -->
-    <div *ngIf="errorMessage" class="mb-4 p-4 bg-red-100 text-red-700 rounded-md animate-slide-in">
-      {{ errorMessage }}
     </div>
-
-    <!-- Search Results -->
-    <div *ngIf="searchResponse && searchResponse.success && searchResponse.results?.length" class="space-y-4">
-      <h2 class="text-xl font-bold text-gray-800">Results for "{{ searchResponse.query }}"</h2>
-      <p class="text-gray-600">Found {{ searchResponse.count }} results</p>
-      
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div *ngFor="let result of searchResponse.results; let i = index" class="p-4 bg-gray-50 rounded-md border border-gray-200 hover:shadow-md transition duration-300 ease-in-out animate-fade-in" [style.animation-delay]="i * 100 + 'ms'">
-          <h3 class="text-lg font-semibold text-gray-800">{{ result.title || 'Result ' + (i + 1) }}</h3>
-          <div class="mt-2 text-gray-600">
-            <!-- Dynamic rendering of result attributes -->
-            <div *ngFor="let key of getResultKeys(result)" class="flex flex-col sm:flex-row sm:items-center gap-2">
-              <span class="font-medium capitalize">{{ key }}:</span>
-              <span>{{ formatValue(result[key]) }}</span>
-            </div>
-          </div>
-          <button (click)="viewDetails(result)" class="mt-2 text-blue-600 hover:underline text-sm">View Details</button>
-        </div>
-      </div>
+    
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th *ngFor="let column of getColumns(); let i = index" 
+                [style.animation-delay.ms]="i * 50">
+              {{ formatColumnName(column) }}
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of results; let i = index" 
+              [style.animation-delay.ms]="i * 30">
+            <td *ngFor="let column of getColumns()">
+              {{ formatCellValue(row[column]) || '-' }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
-
-    <!-- No Results -->
-    <div *ngIf="searchResponse && searchResponse.success && !searchResponse.results?.length" class="p-4 bg-gray-100 text-gray-600 rounded-md animate-slide-in">
-      No results found for "{{ searchResponse.query }}".
+    
+    <!-- Pagination placeholder -->
+    <div class="table-footer" *ngIf="results.length >= 10">
+      <span class="results-info">
+        Mostrando {{ results.length }} de {{ results.length }} resultados
+      </span>
     </div>
+  </div>
 
-    <!-- Loading State -->
-    <div *ngIf="isLoading && !searchResponse" class="flex justify-center items-center py-8">
-      <svg class="animate-spin h-8 w-8 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-      </svg>
+  <!-- No results con animación -->
+  <div *ngIf="results && results.length === 0 && !error && !isLoading" class="no-results" [@fadeIn]>
+    <p>No se encontraron resultados para tu búsqueda</p>
+    <p class="no-results-hint">Intenta con términos diferentes o revisa los ejemplos a continuación</p>
+  </div>
+
+  <!-- Examples section mejorada -->
+  <!-- <div class="examples" [@fadeIn]>
+    <h4>Ejemplos de búsqueda</h4>
+    <ul>
+      <li (click)="setExample('Muéstrame todos los usuarios con rol de instructor')" [@listAnimation]>
+        <span>"Muéstrame todos los usuarios con rol de instructor"</span>
+      </li>
+      <li (click)="setExample('Lista los 10 espacios con mayor capacidad')" [@listAnimation]>
+        <span>"Lista los 10 espacios con mayor capacidad"</span>
+      </li>
+      <li (click)="setExample('Cuántas solicitudes están pendientes de aprobación')" [@listAnimation]>
+        <span>"Cuántas solicitudes están pendientes de aprobación"</span>
+      </li>
+      <li (click)="setExample('Activos que fueron registrados en los últimos 30 días')" [@listAnimation]>
+        <span>"Activos que fueron registrados en los últimos 30 días"</span>
+      </li>
+      <li (click)="setExample('Usuarios que no han iniciado sesión en el último mes')" [@listAnimation]>
+        <span>"Usuarios que no han iniciado sesión en el último mes"</span>
+      </li>
+    </ul>
+  </div> -->
+
+  <!-- Search history (opcional) -->
+  <div class="search-history" *ngIf="searchHistory.length > 0" [@fadeIn]>
+    <h4><i class="fas fa-history"></i> Búsquedas recientes</h4>
+    <div class="history-items">
+      <button 
+        *ngFor="let item of searchHistory" 
+        class="history-item"
+        (click)="searchPrompt = item; search()">
+        {{ item }}
+      </button>
     </div>
   </div>
 </div>

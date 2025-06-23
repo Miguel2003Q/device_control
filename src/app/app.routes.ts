@@ -40,7 +40,7 @@ export const routes: Routes = [
   },
   {
     path: 'gestion-ambientes',
-    loadComponent: () => import('./admin/gestion-ambientes/gestion-ambientes.component').then(m => m.GestionAmbientesComponent),
+    loadComponent: () => import('./admin/gestion-espacios/gestion-espacios.component').then(m => m.GestionEspaciosComponent),
     canActivate: [RoleGuard],
     data: { roles: [4] }
   },
@@ -65,8 +65,12 @@ export const routes: Routes = [
     data: { roles: [4] }
   },
   {
-    path: 'ia',
+    path: 'natural-lenguage-search',
     loadComponent: () => import('./admin/search-results/search-results.component').then(m => m.SearchResultsComponent)
+  },
+  {
+    path: 'historial-solicitudes',
+    loadComponent: () => import('./admin/historial-solicitudes/historial-solicitudes.component').then(m => m.HistorialSolicitudesComponent)
   },
 
   // 🎓 Rutas de INSTRUCTOR (rol: '2')

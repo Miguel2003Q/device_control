@@ -1,5 +1,4 @@
 export interface Espacio {
-  ubicacion: any;
   idespacio?: number;
   nombre: string;
   estado: string;

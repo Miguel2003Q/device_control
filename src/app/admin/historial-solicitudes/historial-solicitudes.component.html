@@ -1,0 +1,422 @@
+<app-top-bar (toggleSidebar)="toggleSidebarEmit()"></app-top-bar>
+<app-sidebar [active]="sidebarActive"></app-sidebar>
+
+<!-- historial-solicitudes.component.html -->
+<div class="content-wrapper">
+  <div class="historial-container">
+    <!-- Header -->
+    <div class="page-header">
+      <div class="header-content">
+        <h1>
+          <i class="fas fa-history"></i>
+          Historial de Solicitudes de Espacios
+        </h1>
+        <p class="subtitle">Revisa el estado y detalles de todas las solicitudes de espacios</p>
+      </div>
+      
+      <div class="header-actions">
+        <button class="export-btn" (click)="exportarHistorial()" [disabled]="loading || solicitudesFiltradas.length === 0">
+          <i class="fas fa-file-excel"></i>
+          Exportar
+        </button>
+        <button class="refresh-btn" (click)="actualizarHistorial()" [disabled]="loading">
+          <i class="fas fa-sync-alt" [class.fa-spin]="loading"></i>
+          Actualizar
+        </button>
+      </div>
+    </div>
+
+    <!-- Filtros y búsqueda -->
+    <div class="filters-section">
+      <div class="search-box">
+        <i class="fas fa-search"></i>
+        <input 
+          type="text" 
+          placeholder="Buscar por espacio, descripción, fecha o motivo..." 
+          [(ngModel)]="searchTerm" 
+          (keyup)="filtrarSolicitudes()">
+      </div>
+      
+      <div class="filters">
+        <div class="filter-group">
+          <label>Estado:</label>
+          <select [(ngModel)]="filtroEstado" (change)="filtrarSolicitudes()">
+            <option value="">Todos</option>
+            <option value="Pendiente">Pendiente</option>
+            <option value="Aprobada">Aprobado</option>
+            <option value="Rechazada">Rechazado</option>
+            <option value="Cancelada">Cancelado</option>
+            <option value="Completada">Completado</option>
+          </select>
+        </div>
+        
+        <div class="filter-group">
+          <label>Período:</label>
+          <select [(ngModel)]="filtroPeriodo" (change)="filtrarSolicitudes()">
+            <option value="">Todo el tiempo</option>
+            <option value="hoy">Hoy</option>
+            <option value="semana">Esta semana</option>
+            <option value="mes">Este mes</option>
+            <option value="trimestre">Últimos 3 meses</option>
+            <option value="año">Este año</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Resumen de estadísticas -->
+    <div class="stats-summary">
+      <div class="stat-item">
+        <div class="stat-icon pending">
+          <i class="fas fa-clock"></i>
+        </div>
+        <div class="stat-details">
+          <h3>{{estadisticas.pendientes}}</h3>
+          <p>Pendientes</p>
+        </div>
+      </div>
+      
+      <div class="stat-item">
+        <div class="stat-icon approved">
+          <i class="fas fa-check-circle"></i>
+        </div>
+        <div class="stat-details">
+          <h3>{{estadisticas.aprobadas}}</h3>
+          <p>Aprobadas</p>
+        </div>
+      </div>
+      
+      <div class="stat-item">
+        <div class="stat-icon rejected">
+          <i class="fas fa-times-circle"></i>
+        </div>
+        <div class="stat-details">
+          <h3>{{estadisticas.rechazadas}}</h3>
+          <p>Rechazadas</p>
+        </div>
+      </div>
+      
+      <div class="stat-item">
+        <div class="stat-icon completed">
+          <i class="fas fa-check-double"></i>
+        </div>
+        <div class="stat-details">
+          <h3>{{estadisticas.completadas}}</h3>
+          <p>Completadas</p>
+        </div>
+      </div>
+
+      <div class="stat-item">
+        <div class="stat-icon cancelled">
+          <i class="fas fa-ban"></i>
+        </div>
+        <div class="stat-details">
+          <h3>{{estadisticas.canceladas}}</h3>
+          <p>Canceladas</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Lista de solicitudes -->
+    <div class="solicitudes-list">
+      <div class="list-header">
+        <h2>
+          <i class="fas fa-list"></i>
+          Historial de Solicitudes
+        </h2>
+        <span class="results-count">{{solicitudesFiltradas.length}} solicitudes encontradas</span>
+      </div>
+      
+      <!-- Loading -->
+      <div class="loading-state" *ngIf="loading">
+        <div class="spinner"></div>
+        <p>Cargando historial...</p>
+      </div>
+      
+      <!-- Timeline de solicitudes -->
+      <div class="timeline" *ngIf="!loading && solicitudesEnPagina.length > 0">
+        <div class="timeline-item" *ngFor="let solicitud of solicitudesEnPagina">
+          <div class="timeline-marker" [class]="getTimelineClass(solicitud.estado)">
+            <i class="fas" [ngClass]="getStatusIcon(solicitud.estado)"></i>
+          </div>
+          
+          <div class="solicitud-card">
+            <div class="card-header">
+              <div class="header-info">
+                <h3>
+                  <i class="fas fa-door-open"></i>
+                  {{solicitud.espacio.nombre}}
+                </h3>
+                <span class="solicitud-id">#{{solicitud.idmov}}</span>
+              </div>
+              <span class="status-badge" [class]="solicitud.estado.toLowerCase()">
+                {{solicitud.estado}}
+              </span>
+            </div>
+            
+            <div class="card-body">
+              <div class="solicitud-details">
+                <div class="detail-row">
+                  <div class="detail-item">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>
+                      <strong>Fecha Solicitud:</strong> 
+                      {{solicitud.fechaSolicitud | date:'dd/MM/yyyy HH:mm'}}
+                    </span>
+                  </div>
+                  
+                  <div class="detail-item">
+                    <i class="fas fa-clock"></i>
+                    <span>
+                      <strong>Duración:</strong> 
+                      {{getDuracionReserva(solicitud.fechaPres, solicitud.fechaDevol)}}
+                    </span>
+                  </div>
+                </div>
+                
+                <div class="detail-row">
+                  <div class="detail-item">
+                    <i class="fas fa-calendar-check"></i>
+                    <span>
+                      <strong>Reservado para:</strong> 
+                      {{solicitud.fechaPres | date:'dd/MM/yyyy HH:mm'}} - 
+                      {{solicitud.fechaDevol | date:'dd/MM/yyyy HH:mm'}}
+                    </span>
+                  </div>
+                  
+                  <div class="detail-item">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span>  
+                      <strong>Descripción:</strong> 
+                      {{solicitud.espacio.descripcion}}
+                    </span>
+                  </div>
+                </div>
+                
+                <div class="detail-row">
+                  <div class="detail-item">
+                    <i class="fas fa-comment-alt"></i>
+                    <span>
+                      <strong>Motivo:</strong> 
+                      {{solicitud.motivo}}
+                    </span>
+                  </div>
+                </div>
+                
+                <div class="detail-row" *ngIf="solicitud.espacio.capacidad">
+                  <div class="detail-item">
+                    <i class="fas fa-users"></i>
+                    <span>
+                      <strong>Capacidad:</strong> 
+                      {{solicitud.espacio.capacidad}} personas
+                    </span>
+                  </div>
+                  
+                  <div class="detail-item" *ngIf="solicitud.espacio.estado">
+                    <i class="fas fa-tag"></i>
+                    <span>
+                      <strong>Estado del espacio:</strong> 
+                      {{solicitud.espacio.estado}}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="card-footer">
+              <div class="footer-info">
+                <span class="update-time">
+                  <i class="fas fa-user"></i>
+                  Solicitado por: {{solicitud.usuario.nombre}}
+                </span>
+              </div>
+              
+              <div class="card-actions">
+                <button 
+                  class="action-btn view" 
+                  (click)="verDetalles(solicitud)"
+                  title="Ver detalles completos">
+                  <i class="fas fa-eye"></i>
+                </button>
+                
+                <button 
+                  class="action-btn cancel" 
+                  *ngIf="solicitud.estado === 'Pendiente'"
+                  (click)="cancelarSolicitud(solicitud)"
+                  title="Cancelar solicitud"
+                  [disabled]="loading">
+                  <i class="fas fa-ban"></i>
+                </button>
+                
+                <button 
+                  class="action-btn duplicate" 
+                  *ngIf="solicitud.estado === 'Completada' || solicitud.estado === 'Aprobada'"
+                  (click)="duplicarSolicitud(solicitud)"
+                  title="Duplicar solicitud">
+                  <i class="fas fa-copy"></i>
+                </button>
+                
+                <button 
+                  class="action-btn download" 
+                  *ngIf="solicitud.estado === 'Aprobada'"
+                  (click)="descargarComprobante(solicitud)"
+                  title="Descargar comprobante">
+                  <i class="fas fa-download"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Estado vacío -->
+      <div class="empty-state" *ngIf="!loading && solicitudesFiltradas.length === 0">
+        <i class="fas fa-inbox"></i>
+        <h3>No se encontraron solicitudes</h3>
+        <p>{{searchTerm || filtroEstado || filtroPeriodo ? 'Intenta ajustar los filtros de búsqueda' : 'Aún no has realizado ninguna solicitud de espacios'}}</p>
+        <a class="btn-primary" routerLink="/ins/solicitar-ambiente">
+          <i class="fas fa-plus"></i>
+          Nueva Solicitud
+        </a>
+      </div>
+    </div>
+    
+    <!-- Paginación -->
+    <div class="pagination" *ngIf="!loading && totalPages > 1">
+      <button 
+        class="page-btn" 
+        [disabled]="currentPage === 1"
+        (click)="cambiarPagina(currentPage - 1)">
+        <i class="fas fa-chevron-left"></i>
+      </button>
+      
+      <div class="page-numbers">
+        <button 
+          class="page-number" 
+          *ngFor="let page of getPageNumbers()"
+          [class.active]="page === currentPage"
+          (click)="cambiarPagina(page)">
+          {{page}}
+        </button>
+      </div>
+      
+      <button 
+        class="page-btn" 
+        [disabled]="currentPage === totalPages"
+        (click)="cambiarPagina(currentPage + 1)">
+        <i class="fas fa-chevron-right"></i>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de detalles -->
+<div class="modal-overlay" *ngIf="showModalDetalles" (click)="cerrarModal($event)">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>
+        <i class="fas fa-file-alt"></i>
+        Detalles de la Solicitud #{{solicitudSeleccionada?.idmov}}
+      </h2>
+      <button class="close-btn" (click)="cerrarModal($event)">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    
+    <div class="modal-body">
+      <div class="detail-section">
+        <h3>Información General</h3>
+        <div class="info-grid">
+          <div class="info-item">
+            <label>ID de Solicitud:</label>
+            <span>#{{solicitudSeleccionada?.idmov}}</span>
+          </div>
+          <div class="info-item">
+            <label>Estado:</label>
+            <span class="status-badge" [class]="solicitudSeleccionada?.estado?.toLowerCase()">
+              {{solicitudSeleccionada?.estado}}
+            </span>
+          </div>
+          <div class="info-item">
+            <label>Fecha de Solicitud:</label>
+            <span>{{solicitudSeleccionada?.fechaSolicitud | date:'dd/MM/yyyy HH:mm'}}</span>
+          </div>
+          <div class="info-item">
+            <label>Solicitante:</label>
+            <span>{{solicitudSeleccionada?.usuario?.nombre}}</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="detail-section">
+        <h3>Detalles del Espacio</h3>
+        <div class="info-grid">
+          <div class="info-item">
+            <label>Espacio:</label>
+            <span>{{solicitudSeleccionada?.espacio?.nombre}}</span>
+          </div>
+          <div class="info-item">
+            <label>Descripción:</label>
+            <span>{{solicitudSeleccionada?.espacio?.descripcion}}</span>
+          </div>
+          <div class="info-item" *ngIf="solicitudSeleccionada?.espacio?.estado">
+            <label>Estado:</label>
+            <span>{{solicitudSeleccionada?.espacio?.estado}}</span>
+          </div>
+          <div class="info-item" *ngIf="solicitudSeleccionada?.espacio?.capacidad">
+            <label>Capacidad:</label>
+            <span>{{solicitudSeleccionada?.espacio?.capacidad}} personas</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="detail-section">
+        <h3>Detalles de la Reserva</h3>
+        <div class="info-grid">
+          <div class="info-item">
+            <label>Fecha y hora de inicio:</label>
+            <span>{{solicitudSeleccionada?.fechaPres | date:'dd/MM/yyyy HH:mm'}}</span>
+          </div>
+          <div class="info-item">
+            <label>Fecha y hora de fin:</label>
+            <span>{{solicitudSeleccionada?.fechaDevol | date:'dd/MM/yyyy HH:mm'}}</span>
+          </div>
+          <div class="info-item">
+            <label>Duración:</label>
+            <span>{{solicitudSeleccionada ? getDuracionReserva(solicitudSeleccionada.fechaPres, solicitudSeleccionada.fechaDevol) : ''}}</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="detail-section">
+        <h3>Motivo de la Solicitud</h3>
+        <div class="text-content">
+          <p class="text-block">{{solicitudSeleccionada?.motivo}}</p>
+        </div>
+      </div>
+      
+      <!-- <div class="detail-section" *ngIf="solicitudSeleccionada?.espacio?.recursos && solicitudSeleccionada?.espacio?.recursos.length > 0">
+        <h3>Recursos del Espacio</h3>
+        <div class="recursos-list">
+          <div class="recurso-item" *ngFor="let recurso of solicitudSeleccionada?.espacio?.recursos">
+            <i class="fas fa-check-circle"></i>
+            <span>{{recurso}}</span>
+          </div>
+        </div>
+      </div> -->
+    </div>
+    
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="cerrarModal($event)">
+        Cerrar
+      </button>
+      <button 
+        class="btn-primary" 
+        *ngIf="solicitudSeleccionada?.estado === 'Aprobada'"
+        (click)="descargarComprobante(solicitudSeleccionada!)">
+        <i class="fas fa-download"></i>
+        Descargar Comprobante
+      </button>
+    </div>
+  </div>
+</div>

@@ -72,7 +72,7 @@ export class HistorialSolicitudesComponent implements OnInit, OnDestroy {
   cargarHistorial(): void {
     this.loading = true;
     
-    this.solicitudService.getMisSolicitudes()
+    this.solicitudService.obtenerTodosLosMovimientos()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (solicitudes) => {

@@ -4,10 +4,25 @@
       <i class="fas" [ngClass]="sidebarActive ? 'fa-times' : 'fa-bars'"></i>
     </button>
     <h1>Device Control</h1>
+
     <div class="search-container">
-      <i class="fas fa-search"></i>
-      <input type="text" placeholder="buscar">
-    </div>
+        <i class="fas fa-search"></i>
+        <input 
+          type="text" 
+          placeholder="buscar"
+          [(ngModel)]="searchText"
+          (keyup.enter)="performSearch()"
+          #searchInput
+        >
+        <button 
+          class="search-btn" 
+          (click)="performSearch()"
+          [disabled]="!searchText.trim()"
+        >
+          <i class="fas fa-arrow-right"></i>
+        </button>
+      </div>
+
   </div>
 
   <div class="user-actions">
