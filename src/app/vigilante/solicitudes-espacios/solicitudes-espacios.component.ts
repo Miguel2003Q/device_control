@@ -1,56 +1,69 @@
-import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { CommonModule, DatePipe } from '@angular/common';
+import { Component, OnInit, NgZone } from '@angular/core';
+import {
+  FormBuilder,
+  FormGroup,
+  Validators,
+  FormsModule,
+  ReactiveFormsModule
+} from '@angular/forms';
+import {
+  CommonModule,
+  DatePipe,
+  NgIf,
+  NgFor,
+  NgClass,
+  SlicePipe
+} from '@angular/common';
 import { TopBarComponent } from "../shared/top-bar/top-bar.component";
 import { SidebarComponent } from "../shared/sidebar/sidebar.component";
-
-interface SolicitudAmbiente {
-  id: number;
-  ambiente: string;
-  fechaPrestamo: Date;
-  horaPrestamo: string;
-  fechaDevolucion: Date;
-  horaDevolucion: string;
-  solicitante: string;
-  motivo: string;
-  estado: 'Pendiente' | 'Aprobado' | 'Rechazado' | 'En Proceso';
-}
-
-interface Ambiente {
-  nombre: string;
-  ubicacion: string;
-  capacidad: number;
-  estado: string;
-}
+import { ActivatedRoute } from '@angular/router';
+import { SolicitudEspacioService } from '../../core/services/solicitudEspacio.service';
+import { SolicitudEspacio } from '../../core/models/solicitudEspacio.model';
+import { Espacio } from '../../core/models/espacio.model';
 
 @Component({
-  selector: 'app-solicitudes-ambientes',
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, TopBarComponent, SidebarComponent],
+  standalone: true,
+  selector: 'app-solicitudes-espacios',
   templateUrl: './solicitudes-espacios.component.html',
   styleUrls: ['./solicitudes-espacios.component.css'],
-  providers: [DatePipe]
+  providers: [DatePipe],
+  imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    NgIf,
+    NgFor,
+    NgClass,
+    SlicePipe,
+    TopBarComponent,
+    SidebarComponent
+  ]
 })
 export class SolicitudesEspaciosComponent implements OnInit {
-  // Filtering
-  searchTerm: string = '';
-  filtroEstado: string = '';
+  searchTerm = '';
+  filtroEstado = '';
+  solicitudDestacada: number | null = null;
 
-  // Data and state
-  solicitudes: SolicitudAmbiente[] = [];
-  solicitudesFiltradas: SolicitudAmbiente[] = [];
-  solicitudesPendientes: SolicitudAmbiente[] = [];
-  ambientesDisponibles: Ambiente[] = [];
-  loading: boolean = false;
+  solicitudes: SolicitudEspacio[] = [];
+  solicitudesFiltradas: SolicitudEspacio[] = [];
+  solicitudesPendientes: SolicitudEspacio[] = [];
+  ambientesDisponibles: Espacio[] = [];
+  loading = false;
 
-  // Modal and form
-  showModalSolicitud: boolean = false;
+  showModalSolicitud = false;
   solicitudForm: FormGroup;
-  isSubmitting: boolean = false;
+  isSubmitting = false;
   minDate: string;
 
   sidebarActive = false;
 
-  constructor(private fb: FormBuilder, private datePipe: DatePipe) {
+  constructor(
+    private fb: FormBuilder,
+    private datePipe: DatePipe,
+    private route: ActivatedRoute,
+    private solicitudService: SolicitudEspacioService,
+    private ngZone: NgZone
+  ) {
     const today = new Date();
     this.minDate = this.datePipe.transform(today, 'yyyy-MM-dd')!;
     this.solicitudForm = this.fb.group({
@@ -64,47 +77,32 @@ export class SolicitudesEspaciosComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.cargarDatos();
+    this.route.queryParams.subscribe(params => {
+      const id = +params['id'];
+      if (id) this.solicitudDestacada = id;
+      this.cargarDatos();
+    });
   }
 
   cargarDatos(): void {
     this.loading = true;
-    // Mock data (replace with service call)
-    this.solicitudes = [
-      {
-        id: 1,
-        ambiente: 'Aula 101',
-        fechaPrestamo: new Date('2025-06-03'),
-        horaPrestamo: '09:00',
-        fechaDevolucion: new Date('2025-06-03'),
-        horaDevolucion: '12:00',
-        solicitante: 'Juan Pérez',
-        motivo: 'Clase de Matemáticas',
-        estado: 'Pendiente'
+
+    this.solicitudService.obtenerTodosLosMovimientos().subscribe({
+      next: (data) => {
+        this.solicitudes = data;
+        this.filtrarSolicitudes();
+        this.solicitudesPendientes = this.solicitudes.filter(s => s.estado === 'Pendiente');
+        this.loading = false;
+
+        if (this.solicitudDestacada) {
+          setTimeout(() => this.destacarSolicitud(this.solicitudDestacada!), 300);
+        }
       },
-      {
-        id: 2,
-        ambiente: 'Laboratorio 1',
-        fechaPrestamo: new Date('2025-06-04'),
-        horaPrestamo: '14:00',
-        fechaDevolucion: new Date('2025-06-04'),
-        horaDevolucion: '16:00',
-        solicitante: 'María Gómez',
-        motivo: 'Práctica de Química',
-        estado: 'Aprobado'
+      error: (err) => {
+        console.error('Error al cargar solicitudes:', err);
+        this.loading = false;
       }
-    ];
-
-    this.ambientesDisponibles = [
-      { nombre: 'Aula 101', ubicacion: 'Edificio A', capacidad: 40, estado: 'Disponible' },
-      { nombre: 'Laboratorio 1', ubicacion: 'Edificio B', capacidad: 20, estado: 'Disponible' }
-    ];
-
-    setTimeout(() => {
-      this.filtrarSolicitudes();
-      this.solicitudesPendientes = this.solicitudes.filter(s => s.estado === 'Pendiente');
-      this.loading = false;
-    }, 1000);
+    });
   }
 
   filtrarSolicitudes(): void {
@@ -113,14 +111,22 @@ export class SolicitudesEspaciosComponent implements OnInit {
     if (this.searchTerm) {
       const term = this.searchTerm.toLowerCase();
       filtered = filtered.filter(s =>
-        s.ambiente.toLowerCase().includes(term) ||
-        s.solicitante.toLowerCase().includes(term) ||
-        s.motivo.toLowerCase().includes(term)
+        s.espacio?.nombre?.toLowerCase().includes(term) ||
+        s.usuario?.nombre?.toLowerCase().includes(term) ||
+        s.motivo?.toLowerCase().includes(term)
       );
     }
 
     if (this.filtroEstado) {
       filtered = filtered.filter(s => s.estado === this.filtroEstado);
+    }
+
+    if (this.solicitudDestacada) {
+      const index = filtered.findIndex(s => s.idmov === this.solicitudDestacada);
+      if (index !== -1) {
+        const [destacada] = filtered.splice(index, 1);
+        filtered.unshift(destacada);
+      }
     }
 
     this.solicitudesFiltradas = filtered;
@@ -129,27 +135,27 @@ export class SolicitudesEspaciosComponent implements OnInit {
   getStatusIcon(estado: string): string {
     switch (estado) {
       case 'Pendiente': return 'fa-clock';
-      case 'Aprobado': return 'fa-check-circle';
-      case 'Rechazado': return 'fa-times-circle';
+      case 'Aprobada': return 'fa-check-circle';
+      case 'Rechazada': return 'fa-times-circle';
       case 'En Proceso': return 'fa-hourglass-half';
       default: return 'fa-info-circle';
     }
   }
 
   aprobarSolicitud(id: number): void {
-    const solicitud = this.solicitudes.find(s => s.id === id);
+    const solicitud = this.solicitudes.find(s => s.idmov === id);
     if (solicitud) {
-      solicitud.estado = 'Aprobado';
+      solicitud.estado = 'Aprobada';
       this.filtrarSolicitudes();
       this.solicitudesPendientes = this.solicitudes.filter(s => s.estado === 'Pendiente');
     }
   }
 
   rechazarSolicitud(id: number): void {
-    if (confirm('¿Estás seguro de rechazar esta solicitud?')) {
-      const solicitud = this.solicitudes.find(s => s.id === id);
+    if (confirm('¿Estás segura de rechazar esta solicitud?')) {
+      const solicitud = this.solicitudes.find(s => s.idmov === id);
       if (solicitud) {
-        solicitud.estado = 'Rechazado';
+        solicitud.estado = 'Rechazada';
         this.filtrarSolicitudes();
         this.solicitudesPendientes = this.solicitudes.filter(s => s.estado === 'Pendiente');
       }
@@ -162,7 +168,10 @@ export class SolicitudesEspaciosComponent implements OnInit {
   }
 
   cerrarModalSolicitud(event: Event): void {
-    if (event.target === event.currentTarget || (event.target as HTMLElement).closest('.close-modal-btn, .cancel-btn')) {
+    if (
+      event.target === event.currentTarget ||
+      (event.target as HTMLElement).closest('.close-modal-btn, .cancel-btn')
+    ) {
       this.showModalSolicitud = false;
       this.solicitudForm.reset();
       this.isSubmitting = false;
@@ -177,25 +186,31 @@ export class SolicitudesEspaciosComponent implements OnInit {
   enviarSolicitudAmbiente(): void {
     if (this.solicitudForm.valid && !this.isSubmitting) {
       this.isSubmitting = true;
-      // Simulate API call
-      setTimeout(() => {
-        const nuevaSolicitud: SolicitudAmbiente = {
-          id: this.solicitudes.length + 1,
-          ambiente: this.solicitudForm.value.ambiente,
-          fechaPrestamo: new Date(this.solicitudForm.value.fechaPrestamo),
-          horaPrestamo: this.solicitudForm.value.horaPrestamo,
-          fechaDevolucion: new Date(this.solicitudForm.value.fechaDevolucion),
-          horaDevolucion: this.solicitudForm.value.horaDevolucion,
-          solicitante: 'Usuario Actual', // Replace with actual user
-          motivo: this.solicitudForm.value.motivo,
-          estado: 'Pendiente'
-        };
-        this.solicitudes.push(nuevaSolicitud);
-        this.filtrarSolicitudes();
-        this.solicitudesPendientes = this.solicitudes.filter(s => s.estado === 'Pendiente');
-        this.cerrarModalSolicitud(new Event('click'));
-        this.isSubmitting = false;
-      }, 1000);
+
+      const espacioId = this.solicitudForm.value.ambiente;
+      const espacio = this.ambientesDisponibles.find(e => e.idespacio === espacioId);
+
+      const nuevaSolicitud: Partial<SolicitudEspacio> = {
+        espacio: espacio!,
+        fechaPres: this.solicitudForm.value.fechaPrestamo,
+        fechaDevol: this.solicitudForm.value.fechaDevolucion,
+        motivo: this.solicitudForm.value.motivo,
+        estado: 'Pendiente'
+      };
+
+      this.solicitudService.crearSolicitud(nuevaSolicitud).subscribe({
+        next: (respuesta) => {
+          this.solicitudes.push(respuesta);
+          this.filtrarSolicitudes();
+          this.solicitudesPendientes = this.solicitudes.filter(s => s.estado === 'Pendiente');
+          this.cerrarModalSolicitud(new Event('click'));
+          this.isSubmitting = false;
+        },
+        error: (err) => {
+          console.error('Error al enviar solicitud:', err);
+          this.isSubmitting = false;
+        }
+      });
     }
   }
 
@@ -203,63 +218,13 @@ export class SolicitudesEspaciosComponent implements OnInit {
     this.sidebarActive = !this.sidebarActive;
   }
 
+  destacarSolicitud(id: number): void {
+    const el = document.querySelector(`[data-solicitud-id="${id}"]`);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }
 }
-  //No borrar:
-  // Actualizar el historial-solicitudes.component.ts para manejar el query param
-// import { ActivatedRoute } from '@angular/router';
-
-// constructor(
-//   // ... otros servicios
-//   private route: ActivatedRoute
-// ) {}
-
-// ngOnInit(): void {
-//   this.cargarHistorial();
-  
-//   // Verificar si hay un ID de solicitud en los query params
-//   this.route.queryParams.subscribe(params => {
-//     if (params['id']) {
-//       this.destacarSolicitud(+params['id']);
-//     }
-//   });
-// }
-
-// // Método para destacar una solicitud específica
-// destacarSolicitud(id: number): void {
-//   // Buscar la solicitud y hacer scroll hasta ella
-//   setTimeout(() => {
-//     const elemento = document.querySelector(`[data-solicitud-id="${id}"]`);
-//     if (elemento) {
-//       elemento.scrollIntoView({ behavior: 'smooth', block: 'center' });
-//       elemento.classList.add('destacada');
-      
-//       // Remover el destacado después de 3 segundos
-//       setTimeout(() => {
-//         elemento.classList.remove('destacada');
-//       }, 3000);
-//     }
-//   }, 500);
-// }
-
-// // En el HTML del historial, agregar el atributo data-solicitud-id
-// <div class="solicitud-card" [attr.data-solicitud-id]="solicitud.idmov">
-
-// // CSS para el destacado
-// .solicitud-card.destacada {
-//   animation: destacar 1s ease-in-out 3;
-//   box-shadow: 0 0 20px rgba(96, 150, 186, 0.6);
-// }
-
-// @keyframes destacar {
-//   0%, 100% {
-//     transform: scale(1);
-//     box-shadow: 0 0 20px rgba(96, 150, 186, 0.6);
-//   }
-//   50% {
-//     transform: scale(1.02);
-//     box-shadow: 0 0 30px rgba(96, 150, 186, 0.8);
-//   }
-// }
 
 // notification.interceptor.ts - Interceptor para manejar notificaciones de respuestas
 // import { Injectable } from '@angular/core';
@@ -292,3 +257,4 @@ export class SolicitudesEspaciosComponent implements OnInit {
 //     );
 //   }
 // }
+

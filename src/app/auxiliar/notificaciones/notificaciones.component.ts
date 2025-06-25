@@ -1,4 +1,3 @@
-// notificaciones.component.ts
 import { Component, OnInit, OnDestroy, ElementRef, ViewChild, Input, Output, EventEmitter, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -73,7 +72,6 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
       this.toggle.emit(null); // Le dice al padre que cierre el dropdown
     }
   }
-
 
   /**
    * Carga las notificaciones
@@ -183,7 +181,7 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
 
       if (notificacion.solicitudId) {
         // Navegar a la solicitud específica
-        this.router.navigate(['/solicitudes'], {
+        this.router.navigate(['/vig/solicitudes-espacios'], {
           queryParams: { id: notificacion.solicitudId }
         });
       } else {
