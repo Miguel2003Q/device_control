@@ -6,6 +6,8 @@ import { SidebarComponent } from '../shared/sidebar/sidebar.component';
 import { AuthService } from '../../core/services/auth.service';
 import { UsuarioService } from '../../core/services/usuario.service';
 import { LoadingService } from '../../core/services/loading.service';
+import { HttpClientModule } from '@angular/common/http';
+import { ToastrService } from 'ngx-toastr';
 
 interface User {
   id?: number;
@@ -13,7 +15,6 @@ interface User {
   correo: string;
   telefono: string;
   rol: number;
-
 }
 
 @Component({
@@ -31,22 +32,31 @@ export class PerfilComponent implements OnInit {
     nombre: '',
     correo: '',
     telefono: '',
-    rol: 0,
-
+    rol: 0
   };
 
   showEditModal: boolean = false;
   showPhotoModal: boolean = false;
   showPasswordModal: boolean = false;
+
   editForm: FormGroup;
   passwordForm: FormGroup;
+
   isSubmitting: boolean = false;
   isSubmittingPassword: boolean = false;
+
   notificationMessage: string = '';
   notificationType: 'success' | 'error' | null = null;
+
   selectedFile: File | null = null;
 
-  constructor(private fb: FormBuilder, private authService: AuthService, private usuarioService: UsuarioService, private loadingService: LoadingService) {
+  constructor(
+    private fb: FormBuilder,
+    private authService: AuthService,
+    private usuarioService: UsuarioService,
+    private loadingService: LoadingService,
+    private toastr: ToastrService
+  ) {
     this.editForm = this.fb.group({
       nombre: ['', [Validators.required, Validators.minLength(2)]],
       telefono: ['', [Validators.required, Validators.pattern('^[0-9]{10,15}$')]]
@@ -80,7 +90,7 @@ export class PerfilComponent implements OnInit {
           nombre: userData.nombre ?? '',
           correo: userData.email ?? '',
           telefono: userData.telefono?.toString() ?? '',
-          rol: userData.rol ?? '',
+          rol: userData.rol ?? 0,
         };
 
         this.editForm.patchValue({
@@ -89,7 +99,6 @@ export class PerfilComponent implements OnInit {
         });
 
         this.loadingService.hide();
-        console.log('User data loaded:', this.user);
       },
       error: (err) => {
         console.error('No se pudo cargar el usuario:', err);
@@ -97,7 +106,6 @@ export class PerfilComponent implements OnInit {
       }
     });
   }
-
 
   passwordMatchValidator(form: FormGroup) {
     const newPassword = form.get('newPassword')?.value;
@@ -139,50 +147,23 @@ export class PerfilComponent implements OnInit {
 
       this.authService.updateUserProfile(this.user.id, updateData).subscribe({
         next: (updatedUser) => {
-          // Actualizar los datos locales del usuario
           this.user = {
             ...this.user,
             nombre: updatedUser.nombre,
             telefono: updatedUser.telefono?.toString() ?? ''
           };
-
-          // Actualizar también el usuario en el servicio de autenticación si es necesario
-          // this.authService.updateCurrentUserData(updatedUser);
-
           this.showNotification('Perfil actualizado exitosamente', 'success');
           this.closeEditModal(new Event('click'));
         },
         error: (error) => {
           console.error('Error al actualizar el perfil:', error);
-          const errorMessage = error.error?.message || error.error || 'Error al actualizar el perfil';
+          const errorMessage = error.error?.message || 'Error al actualizar el perfil';
           this.showNotification(errorMessage, 'error');
         },
         complete: () => {
           this.isSubmitting = false;
         }
       });
-    } else {
-      if (!this.user.id) {
-        this.showNotification('Error: ID de usuario no encontrado', 'error');
-      }
-    }
-  }
-
-  openPhotoModal(): void {
-    this.showPhotoModal = true;
-    this.showEditModal = false;
-  }
-
-  closePhotoModal(event: Event): void {
-    if (event.target === event.currentTarget || (event.target as HTMLElement).closest('.close-modal-btn, .cancel-btn')) {
-      this.showPhotoModal = false;
-      this.selectedFile = null;
-    }
-  }
-
-  onFileSelected(event: any): void {
-    if (event.target.files.length > 0) {
-      this.selectedFile = event.target.files[0];
     }
   }
 
@@ -199,6 +180,31 @@ export class PerfilComponent implements OnInit {
     }
   }
 
+  changePassword(): void {
+    if (this.passwordForm.valid && this.user.id && !this.isSubmittingPassword) {
+      this.isSubmittingPassword = true;
+
+      const formValue = this.passwordForm.value;
+      const data = {
+        currentPassword: formValue.currentPassword,
+        newPassword: formValue.newPassword
+      };
+
+      this.authService.changePassword(this.user.id, data).subscribe({
+        next: () => {
+          this.closePasswordModal(new Event('click'));
+          this.isSubmittingPassword = false;
+          this.toastr.success('Contraseña actualizada correctamente', 'Éxito');
+        },
+        error: (error) => {
+          const errorMessage = error.error?.message || 'Error al cambiar la contraseña';
+          this.toastr.error(errorMessage, 'Error');
+          this.isSubmittingPassword = false;
+          console.log('Error al cambiar la contraseña:', error.error.message);
+        }
+      });
+    }
+  }
 
   showNotification(message: string, type: 'success' | 'error'): void {
     this.notificationMessage = message;

@@ -6,7 +6,7 @@ import { SidebarComponent } from '../shared/sidebar/sidebar.component';
 import { AuthService } from '../../core/services/auth.service';
 import { UsuarioService } from '../../core/services/usuario.service';
 import { LoadingService } from '../../core/services/loading.service';
-
+import { ToastrService } from 'ngx-toastr';
 interface User {
   id?: number;
   nombre: string;
@@ -46,7 +46,7 @@ export class ProfileComponent implements OnInit {
   notificationType: 'success' | 'error' | null = null;
   selectedFile: File | null = null;
 
-  constructor(private fb: FormBuilder, private authService: AuthService, private usuarioService: UsuarioService, private loadingService: LoadingService) {
+  constructor(private fb: FormBuilder,private toastr:ToastrService , private authService: AuthService, private usuarioService: UsuarioService, private loadingService: LoadingService) {
     this.editForm = this.fb.group({
       nombre: ['', [Validators.required, Validators.minLength(2)]],
       telefono: ['', [Validators.required, Validators.pattern('^[0-9]{10,15}$')]]
@@ -212,5 +212,31 @@ export class ProfileComponent implements OnInit {
 
   toggleSidebarEmit(): void {
     this.sidebarActive = !this.sidebarActive;
+  }
+
+  changePassword(): void {
+    if (this.passwordForm.valid && this.user.id && !this.isSubmittingPassword) {
+      this.isSubmittingPassword = true;
+
+      const formValue = this.passwordForm.value;
+      const data = {
+        currentPassword: formValue.currentPassword,
+        newPassword: formValue.newPassword
+      };
+
+      this.authService.changePassword(this.user.id, data).subscribe({
+        next: () => {
+          this.closePasswordModal(new Event('click'));
+          this.isSubmittingPassword = false;
+          this.toastr.success('Contraseña actualizada correctamente', 'Éxito');
+        },
+        error: (error) => {
+          const errorMessage = error.error?.message || 'Error al cambiar la contraseña';
+          this.toastr.error(errorMessage, 'Error');
+          this.isSubmittingPassword = false;
+          console.log('Error al cambiar la contraseña:', error.error.message);
+        }
+      });
+    }
   }
 }

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient,HttpHeaders } from '@angular/common/http';
-import { Observable, tap , } from 'rxjs';
+import { catchError, Observable, tap, throwError , } from 'rxjs';
 import { LoginRequest } from '../models/login-request';
 import { User } from '../models/user';
 import { environment } from '../../../environments/environment';
@@ -70,5 +70,18 @@ updateUserProfile(userId: number, profileData: UpdateProfileRequest): Observable
     const user = this.getCurrentUser();
     return user ? user.rol : null;
   }
+
+changePassword(userId: number, data: { currentPassword: string; newPassword: string }) {
+  const headers = { 'Content-Type': 'application/json' };
+  return this.http.post(`${this.apiUrl}/cambiar-contrasena/${userId}`, data, { headers }).pipe(
+    catchError((error) => {
+      // Aquí podrías hacer un log, mostrar toast, etc.
+      return throwError(() => error);
+    })
+  );
+}
+
+
+
 
 }
