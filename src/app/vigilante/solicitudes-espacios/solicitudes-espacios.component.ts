@@ -249,11 +249,13 @@ export class SolicitudesEspaciosComponent implements OnInit {
   }
 
   destacarSolicitud(id: number): void {
-    const el = document.querySelector(`[data-solicitud-id="${id}"]`);
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
+  this.solicitudDestacada = id;
+
+  const el = document.querySelector(`[data-solicitud-id="${id}"]`);
+  if (el) {
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
+}
 }
 
 // notification.interceptor.ts - Interceptor para manejar notificaciones de respuestas
