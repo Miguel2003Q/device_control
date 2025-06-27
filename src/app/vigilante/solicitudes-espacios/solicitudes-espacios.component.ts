@@ -20,6 +20,8 @@ import { ActivatedRoute } from '@angular/router';
 import { SolicitudEspacioService } from '../../core/services/solicitudEspacio.service';
 import { SolicitudEspacio } from '../../core/models/solicitudEspacio.model';
 import { Espacio } from '../../core/models/espacio.model';
+import { ToastrService } from 'ngx-toastr';
+import { LoadingService } from '../../core/services/loading.service';
 
 @Component({
   standalone: true,
@@ -48,7 +50,6 @@ export class SolicitudesEspaciosComponent implements OnInit {
   solicitudesFiltradas: SolicitudEspacio[] = [];
   solicitudesPendientes: SolicitudEspacio[] = [];
   ambientesDisponibles: Espacio[] = [];
-  loading = false;
 
   showModalSolicitud = false;
   solicitudForm: FormGroup;
@@ -62,7 +63,9 @@ export class SolicitudesEspaciosComponent implements OnInit {
     private datePipe: DatePipe,
     private route: ActivatedRoute,
     private solicitudService: SolicitudEspacioService,
-    private ngZone: NgZone
+    private ngZone: NgZone,
+    private toast: ToastrService,
+    private loading: LoadingService
   ) {
     const today = new Date();
     this.minDate = this.datePipe.transform(today, 'yyyy-MM-dd')!;
@@ -85,14 +88,14 @@ export class SolicitudesEspaciosComponent implements OnInit {
   }
 
   cargarDatos(): void {
-    this.loading = true;
+    this.loading.show();
 
     this.solicitudService.obtenerTodosLosMovimientos().subscribe({
       next: (data) => {
         this.solicitudes = data;
         this.filtrarSolicitudes();
         this.solicitudesPendientes = this.solicitudes.filter(s => s.estado === 'Pendiente');
-        this.loading = false;
+        this.loading.hide();
 
         if (this.solicitudDestacada) {
           setTimeout(() => this.destacarSolicitud(this.solicitudDestacada!), 300);
@@ -100,7 +103,8 @@ export class SolicitudesEspaciosComponent implements OnInit {
       },
       error: (err) => {
         console.error('Error al cargar solicitudes:', err);
-        this.loading = false;
+        this.toast.error('Error al cargar solicitudes:');
+        this.loading.hide();
       }
     });
   }
@@ -143,24 +147,50 @@ export class SolicitudesEspaciosComponent implements OnInit {
   }
 
   aprobarSolicitud(id: number): void {
+    this.loading.show();
     const solicitud = this.solicitudes.find(s => s.idmov === id);
     if (solicitud) {
-      solicitud.estado = 'Aprobada';
-      this.filtrarSolicitudes();
-      this.solicitudesPendientes = this.solicitudes.filter(s => s.estado === 'Pendiente');
+      this.solicitudService.aprobarSolicitud(solicitud.idmov ?? 0).subscribe({
+      next: (data) => {
+
+        solicitud.estado = 'Aprobada';
+        this.filtrarSolicitudes();
+        this.solicitudesPendientes = this.solicitudes.filter(s => s.estado === 'Pendiente');
+        this.loading.hide();
+        this.toast.success('¡Solicitud aprobada!');
+      },
+      error: (err) => {
+        console.error('Error al aprobar la solicitud:', err);
+        this.toast.error('Error al aprobar la solicitud');
+        this.loading.hide();
+      }
+      });
     }
   }
 
   rechazarSolicitud(id: number): void {
-    if (confirm('¿Estás segura de rechazar esta solicitud?')) {
-      const solicitud = this.solicitudes.find(s => s.idmov === id);
-      if (solicitud) {
+    if (confirm('¿Desea rechazar esta solicitud?')) {
+      this.loading.show();
+    const solicitud = this.solicitudes.find(s => s.idmov === id);
+    if (solicitud) {
+      this.solicitudService.rechazarSolicitud(solicitud.idmov ?? 0).subscribe({
+      next: (data) => {
+
         solicitud.estado = 'Rechazada';
         this.filtrarSolicitudes();
         this.solicitudesPendientes = this.solicitudes.filter(s => s.estado === 'Pendiente');
+        this.loading.hide();
+        this.toast.success('¡Solicitud rechazada!');
+      },
+      error: (err) => {
+        console.error('Error al rechazar la solicitud:', err);
+        this.toast.error('Error al rechazar la solicitud');
+        this.loading.hide();
       }
+      });
     }
   }
+}
 
   abrirModalSolicitudAmbiente(): void {
     this.solicitudForm.reset();

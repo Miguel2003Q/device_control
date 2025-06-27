@@ -124,11 +124,11 @@
 }
 
 .menu-toggle {
-  display: none;
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
+    display: none;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
 }
 
 /* Responsive */
@@ -181,8 +181,8 @@
     }
 
     .menu-toggle {
-    display: flex;
-  }
+        display: flex;
+    }
 }
 
 @media (max-width: 576px) {

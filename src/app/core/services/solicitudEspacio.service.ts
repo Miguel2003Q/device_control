@@ -132,15 +132,15 @@ export class SolicitudEspacioService {
   /**
    * Aprueba una solicitud (para administradores)
    */
-  aprobarSolicitud(id: number, observaciones?: string): Observable<SolicitudEspacio> {
-    return this.http.put<SolicitudEspacio>(`${this.apiUrl}/${id}/aprobar`, { observaciones });
+  aprobarSolicitud(id: number): Observable<SolicitudEspacio> {
+    return this.http.put<SolicitudEspacio>(`${this.apiUrl}/aprobarSol/${id}`, null);
   }
 
   /**
    * Rechaza una solicitud (para administradores)
    */
-  rechazarSolicitud(id: number, motivo: string): Observable<SolicitudEspacio> {
-    return this.http.put<SolicitudEspacio>(`${this.apiUrl}/${id}/rechazar`, { motivo });
+  rechazarSolicitud(id: number): Observable<SolicitudEspacio> {
+    return this.http.put<SolicitudEspacio>(`${this.apiUrl}/rechazar/${id}`, null);
   }
 
   /**
