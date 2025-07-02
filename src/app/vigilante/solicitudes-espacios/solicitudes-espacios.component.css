@@ -27,7 +27,8 @@ button {
   background-color: #F5F8FA;
   padding: 20px;
   margin-left: 255px;
-  margin-top: 62px; /* Space for top-bar */
+  margin-top: 62px;
+  /* Space for top-bar */
   transition: margin-left 0.3s ease;
   overflow: auto;
 }
@@ -38,6 +39,15 @@ button {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   overflow: hidden;
   padding: 20px;
+
+  .table-container {
+    width: 100%;
+  }
+
+  .solicitudes-table {
+    width: 100%;
+    table-layout: fixed;
+  }
 }
 
 .content-sections {
@@ -157,162 +167,172 @@ button {
 }
 
 .table-container {
+  width: 100%;
+  max-width: 100%;
   overflow-x: auto;
   border-radius: 10px;
   border: 1px solid #E7ECEF;
+}
 
-  .solicitudes-table {
-    width: 100%;
-    border-collapse: collapse;
-    background-color: #FFFFFF;
+.solicitudes-table {
+  min-width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background-color: #FFFFFF;
 
-    th {
-      background-color: #E7ECEF;
-      padding: 12px 15px;
-      text-align: left;
-      font-size: 14px;
-      font-weight: 600;
-      color: #274C77;
-      border-bottom: 1px solid #E7ECEF;
+  th {
+    background-color: #E7ECEF;
+    padding: 12px 15px;
+    text-align: left;
+    font-size: 14px;
+    font-weight: 600;
+    color: #274C77;
+    border-bottom: 1px solid #E7ECEF;
+
+    i {
+      margin-right: 8px;
+      color: #6096BA;
+    }
+  }
+
+  td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #E7ECEF;
+    font-size: 13px;
+    color: #333333;
+
+    .ambiente-cell,
+    .date-cell,
+    .user-cell,
+    .motivo-cell {
+      display: flex;
+      align-items: center;
+      gap: 8px;
 
       i {
-        margin-right: 8px;
+        color: #6096BA;
+      }
+
+      small {
+        display: block;
+        color: #888888;
+        font-size: 12px;
+      }
+    }
+
+    .motivo-cell {
+      max-width: 200px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+
+      &.pendiente {
+        background-color: rgba(255, 193, 7, 0.1);
+        color: #FFC107;
+      }
+
+      &.aprobado {
+        background-color: rgba(76, 175, 80, 0.1);
+        color: #4CAF50;
+      }
+
+      &.rechazado {
+        background-color: rgba(244, 67, 54, 0.1);
+        color: #F44336;
+      }
+
+      &.en-proceso {
+        background-color: rgba(33, 150, 243, 0.1);
+        color: #2196F3;
+      }
+
+      i {
+        color: inherit;
+      }
+    }
+
+ .action-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center; 
+ 
+
+      .action-btn {
+        padding: 9.5px 16px;
+        border-radius: 5px;
+        font-size: 13px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        line-height: 1;
+
+        &.approve {
+          background-color: #4CAF50;
+          color: #FFFFFF;
+
+          &:hover {
+            background-color: #388E3C;
+          }
+        }
+
+        &.reject {
+          background-color: #F44336;
+          color: #FFFFFF;
+
+          &:hover {
+            background-color: #D32F2F;
+          }
+        }
+      }
+    }
+
+    .status-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #888888;
+
+      i {
         color: #6096BA;
       }
     }
 
-    td {
-      padding: 12px 15px;
-      border-bottom: 1px solid #E7ECEF;
-      font-size: 13px;
-      color: #333333;
+    &.no-results {
+      text-align: center;
+      padding: 40px;
 
-      .ambiente-cell, .date-cell, .user-cell, .motivo-cell {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-
+      .empty-state {
         i {
-          color: #6096BA;
+          font-size: 32px;
+          color: #CCCCCC;
+          margin-bottom: 10px;
         }
 
-        small {
-          display: block;
+        p {
           color: #888888;
-          font-size: 12px;
+          font-size: 14px;
         }
       }
-
-      .motivo-cell {
-        max-width: 200px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-
-      .status-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 5px;
-        padding: 5px 10px;
-        border-radius: 20px;
-        font-size: 12px;
-        font-weight: 500;
-
-        &.pendiente {
-          background-color: rgba(255, 193, 7, 0.1);
-          color: #FFC107;
-        }
-
-        &.aprobado {
-          background-color: rgba(76, 175, 80, 0.1);
-          color: #4CAF50;
-        }
-
-        &.rechazado {
-          background-color: rgba(244, 67, 54, 0.1);
-          color: #F44336;
-        }
-
-        &.en-proceso {
-          background-color: rgba(33, 150, 243, 0.1);
-          color: #2196F3;
-        }
-
-        i {
-          color: inherit;
-        }
-      }
-
-      .action-buttons {
-        display: flex;
-        gap: 10px;
-
-        .action-btn {
-          padding: 8px 15px;
-          border-radius: 5px;
-          font-size: 13px;
-          font-weight: 500;
-          transition: all 0.3s ease;
-          display: flex;
-          align-items: center;
-          gap: 5px;
-
-          &.approve {
-            background-color: #4CAF50;
-            color: #FFFFFF;
-
-            &:hover {
-              background-color: #388E3C;
-            }
-          }
-
-          &.reject {
-            background-color: #F44336;
-            color: #FFFFFF;
-
-            &:hover {
-              background-color: #D32F2F;
-            }
-          }
-        }
-      }
-
-      .status-info {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        color: #888888;
-
-        i {
-          color: #6096BA;
-        }
-      }
-
-      &.no-results {
-        text-align: center;
-        padding: 40px;
-
-        .empty-state {
-          i {
-            font-size: 32px;
-            color: #CCCCCC;
-            margin-bottom: 10px;
-          }
-
-          p {
-            color: #888888;
-            font-size: 14px;
-          }
-        }
-      }
-    }
-
-    tr:hover {
-      background-color: rgba(96, 150, 186, 0.05);
     }
   }
+
+  tr:hover {
+    background-color: rgba(96, 150, 186, 0.05);
+  }
 }
+
 
 .modal-overlay {
   position: fixed;
@@ -419,7 +439,9 @@ button {
             z-index: 1;
           }
 
-          input, select, textarea {
+          input,
+          select,
+          textarea {
             width: 100%;
             padding: 12px 15px 12px 45px;
             border: 1px solid #E7ECEF;
@@ -540,8 +562,13 @@ button {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* Responsive */
@@ -552,7 +579,9 @@ button {
 
   .table-container {
     .solicitudes-table {
-      th, td {
+
+      th,
+      td {
         padding: 10px;
         font-size: 12px;
       }
@@ -695,7 +724,8 @@ button {
         .form-actions {
           flex-direction: column;
 
-          .cancel-btn, .save-btn {
+          .cancel-btn,
+          .save-btn {
             width: 100%;
             justify-content: center;
           }
@@ -705,7 +735,41 @@ button {
   }
 }
 
- tr.destacada {
-  background-color: #FFEB3B !important;
-  border: 2px solid #F44336 !important;
+.solicitudes-table tr.destacada td {
+  background-color: #d3dce2;
+  font-weight: 600;
+  border-top: 2px solid #274C77;
+  border-bottom: 2px solid #274C77;
+}
+
+.solicitudes-table tr.destacada td:first-child {
+  border-left: 2px solid #274C77;
+  border-top-left-radius: 10px;
+  border-bottom-left-radius: 10px;
+  overflow: hidden;
+}
+
+.solicitudes-table tr.destacada td:last-child {
+  padding-left: 15px;
+  padding-right: 35px; /* ← aquí la magia */
+  border-right: 2px solid #274C77;
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+  overflow: visible;
+}
+
+.solicitudes-table tr.destacada td {
+  padding-top: 14px !important;
+  padding-bottom: 14px !important;
+}
+
+.solicitudes-table tr.destacada .action-btn {
+  padding: 9.5px 16px;
+  font-size: 13px;
+  line-height: 1;
+}
+
+/* Todas las filas (incluidas normales) */
+.solicitudes-table td:last-child {
+  padding-right: 35px;
 }

@@ -44,95 +44,91 @@
 
         <div class="table-container">
           <table class="solicitudes-table">
-  <thead>
-    <tr>
-      <th><i class="fas fa-hashtag"></i> ID</th>
-      <th><i class="fas fa-door-open"></i> Ambiente</th>
-      <th><i class="fas fa-calendar-alt"></i> Fecha de Préstamo</th>
-      <th><i class="fas fa-calendar-check"></i> Fecha de Devolución</th>
-      <th><i class="fas fa-user"></i> Solicitante</th>
-      <th><i class="fas fa-comment-alt"></i> Motivo</th>
-      <th><i class="fas fa-info-circle"></i> Estado</th>
-      <th><i class="fas fa-cogs"></i> Acciones</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr *ngFor="let solicitud of solicitudesFiltradas"
-        [attr.data-solicitud-id]="solicitud.idmov"
-         [ngClass]="{ 'destacada': solicitud.idmov === solicitudDestacada }">
+            <thead>
+              <tr>
+                <th><i class="fas fa-door-open"></i> Ambiente</th>
+                <th><i class="fas fa-calendar-alt"></i> Fecha de Préstamo</th>
+                <th><i class="fas fa-calendar-check"></i> Fecha de Devolución</th>
+                <th><i class="fas fa-user"></i> Solicitante</th>
+                <th><i class="fas fa-comment-alt"></i> Motivo</th>
+                <th><i class="fas fa-info-circle"></i> Estado</th>
+                <th><i class="fas fa-cogs"></i> Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let solicitud of solicitudesFiltradas" [attr.data-solicitud-id]="solicitud.idmov"
+                [ngClass]="{ 'destacada': solicitud.idmov === solicitudDestacada }">
 
-      <td>
-        <strong>{{ solicitud.idmov }}</strong>
-      </td>
 
-      <td>
-        <div class="ambiente-cell">
-          <i class="fas fa-door-open"></i>
-          {{solicitud.espacio.nombre}}
-        </div>
-      </td>
 
-      <td>
-        <div class="date-cell">
-          <i class="fas fa-calendar"></i>
-          {{solicitud.fechaPres | date:'dd/MM/yyyy HH:mm'}}
-        </div>
-      </td>
+                <td>
+                  <div class="ambiente-cell">
+                    <i class="fas fa-door-open"></i>
+                    {{solicitud.espacio.nombre}}
+                  </div>
+                </td>
 
-      <td>
-        <div class="date-cell">
-          <i class="fas fa-calendar"></i>
-          {{solicitud.fechaDevol | date:'dd/MM/yyyy HH:mm'}}
-        </div>
-      </td>
+                <td>
+                  <div class="date-cell">
+                    <i class="fas fa-calendar"></i>
+                    {{solicitud.fechaPres | date:'dd/MM/yyyy HH:mm'}}
+                  </div>
+                </td>
 
-      <td>
-        <div class="user-cell">
-          <i class="fas fa-user-circle"></i>
-          {{solicitud.usuario.nombre}}
-        </div>
-      </td>
+                <td>
+                  <div class="date-cell">
+                    <i class="fas fa-calendar"></i>
+                    {{solicitud.fechaDevol | date:'dd/MM/yyyy HH:mm'}}
+                  </div>
+                </td>
 
-      <td>
-        <div class="motivo-cell" [title]="solicitud.motivo">
-          {{solicitud.motivo | slice:0:30}}{{solicitud.motivo.length > 30 ? '...' : ''}}
-        </div>
-      </td>
+                <td>
+                  <div class="user-cell">
+                    <i class="fas fa-user-circle"></i>
+                    {{solicitud.usuario.nombre}}
+                  </div>
+                </td>
 
-      <td>
-        <span class="status-badge" [ngClass]="solicitud.estado.toLowerCase().replace(' ', '-')">
-          <i class="fas" [ngClass]="getStatusIcon(solicitud.estado)"></i>
-          {{solicitud.estado}}
-        </span>
-      </td>
+                <td>
+                  <div class="motivo-cell" [title]="solicitud.motivo">
+                    {{solicitud.motivo | slice:0:30}}{{solicitud.motivo.length > 30 ? '...' : ''}}
+                  </div>
+                </td>
 
-      <td>
-        <div class="action-buttons" *ngIf="solicitud.estado === 'Pendiente'">
-          <button class="action-btn approve"
-            (click)="solicitud.idmov !== undefined && aprobarSolicitud(solicitud.idmov)">
-            <i class="fas fa-check"></i> Aprobar
-          </button>
-          <button class="action-btn reject"
-            (click)="solicitud.idmov !== undefined && rechazarSolicitud(solicitud.idmov)">
-            <i class="fas fa-times"></i> Rechazar
-          </button>
-        </div>
-        <div class="status-info" *ngIf="solicitud.estado !== 'Pendiente'">
-          <i class="fas fa-info-circle"></i> {{solicitud.estado}}
-        </div>
-      </td>
-    </tr>
+                <td>
+                  <span class="status-badge" [ngClass]="solicitud.estado.toLowerCase().replace(' ', '-')">
+                    <i class="fas" [ngClass]="getStatusIcon(solicitud.estado)"></i>
+                    {{solicitud.estado}}
+                  </span>
+                </td>
 
-    <tr *ngIf="solicitudesFiltradas.length === 0">
-      <td colspan="8" class="no-results">
-        <div class="empty-state">
-          <i class="fas fa-clipboard"></i>
-          <p>No hay solicitudes de ambientes</p>
-        </div>
-      </td>
-    </tr>
-  </tbody>
-</table>
+                <td>
+                  <div class="action-buttons" *ngIf="solicitud.estado === 'Pendiente'">
+                    <button class="action-btn approve"
+                      (click)="solicitud.idmov !== undefined && aprobarSolicitud(solicitud.idmov)">
+                      <i class="fas fa-check"></i> Aprobar
+                    </button>
+                    <button class="action-btn reject"
+                      (click)="solicitud.idmov !== undefined && rechazarSolicitud(solicitud.idmov)">
+                      <i class="fas fa-times"></i> Rechazar
+                    </button>
+                  </div>
+                  <div class="status-info" *ngIf="solicitud.estado !== 'Pendiente'">
+                    <i class="fas fa-info-circle"></i> {{solicitud.estado}}
+                  </div>
+                </td>
+              </tr>
+
+              <tr *ngIf="solicitudesFiltradas.length === 0">
+                <td colspan="8" class="no-results">
+                  <div class="empty-state">
+                    <i class="fas fa-clipboard"></i>
+                    <p>No hay solicitudes de ambientes</p>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
@@ -230,5 +226,3 @@
     </div>
   </div>
 </div>
-
-
