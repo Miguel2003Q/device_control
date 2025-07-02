@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, AfterViewChecked } from '@angular/core';
 import { Chart, ChartConfiguration, ChartType, registerables } from 'chart.js';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { HttpClient } from '@angular/common/http';
@@ -42,7 +42,7 @@ interface ViewMode {
   styleUrls: ['./estadisticas-espacio.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush // Optimización de detección de cambios
 })
-export class EstadisticasEspacioComponent implements OnInit, AfterViewInit {
+export class EstadisticasEspacioComponent implements OnInit, AfterViewInit, AfterViewChecked {
 
   sidebarActive: boolean = false;
 
@@ -77,8 +77,18 @@ export class EstadisticasEspacioComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    // this.initializeCharts();
+    this.initializeCharts();
   }
+
+  ngAfterViewChecked(): void {
+    if (this.viewMode.estado === 'chart' && !this.estadoChart && this.estadoChartRef) {
+      this.createEstadoChart();
+    }
+    if (this.viewMode.capacidad === 'chart' && !this.capacidadChart && this.capacidadChartRef) {
+      this.createCapacidadChart();
+    }
+  }
+
 
   loadEstadisticas(): void {
     this.loading = true;
@@ -129,7 +139,7 @@ export class EstadisticasEspacioComponent implements OnInit, AfterViewInit {
       this.estadoChart.destroy();
     }
 
-    const labels = Object.keys(this.estadisticas.espaciosPorEstado || {});
+    const labels = Object.keys(this.estadisticas.espaciosPorEstado || {}).map(key => this.getEstadoLabel(key));
     const data = Object.values(this.estadisticas.espaciosPorEstado || []);
     if (labels.length === 0 || data.length === 0) {
       console.warn('No data available for estadoChart');
@@ -217,9 +227,19 @@ export class EstadisticasEspacioComponent implements OnInit, AfterViewInit {
 
   toggleView(type: keyof ViewMode): void {
     this.viewMode[type] = this.viewMode[type] === 'chart' ? 'table' : 'chart';
-    this.initializeCharts();
-    this.cdr.markForCheck();
+
+    // Esperar a que Angular renderice el nuevo canvas
+    setTimeout(() => {
+      if (type === 'estado' && this.viewMode.estado === 'chart' && this.estadoChartRef) {
+        this.createEstadoChart();
+      }
+      if (type === 'capacidad' && this.viewMode.capacidad === 'chart' && this.capacidadChartRef) {
+        this.createCapacidadChart();
+      }
+      this.cdr.markForCheck();
+    });
   }
+
 
   getEstadosList(): Array<{ key: string, value: number }> {
     if (!this.estadisticas || !this.estadisticas.espaciosPorEstado) return [];
@@ -407,4 +427,15 @@ export class EstadisticasEspacioComponent implements OnInit, AfterViewInit {
   toggleSidebarEmit(): void {
     this.sidebarActive = !this.sidebarActive;
   }
+
+  private estadoLabelsMap: { [key: string]: string } = {
+    D: 'Disponible',
+    M: 'Mantenimiento',
+    O: 'Ocupado'
+  };
+
+  getEstadoLabel(key: string): string {
+    return this.estadoLabelsMap[key] || key;
+  }
+
 }

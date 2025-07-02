@@ -1,7 +1,7 @@
 import { Component, OnInit, HostListener } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, Validators } from '@angular/forms';
 import { CommonModule, NgIf } from '@angular/common';
-import  {ToastrService} from 'ngx-toastr';
+import { ToastrService } from 'ngx-toastr';
 import { ReactiveFormsModule } from '@angular/forms';
 import { TopBarComponent } from "../../shared/top-bar/top-bar.component";
 import { SidebarComponent } from "../../shared/sidebar/sidebar.component";
@@ -188,11 +188,7 @@ export class GestionActivosComponent implements OnInit {
 
   // Cerrar modal de creación
   cerrarModalCrear(event: MouseEvent): void {
-    const target = event.target as HTMLElement;
-    if (target.classList.contains('modal-overlay') ||
-      target.classList.contains('close-modal-btn')) {
-      this.showModalCrear = false;
-    }
+    this.showModalCrear = false;
   }
 
   // Validar campo del formulario de creación
@@ -257,8 +253,8 @@ export class GestionActivosComponent implements OnInit {
       },
       error: (error) => {
         this.isSubmitting = false;
+        this.toastr.error(`Error al actualizar activo: ${error.error?.message}` || 'Error desconocido', "Error")
         console.error('Error al guardar activo:', error);
-        alert('Ocurrió un error al guardar el activo');
       }
     });
   }
@@ -288,11 +284,15 @@ export class GestionActivosComponent implements OnInit {
   // Cerrar modal de detalles
   cerrarModalDetalles(event: MouseEvent): void {
     const target = event.target as HTMLElement;
-    if (target.classList.contains('modal-overlay') ||
-      target.classList.contains('close-modal-btn')) {
+
+    if (
+      target.classList.contains('modal-overlay') ||
+      target.closest('.close-modal-btn')
+    ) {
       this.showModalDetalles = false;
     }
   }
+
 
   // Actualizar activo existente
   actualizarActivo(): void {
@@ -336,8 +336,8 @@ export class GestionActivosComponent implements OnInit {
       },
       error: (error) => {
         this.isSubmitting = false;
-        console.error('Error al actualizar activo:', error);
-        alert('Ocurrió un error al actualizar el activo');
+        this.toastr.error(`Error al actualizar activo: ${error.error?.message}` || 'Error desconocido', "Error")
+        console.error('Error al actualizar activo:', error.error);
       }
     });
   }
@@ -380,7 +380,7 @@ export class GestionActivosComponent implements OnInit {
     this.activeTab = tab;
     this.searchTerm = '';
     // this.filtroEstado = '';
-    
+
     if (tab === 'activos') {
       this.filtrarActivos();
     } else {

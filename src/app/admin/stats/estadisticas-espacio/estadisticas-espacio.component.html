@@ -111,7 +111,7 @@
                 <tr *ngFor="let estado of getEstadosList()">
                   <td>
                     <span class="status-badge" [ngClass]="getStatusClass(estado.key)">
-                      {{ estado.key }}
+                      {{ getEstadoLabel(estado.key) }}
                     </span>
                   </td>
                   <td class="text-center">{{ estado.value }}</td>

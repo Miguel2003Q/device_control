@@ -67,24 +67,27 @@ export class ActivoService {
   }
 
   // Guardar o actualizar un activo
-  guardarActivo(activo: Activo): Observable<Activo> {
+    guardarActivo(activo: Activo): Observable<Activo> {
     const headers = this.getHeaders();
     if (activo.idactivo) {
-      return this.http.post<Activo>(`${this.apiUrl}/${activo.idactivo}`, activo, { headers }).pipe(
-        catchError(this.handleError)
+      return this.http.post<Activo>(`${this.apiUrl}/${activo.idactivo}`, activo
+        // , { headers }).pipe(
+        // catchError(this.handleError)
       );
     } else {
-      return this.http.post<Activo>(this.apiUrl, activo, { headers }).pipe(
-        catchError(this.handleError)
+      return this.http.post<Activo>(this.apiUrl, activo
+        // , { headers }).pipe(  Esto
+        // catchError(this.handleError)
       );
     }
   }
 
   actualizarActivo(id: number, activo: Activo): Observable<Activo> {
-    return this.http.put<Activo>(`${this.apiUrl}/actualizar/${id}`, activo, {
-      headers: this.getHeaders()
-    }).pipe(
-      catchError(this.handleError)
+    return this.http.put<Activo>(`${this.apiUrl}/actualizar/${id}`, activo
+    //   , {
+    //   headers: this.getHeaders()
+    // }).pipe(    Si se descomenta causa que el error sea undefined
+    //   catchError(this.handleError)
     );
   }
 
