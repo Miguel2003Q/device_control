@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 export interface SearchResponse {
   success: boolean;
@@ -18,7 +19,7 @@ export interface SearchRequest {
   providedIn: 'root'
 })
 export class NaturalLanguageSearchService {
-  private apiUrl = 'http://localhost:8080/api/search';
+  private apiUrl = `${environment.apiUrl}/api/search`;
 
   constructor(private http: HttpClient) {}
 

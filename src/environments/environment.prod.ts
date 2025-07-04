@@ -2,5 +2,5 @@
 
 export const environment = {
   production: true,
-  apiUrl: 'https://devicecontrolapi-1-0.onrender.com'
+  apiUrl: 'https://devicecontrolapi-latest.onrender.com'
 };
