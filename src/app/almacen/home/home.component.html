@@ -20,10 +20,10 @@
                     <div class="stat-content">
                         <h3 class="stat-value" [attr.data-value]="stat.value">{{ stat.value }}</h3>
                         <p class="stat-label">{{ stat.label }}</p>
-                        <div class="stat-change" [class]="stat.trend.type">
+                        <!-- <div class="stat-change" [class]="stat.trend.type">
                             <i class="fas" [class]="stat.trend.icon"></i>
                             <span>{{ stat.trend.text }}</span>
-                        </div>
+                        </div> -->
                     </div>
                     <div class="stat-background-icon">
                         <i [class]="stat.icon"></i>
@@ -48,7 +48,7 @@
                         </div>
                     </button>
 
-                    <button class="action-button secondary" routerLink="/escanear-qr" [@scaleIn]>
+                    <!-- <button class="action-button secondary" routerLink="/escanear-qr" [@scaleIn]>
                         <div class="action-icon">
                             <i class="fas fa-qrcode"></i>
                         </div>
@@ -56,7 +56,7 @@
                             <h4>Escanear QR</h4>
                             <p>Buscar activo por código</p>
                         </div>
-                    </button>
+                    </button> -->
 
                     <button class="action-button warning" routerLink="/almac/activos" [@scaleIn]>
                         <div class="action-icon">

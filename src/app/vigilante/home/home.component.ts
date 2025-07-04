@@ -245,7 +245,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       {
         icono: 'fas fa-calendar-day',
         valor: this.getTotalSolicitudes(),
-        label: 'Solicitudes hoy',
+        label: 'Solicitudes ',
         porcentaje: 100,
         color: '#2196F3'
       },
@@ -270,13 +270,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         porcentaje: 25,
         color: '#795548'
       },
-      {
-        icono: 'fas fa-hourglass-start',
-        valor: this.getEficienciaUso(),
-        label: 'Eficiencia de uso (%)',
-        porcentaje: this.getEficienciaUso(),
-        color: '#FFC107'
-      }
+     
     ];
   }
 
