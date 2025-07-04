@@ -20,8 +20,8 @@ export class RoleGuard implements CanActivate {
     }
 
     if (!userRole || !expectedRoles.includes(userRole)) {
-      // this.router.navigate(['/landing-page']); <--- Mientras se desarrolla
-      return true; //false
+      this.router.navigate(['/landing-page']); 
+      return false; 
     }
 
     return true;
