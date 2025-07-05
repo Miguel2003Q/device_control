@@ -4,12 +4,13 @@ import { LandingPageComponent } from './public/landing-page/landing-page.compone
 import { RoleGuard } from './core/guards/role.guard';
 
 export const routes: Routes = [
-  // 🌐 Rutas públicas
+  
+  // Rutas públicas
   { path: '', redirectTo: '/landing-page', pathMatch: 'full' },
   { path: 'landing-page', component: LandingPageComponent },
   { path: 'login', component: LoginComponent },
 
-  // 🔐 Rutas de ADMIN (rol: '4')
+  //  Rutas de ADMIN (rol: '4')
   {
     path: 'home',
     loadComponent: () => import('./admin/home/home.component').then(m => m.HomeComponent),
@@ -66,11 +67,15 @@ export const routes: Routes = [
   },
   {
     path: 'natural-lenguage-search',
-    loadComponent: () => import('./admin/search-results/search-results.component').then(m => m.SearchResultsComponent)
+    loadComponent: () => import('./admin/search-results/search-results.component').then(m => m.SearchResultsComponent),
+    canActivate: [RoleGuard],
+    data: { roles: [4] }
   },
   {
     path: 'historial-solicitudes',
-    loadComponent: () => import('./admin/historial-solicitudes/historial-solicitudes.component').then(m => m.HistorialSolicitudesComponent)
+    loadComponent: () => import('./admin/historial-solicitudes/historial-solicitudes.component').then(m => m.HistorialSolicitudesComponent),
+    canActivate: [RoleGuard],
+    data: { roles: [4] }
   },
 
   // 🎓 Rutas de INSTRUCTOR (rol: '2')
@@ -99,7 +104,7 @@ export const routes: Routes = [
     data: { roles: [2] }
   },
 
-  // 🛡️ Rutas de VIGILANTE (rol: '3')
+  // Rutas de VIGILANTE (rol: '1')
   {
     path: 'vig/home',
     loadComponent: () => import('./vigilante/home/home.component').then(m => m.HomeComponent),
@@ -118,22 +123,33 @@ export const routes: Routes = [
     canActivate: [RoleGuard],
     data: { roles: [1] }
   },
+
+  // Rutas de ALMACÉN (rol: '3')
   {
     path: 'almac/home',
     loadComponent: () => import('./almacen/home/home.component').then(m => m.HomeComponent),
+    canActivate: [RoleGuard],
+    data: { roles: [3] }
   },
   {
     path: 'almac/perfil',
     loadComponent: () => import('./almacen/perfil/perfil.component').then(m => m.PerfilComponent),
+    canActivate: [RoleGuard],
+    data: { roles: [3] }
   },
   {
     path: 'almac/activos',
     loadComponent: () => import('./almacen/activos/gestion-activos/gestion-activos.component').then(m => m.GestionActivosComponent),
+    canActivate: [RoleGuard],
+    data: { roles: [3] }
   },
   {
     path: 'almac/espacios',
-    loadComponent: () => import('./almacen/gestion-espacios/gestion-espacios.component').then(m => m.GestionEspaciosComponent)
+    loadComponent: () => import('./almacen/gestion-espacios/gestion-espacios.component').then(m => m.GestionEspaciosComponent),
+    canActivate: [RoleGuard],
+    data: { roles: [3] }
   },
+
   // Rutas auxiliares
   {
     path: 'password-reset',

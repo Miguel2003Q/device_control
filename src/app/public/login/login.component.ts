@@ -100,6 +100,9 @@ export class LoginComponent {
           case 4: // ADMIN
             this.router.navigate(['/home']);
             break;
+          case 3: // ALMACÉN ✅ FALTABA
+            this.router.navigate(['/almac/home']);
+            break;
           case 2: // INSTRUCTOR
             this.router.navigate(['/ins/home']);
             break;
