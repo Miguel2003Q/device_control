@@ -61,7 +61,7 @@ export class GestionActivosComponent implements OnInit {
     // Inicializar formulario de creación
     this.activoForm = this.fb.group({
       nombre: ['', Validators.required],
-      url: ['', Validators.required],
+      // url: ['', Validators.required],
       serial: ['', Validators.required],
       estado: ['', Validators.required],
       observaciones: [''],
@@ -73,7 +73,7 @@ export class GestionActivosComponent implements OnInit {
     this.detallesForm = this.fb.group({
       idactivo: [0],
       nombre: ['', Validators.required],
-      url: ['', Validators.required],
+      // url: ['', Validators.required],
       serial: ['', Validators.required],
       estado: ['Disponible'],
       observaciones: [''],
@@ -270,7 +270,7 @@ export class GestionActivosComponent implements OnInit {
     this.detallesForm.setValue({
       idactivo: activo.idactivo,
       nombre: activo.nombre,
-      url: activo.url,
+      // url: activo.url,
       serial: activo.serial,
       estado: estadoLegible,
       observaciones: activo.observaciones || '',
