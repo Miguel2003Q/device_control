@@ -34,14 +34,14 @@
     <!-- Quick actions -->
     <div class="quick-actions" *ngIf="!searchPrompt && !results.length">
       <span class="quick-action-label">Búsquedas rápidas:</span>
-      <button class="quick-action-btn" (click)="setExample('usuarios activos')">
-        <i class="fas fa-users"></i> Usuarios activos
+      <button class="quick-action-btn" (click)="setExample('usuarios con rol de instructor con rol 2')">
+        <i class="fas fa-users"></i> Usuarios con rol de instructor
       </button>
-      <button class="quick-action-btn" (click)="setExample('espacios disponibles')">
+      <button class="quick-action-btn" (click)="setExample('espacios disponibles con estado D')">
         <i class="fas fa-building"></i> Espacios disponibles
       </button>
-      <button class="quick-action-btn" (click)="setExample('activos en mantenimiento')">
-        <i class="fas fa-tools"></i> En mantenimiento
+      <button class="quick-action-btn" (click)="setExample('activos con estado M')">
+        <i class="fas fa-tools"></i> Activos en mantenimiento
       </button>
     </div>
   </div>

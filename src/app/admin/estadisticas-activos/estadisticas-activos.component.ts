@@ -12,6 +12,7 @@ import { ToastrService } from 'ngx-toastr';
 import { Activo } from '../../core/models/activo.model';
 import { Espacio } from '../../core/models/espacio.model';
 import { TipoActivo } from '../../core/models/TipoActivo';
+import { Router } from '@angular/router';
 
 // Registrar Chart.js
 Chart.register(...registerables);
@@ -93,7 +94,8 @@ export class EstadisticasActivosComponent implements OnInit, OnDestroy {
     private espacioService: EspacioService,
     private tipoActivoService: TipoActivoService,
     private loading: LoadingService,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private router: Router
   ) {
     this.screenWidth = window.innerWidth;
   }
@@ -574,13 +576,6 @@ export class EstadisticasActivosComponent implements OnInit, OnDestroy {
   }
 
   exportarReporte(): void {
-    this.toastr.info('Generando reporte...', 'Exportar');
-    
-    // Aquí implementarías la lógica de exportación
-    // Por ejemplo, generar PDF o Excel con los datos
-    
-    setTimeout(() => {
-      this.toastr.success('Reporte exportado exitosamente', 'Éxito');
-    }, 2000);
-  }
+    this.router.navigate(['/gestion-activos']);
+    }
 }

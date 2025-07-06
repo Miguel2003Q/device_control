@@ -24,8 +24,8 @@
             </select>
           </div> -->
           <button class="export-btn" (click)="exportarReporte()">
-            <i class="fas fa-download"></i>
-            <span>Exportar Reporte</span>
+            <i class="fas fa-plus-circle"></i>
+            <span>Crear activo</span>
           </button>
         </div>
       </div>
@@ -137,10 +137,10 @@
         <div class="table-header">
           <h2>Distribución por Espacio</h2>
           <div class="table-actions">
-            <div class="table-search">
+            <!-- <div class="table-search">
               <i class="fas fa-search"></i>
               <input type="text" placeholder="Buscar espacio..." [(ngModel)]="searchEspacio" (keyup)="filtrarEspacios()">
-            </div>
+            </div> -->
           </div>
         </div>
         
@@ -153,8 +153,8 @@
                 <th>Disponibles</th>
                 <th>Ocupados</th>
                 <th>Mantenimiento</th>
-                <th>% Ocupación</th>
-                <th>Acción</th>
+                <!-- <th>% Ocupación</th>
+                <th>Acción</th> -->
               </tr>
             </thead>
             <tbody>
@@ -175,7 +175,7 @@
                 <td>
                   <span class="data-badge warning">{{espacio.mantenimiento}}</span>
                 </td>
-                <td>
+                <!-- <td>
                   <div class="progress-container">
                     <div class="progress-bar" [style.width.%]="espacio.porcentajeOcupacion">
                       <span class="progress-text">{{espacio.porcentajeOcupacion}}%</span>
@@ -186,7 +186,7 @@
                   <button class="view-details-btn" (click)="verDetallesEspacio(espacio)">
                     <i class="fas fa-eye"></i>
                   </button>
-                </td>
+                </td> -->
               </tr>
             </tbody>
           </table>

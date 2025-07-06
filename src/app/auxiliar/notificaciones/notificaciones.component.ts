@@ -176,7 +176,7 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
     }
 
     // Navegar si hay URL de redirección
-    if (notificacion.urlRedireccion) {
+    if (notificacion.urlRedireccion && !this.router.url.startsWith('/ins')) {
       this.toggle.emit(null);
 
       if (notificacion.solicitudId) {

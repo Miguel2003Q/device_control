@@ -248,21 +248,21 @@
                   <i class="fas fa-ban"></i>
                 </button>
                 
-                <button 
+                <!-- <button 
                   class="action-btn duplicate" 
                   *ngIf="solicitud.estado === 'Completada' || solicitud.estado === 'Aprobada'"
                   (click)="duplicarSolicitud(solicitud)"
                   title="Duplicar solicitud">
                   <i class="fas fa-copy"></i>
-                </button>
+                </button> -->
                 
-                <button 
+                <!-- <button 
                   class="action-btn download" 
                   *ngIf="solicitud.estado === 'Aprobada'"
                   (click)="descargarComprobante(solicitud)"
                   title="Descargar comprobante">
                   <i class="fas fa-download"></i>
-                </button>
+                </button> -->
               </div>
             </div>
           </div>
@@ -410,13 +410,13 @@
       <button class="btn-secondary" (click)="cerrarModal($event)">
         Cerrar
       </button>
-      <button 
+      <!-- <button 
         class="btn-primary" 
         *ngIf="solicitudSeleccionada?.estado === 'Aprobada'"
         (click)="descargarComprobante(solicitudSeleccionada!)">
         <i class="fas fa-download"></i>
         Descargar Comprobante
-      </button>
+      </button> -->
     </div>
   </div>
 </div>
