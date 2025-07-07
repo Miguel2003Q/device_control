@@ -274,7 +274,7 @@ export class GestionActivosComponent implements OnInit {
     this.detallesForm.setValue({
       idactivo: activo.idactivo,
       nombre: activo.nombre,
-      url: activo.url,
+      // url: activo.url,
       serial: activo.serial,
       estado: estadoLegible,
       observaciones: activo.observaciones || '',
